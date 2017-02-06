@@ -1,13 +1,32 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QQuickView>
+#include <QtQml>
+
+#include "mysimulator.h"
+#include "mousemover.h"
+#include <vendor.h>
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication app(argc, argv);
+    // Fixes motion problems, see https://bugreports.qt.io/browse/QTBUG-53165
+    qputenv("QSG_RENDER_LOOP", "basic");
 
+    qmlRegisterType<MySimulator>("MySimulator", 1, 0, "MySimulator");
+    qmlRegisterType<MouseMover>("MouseMover", 1, 0, "MouseMover");
+    QApplication app(argc, argv);
+
+    QSurfaceFormat format;
+    format.setMajorVersion(3);
+    format.setMinorVersion(2);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    QSurfaceFormat::setDefaultFormat(format);
+
+    // Application version
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
+    qpm::init(app, engine);
+
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     return app.exec();
 }
