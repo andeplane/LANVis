@@ -11,7 +11,6 @@ class AtomData : public QObject
 public:
     explicit AtomData(QObject *parent = 0);
     ~AtomData();
-
     QVector<QVector3D> positions;
     QVector<QVector3D> colors;
     QVector<float> radii;

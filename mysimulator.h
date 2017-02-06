@@ -6,6 +6,7 @@
 #include <QElapsedTimer>
 #include <Qt3DRender/QBuffer>
 #include <SimVis/SphereData>
+#include "state.h"
 
 class MyWorker : public SimulatorWorker
 {
@@ -13,32 +14,47 @@ class MyWorker : public SimulatorWorker
 public:
     MyWorker();
 
+public slots:
+
+signals:
+
 private:
     // SimulatorWorker interface
     virtual void synchronizeSimulator(Simulator *simulator);
     virtual void work();
-    QVector<QVector3D> m_positions;
+    State *m_state;
+    QString m_stateFileName;
 };
 
 class MySimulator : public Simulator
 {
     Q_OBJECT
-    Q_PROPERTY(SphereData* sphereData READ sphereData CONSTANT)
-
+    Q_PROPERTY(State* state READ state WRITE setState NOTIFY stateChanged)
+    Q_PROPERTY(QString stateFileName READ stateFileName WRITE setStateFileName NOTIFY stateFileNameChanged)
+    Q_PROPERTY(QString typesFileName READ typesFileName WRITE setTypesFileName NOTIFY typesFileNameChanged)
 public:
     MySimulator(QNode *parent = 0);
-
-    SphereData* sphereData();
+    State* state() const;
+    QString stateFileName() const;
+    QString typesFileName() const;
 
 public slots:
+    void setState(State* state);
+    void setStateFileName(QString stateFileName);
+    void setTypesFileName(QString typesFileName);
 
 signals:
+    void stateChanged(State* state);
+    void stateFileNameChanged(QString stateFileName);
+    void typesFileNameChanged(QString typesFileName);
 
 protected:
     virtual SimulatorWorker *createWorker() override;
 
 private:
-    QScopedPointer<SphereData> m_sphereData;
+    State* m_state;
+    QString m_stateFileName;
+    QString m_typesFileName;
 };
 
 #endif // MYSIMULATOR_H

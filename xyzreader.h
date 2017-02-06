@@ -20,6 +20,7 @@ public:
 signals:
 
 public slots:
+
 private:
     QVector<QString>   m_types;
     QVector<QVector3D> m_points;

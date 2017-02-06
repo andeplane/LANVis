@@ -1,16 +1,62 @@
 #include "mysimulator.h"
 #include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <random>
 #include <SimVis/SphereData>
-MySimulator::MySimulator(QNode *parent)
-    : Simulator(parent)
-    , m_sphereData(new SphereData(this))
+
+MyWorker::MyWorker() : m_state(nullptr)
 {
+
 }
 
-SphereData *MySimulator::sphereData()
+MySimulator::MySimulator(QNode *parent)
+    : Simulator(parent), m_state(new State())
+
 {
-    return m_sphereData.data();
+
+}
+
+State *MySimulator::state() const
+{
+    return m_state;
+}
+
+QString MySimulator::stateFileName() const
+{
+    return m_stateFileName;
+}
+
+QString MySimulator::typesFileName() const
+{
+    return m_typesFileName;
+}
+
+void MySimulator::setState(State *state)
+{
+    if (m_state == state)
+        return;
+
+    m_state = state;
+    emit stateChanged(state);
+}
+
+void MySimulator::setStateFileName(QString stateFileName)
+{
+    if (m_stateFileName == stateFileName)
+        return;
+
+    m_stateFileName = stateFileName;
+    emit stateFileNameChanged(stateFileName);
+}
+
+void MySimulator::setTypesFileName(QString typesFileName)
+{
+    if (m_typesFileName == typesFileName)
+        return;
+
+    m_typesFileName = typesFileName;
+    emit typesFileNameChanged(typesFileName);
 }
 
 SimulatorWorker *MySimulator::createWorker()
@@ -18,31 +64,31 @@ SimulatorWorker *MySimulator::createWorker()
     return new MyWorker();
 }
 
-MyWorker::MyWorker()
-{
-    std::random_device rd;
-    std::default_random_engine re(rd());
-    std::uniform_real_distribution<float> nextFloat(-100, 100);
-
-    m_positions.resize(1000);
-    for(QVector3D &position : m_positions) {
-        position[0] = nextFloat(re);
-        position[1] = nextFloat(re);
-        position[2] = nextFloat(re);
-    }
-}
-
 void MyWorker::synchronizeSimulator(Simulator *simulator)
 {
     MySimulator *mySimulator = qobject_cast<MySimulator*>(simulator);
     if(mySimulator) {
+        m_state = mySimulator->state();
+        m_state->atoms()->synchronizeRenderer();
+        m_stateFileName = mySimulator->stateFileName();
+
         // Synchronize data between QML thread and computing thread (MySimulator is on QML, MyWorker is computing thread).
         // This is for instance data from user through GUI (sliders, buttons, text fields etc)
-        mySimulator->sphereData()->setPositions(m_positions);
     }
 }
 
 void MyWorker::work()
 {
+    if(m_state) {
+        qDebug() << "Trying to open " << m_stateFileName;
+        QFile loadFile(m_stateFileName);
+        if (!loadFile.open(QIODevice::ReadOnly)) {
+            qWarning("Couldn't open state file");
+            return;
+        }
 
+        QByteArray stateData = loadFile.readAll();
+        QJsonDocument loadDoc(QJsonDocument::fromJson(stateData));
+        m_state->update(loadDoc.object());
+    }
 }

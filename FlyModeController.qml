@@ -4,7 +4,7 @@ import Qt3D.Render 2.0
 import Qt3D.Input 2.0
 import Qt3D.Logic 2.0
 import QtQml 2.2
-import MouseMover 1.0
+import LANVis 1.0
 
 Entity {
     id: root

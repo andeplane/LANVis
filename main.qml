@@ -1,6 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
-import MouseMover 1.0
+import LANVis 1.0
 
 ApplicationWindow {
     id: applicationRoot
@@ -11,6 +11,8 @@ ApplicationWindow {
     Scene {
         id: scene
         property bool captureCursor: true
+        stateFileName: "/projects/state.json"
+        typesFileName: "/projects/types.json"
         anchors.fill: parent
         focus: true
         mouseMover: MouseMover {

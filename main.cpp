@@ -5,6 +5,9 @@
 
 #include "mysimulator.h"
 #include "mousemover.h"
+#include "state.h"
+#include "atoms.h"
+
 #include <vendor.h>
 
 int main(int argc, char *argv[])
@@ -12,8 +15,10 @@ int main(int argc, char *argv[])
     // Fixes motion problems, see https://bugreports.qt.io/browse/QTBUG-53165
     qputenv("QSG_RENDER_LOOP", "basic");
 
-    qmlRegisterType<MySimulator>("MySimulator", 1, 0, "MySimulator");
-    qmlRegisterType<MouseMover>("MouseMover", 1, 0, "MouseMover");
+    qmlRegisterType<MySimulator>("LANVis", 1, 0, "MySimulator");
+    qmlRegisterType<State>("LANVis", 1, 0, "State");
+    qmlRegisterType<Atoms>("LANVis", 1, 0, "Atoms");
+    qmlRegisterType<MouseMover>("LANVis", 1, 0, "MouseMover");
     QApplication app(argc, argv);
 
     QSurfaceFormat format;

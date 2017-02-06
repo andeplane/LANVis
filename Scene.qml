@@ -7,14 +7,14 @@ import QtQuick.Scene3D 2.0
 import SimVis 1.0
 import ShaderNodes 1.0
 import ShaderNodes 1.0 as Nodes
-
-
-import MySimulator 1.0
+import LANVis 1.0
 
 Scene3D {
     aspects: ["render", "input", "logic"]
     property var mouseMover: flyModeController.mouseMover
     property alias visualizer: visualizer
+    property alias stateFileName: simulator.stateFileName
+    property alias typesFileName: simulator.typesFileName
     hoverEnabled: true
 
     Visualizer {
@@ -28,11 +28,13 @@ Scene3D {
         MySimulator {
             id: simulator
         }
+
         Spheres {
             id: spheresEntity
             camera: visualizer.camera
-            sphereData: simulator.sphereData
+            sphereData: simulator.state.atoms.sphereData
         }
+
         Light {
             id: light1
             position: visualizer.camera.position.plus(
