@@ -8,6 +8,7 @@ class Chunk
 {
 public:
     Chunk() { m_corners.resize(8); }
+    ~Chunk() { m_corners.clear(); m_particles.clear(); }
 
     float minDistanceTo(const QVector3D &point) const;
     QVector3D nearestCorner(const QVector3D &point) const;

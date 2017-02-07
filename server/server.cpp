@@ -2,6 +2,7 @@
 #include "server.h"
 #include "../client/xyzreader.h"
 
+#include <cmath>
 #include <QDebug>
 #include <QFile>
 #include <QJsonArray>
@@ -159,6 +160,10 @@ void Server::loadLAMMPSBinary(QString fileName)
 void Server::placeParticleInChunks() {
     setupChunks();
     float oneOverChunkSize = 1.0/m_chunkSize;
+    for(Chunk &chunk : m_chunks) {
+        chunk.particles().clear();
+    }
+
     for(int particleIndex=0; particleIndex<m_allParticles.size(); particleIndex++) {
         int i = (m_allParticles[particleIndex].position[0]-m_origo[0]) * oneOverChunkSize;
         int j = (m_allParticles[particleIndex].position[1]-m_origo[1]) * oneOverChunkSize;
@@ -315,6 +320,7 @@ bool Server::update(QString clientStateFileName)
 
     QJsonArray    arr = obj["cameraPosition"].toArray();
     int maxNumberOfAtoms = obj["maxNumberOfAtoms"].toInt();
+    float chunkSize = obj["chunkSize"].toDouble();
     bool sort = obj["sort"].toBool();
 
     QVector3D newCameraPositon;
@@ -322,12 +328,17 @@ bool Server::update(QString clientStateFileName)
     newCameraPositon[1] = arr[1].toDouble();
     newCameraPositon[2] = arr[2].toDouble();
     float distanceToOldPositionSquared = (newCameraPositon - m_cameraPosition).lengthSquared();
-    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfAtoms!=m_maxNumberOfAtoms || m_sort != sort;
+    bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0;
+    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfAtoms!=m_maxNumberOfAtoms || m_sort != sort || chunksDirty;
     if(!anyChanges) return false;
 
     m_maxNumberOfAtoms = maxNumberOfAtoms;
     m_cameraPosition = newCameraPositon;
     m_sort = sort;
+    if(chunksDirty) {
+        m_chunkSize = chunkSize;
+        placeParticleInChunks();
+    }
 
     updatePositions();
     return true;
