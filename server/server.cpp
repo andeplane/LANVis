@@ -8,7 +8,7 @@
 #include <QJsonObject>
 #include <QDateTime>
 
-Server::Server() : m_rCut(50)
+Server::Server() : m_rCut(50), m_chunkSize(50), m_nx(0), m_ny(0), m_nz(0)
 {
     setDefaultStyles();
 }
@@ -57,6 +57,31 @@ void Server::setDefaultStyles() {
     m_atomStyles.insert("Ca", new AtomStyle(2.31, "#3DFF00"));
 }
 
+void Server::setupChunks()
+{
+    m_nx = m_size[0]/m_chunkSize + 1;
+    m_ny = m_size[1]/m_chunkSize + 1;
+    m_nz = m_size[2]/m_chunkSize + 1;
+    int numChunks = m_nx*m_ny*m_nz;
+    m_chunks.resize(numChunks);
+
+    for(int i=0; i<m_nx; i++) {
+        for(int j=0; j<m_ny; j++) {
+            for(int k=0; k<m_nz; k++) {
+                Chunk &chunk = m_chunks[index(i,j,k)];
+                chunk.corners[0] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
+                chunk.corners[1] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
+                chunk.corners[2] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
+                chunk.corners[3] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
+                chunk.corners[4] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
+                chunk.corners[5] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
+                chunk.corners[6] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
+                chunk.corners[7] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
+            }
+        }
+    }
+}
+
 void Server::loadXYZ(QString fileName)
 {
     XYZReader reader;
@@ -64,44 +89,70 @@ void Server::loadXYZ(QString fileName)
     const QVector<QVector3D> &positions = reader.positions();
     const QVector<QString>   &types     = reader.types();
     m_allParticles.resize(positions.size());
+    QVector3D min, max;
+    min = positions[0];
+    max = positions[0];
 
-    for(int i=0; i<positions.size(); i++) {
-        const QVector3D &position = positions.at(i);
+    for(int particleIndex=0; particleIndex<positions.size(); particleIndex++) {
+        const QVector3D &position = positions.at(particleIndex);
         float radius = 1.0;
         QVector3D color(1.0, 0.9, 0.8);
 
-        if(m_atomStyles.contains(types[i])) {
-            radius = m_atomStyles[types[i]]->radius;
-            color[0] = m_atomStyles[types[i]]->color.redF();
-            color[1] = m_atomStyles[types[i]]->color.greenF();
-            color[2] = m_atomStyles[types[i]]->color.blueF();
+        if(m_atomStyles.contains(types[particleIndex])) {
+            radius = m_atomStyles[types[particleIndex]]->radius;
+            color[0] = m_atomStyles[types[particleIndex]]->color.redF();
+            color[1] = m_atomStyles[types[particleIndex]]->color.greenF();
+            color[2] = m_atomStyles[types[particleIndex]]->color.blueF();
         }
-        m_allParticles[i].color = color;
-        m_allParticles[i].radius = radius;
-        m_allParticles[i].position = position;
+
+        m_allParticles[particleIndex].color = color;
+        m_allParticles[particleIndex].radius = radius;
+        m_allParticles[particleIndex].position = position;
+        min[0] = std::min(min[0], position[0]);
+        max[0] = std::max(max[0], position[0]);
+        min[1] = std::min(min[1], position[1]);
+        max[1] = std::max(max[1], position[1]);
+        min[2] = std::min(min[2], position[2]);
+        max[2] = std::max(max[2], position[2]);
+    }
+    m_origo = min;
+    m_size = max - min;
+    setupChunks();
+
+    float oneOverChunkSize = 1.0/m_chunkSize;
+    for(int particleIndex=0; particleIndex<positions.size(); particleIndex++) {
+        int i = (m_allParticles[particleIndex].position[0]-m_origo[0]) * oneOverChunkSize;
+        int j = (m_allParticles[particleIndex].position[1]-m_origo[1]) * oneOverChunkSize;
+        int k = (m_allParticles[particleIndex].position[2]-m_origo[2]) * oneOverChunkSize;
+        Chunk &chunk = m_chunks[index(i,j,k)];
+        chunk.particles.push_back(m_allParticles[particleIndex]);
     }
 }
 
 void Server::updatePositions()
 {
-    m_subParticles.clear();
+    m_particles.clear();
     float cutsq = m_rCut*m_rCut;
-    for(const Particle &particle : m_allParticles) {
-        float dx = particle.position[0] - m_cameraPosition[0];
-        float dy = particle.position[1] - m_cameraPosition[1];
-        float dz = particle.position[2] - m_cameraPosition[2];
-        float dr2 = dx*dx + dy*dy + dz*dz;
-        if(dr2 < cutsq) {
-            m_subParticles.push_back(particle);
+    for(Chunk &chunk : m_chunks) {
+        if(chunk.minDistanceTo(m_cameraPosition) < m_rCut) {
+            for(const Particle &particle : chunk.particles) {
+                float dx = particle.position[0] - m_cameraPosition[0];
+                float dy = particle.position[1] - m_cameraPosition[1];
+                float dz = particle.position[2] - m_cameraPosition[2];
+                float dr2 = dx*dx + dy*dy + dz*dz;
+                if(dr2 < cutsq) {
+                    m_particles.push_back(particle);
+                }
+            }
         }
     }
 }
 
 void Server::writePositions()
 {
-    int numBytes = m_subParticles.size()*sizeof(Particle);
+    int numBytes = m_particles.size()*sizeof(Particle);
     if(numBytes > 0) {
-        const char *array = reinterpret_cast<const char*>(&m_subParticles.front());
+        const char *array = reinterpret_cast<const char*>(&m_particles.front());
 
         QFile file(m_dataFileName);
         if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
@@ -121,7 +172,7 @@ void Server::writeState()
         QJsonObject json;
 
         json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<int>(QDateTime::currentDateTime().toTime_t()));
-        json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_subParticles.size()));
+        json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_particles.size()));
         json["binaryFileName"] = m_dataFileName;
         QJsonDocument saveObject(json);
         stream << saveObject.toJson();

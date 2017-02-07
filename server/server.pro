@@ -6,10 +6,14 @@ SOURCES += \
     main.cpp \
     ../client/xyzreader.cpp \
     server.cpp \
-    atomstyle.cpp
+    atomstyle.cpp \
+    lammpsbinaryreader.cpp \
+    chunk.cpp
 
 HEADERS += \
     ../client/xyzreader.h \
     ../client/particle.h \
     server.h \
-    atomstyle.h
+    atomstyle.h \
+    lammpsbinaryreader.h \
+    chunk.h
