@@ -32,6 +32,8 @@ private:
     void sortParticles();
     void sortChunks();
     inline int index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
+    QVector3D m_boundingBoxMin;
+    QVector3D m_boundingBoxMax;
     QVector3D m_origo;
     QVector3D m_size;
     int m_nx, m_ny, m_nz;

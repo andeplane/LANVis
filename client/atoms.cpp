@@ -4,7 +4,7 @@
 #include <QFile>
 
 Atoms::Atoms(QObject *parent) : QObject(parent),
-    m_sphereData(nullptr), m_bondData(nullptr), m_sort(false), m_dirty(false), m_sphereScale(0.5)
+    m_sphereData(nullptr), m_sort(false), m_dirty(false), m_sphereScale(0.5)
 {
     setDefaultStyle();
 }
@@ -118,28 +118,9 @@ SphereData *Atoms::sphereData() const
     return m_sphereData;
 }
 
-BondData *Atoms::bondData() const
-{
-    return m_bondData;
-}
-
-bool Atoms::sort() const
-{
-    return m_sort;
-}
-
 bool Atoms::dirty() const
 {
     return m_dirty;
-}
-
-void Atoms::setSort(bool sort)
-{
-    if (m_sort == sort)
-        return;
-
-    m_sort = sort;
-    emit sortChanged(sort);
 }
 
 void Atoms::setDirty(bool dirty)
@@ -160,6 +141,24 @@ void Atoms::setSphereScale(float sphereScale)
         emit sphereScaleChanged(sphereScale);
 }
 
+void Atoms::setBoundingBoxMin(QVector3D boundingBoxMin)
+{
+    if (m_boundingBoxMin == boundingBoxMin)
+            return;
+
+        m_boundingBoxMin = boundingBoxMin;
+        emit boundingBoxMinChanged(boundingBoxMin);
+}
+
+void Atoms::setBoundingBoxMax(QVector3D boundingBoxMax)
+{
+    if (m_boundingBoxMax == boundingBoxMax)
+            return;
+
+        m_boundingBoxMax = boundingBoxMax;
+        emit boundingBoxMaxChanged(boundingBoxMax);
+}
+
 void Atoms::setSphereData(SphereData *sphereData)
 {
     m_sphereData = sphereData;
@@ -173,4 +172,14 @@ float Atoms::sphereScale() const
 int Atoms::count() const
 {
     return m_particles.size();
+}
+
+QVector3D Atoms::boundingBoxMin() const
+{
+    return m_boundingBoxMin;
+}
+
+QVector3D Atoms::boundingBoxMax() const
+{
+    return m_boundingBoxMax;
 }

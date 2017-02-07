@@ -1,5 +1,6 @@
 #include "state.h"
 #include "xyzreader.h"
+#include <QJsonArray>
 #include <QLockFile>
 #include <QString>
 
@@ -27,6 +28,12 @@ void State::update(const QJsonObject &object)
         QLockFile lockFile(object["lockFileName"].toString());
 
         if(lockFile.tryLock(200)) {
+            QJsonArray boundingBoxMinA = object["boundingBoxMin"].toArray();
+            QJsonArray boundingBoxMaxA = object["boundingBoxMax"].toArray();
+            QVector3D boundingBoxMin(boundingBoxMinA[0].toDouble(), boundingBoxMinA[1].toDouble(), boundingBoxMinA[2].toDouble());
+            QVector3D boundingBoxMax(boundingBoxMaxA[0].toDouble(), boundingBoxMaxA[1].toDouble(), boundingBoxMaxA[2].toDouble());
+            m_atoms->setBoundingBoxMin(boundingBoxMin);
+            m_atoms->setBoundingBoxMax(boundingBoxMax);
             m_timestamp = timestamp;
             if(object.contains("xyzFileName")) {
                 QString xyzFilename = object["xyzFileName"].toString();

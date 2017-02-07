@@ -174,18 +174,18 @@ void Server::updatePositions()
     unsigned int atomCount = 0;
     sortChunks();
 
-    QVector3D lo(1e9,1e9,1e9);
-    QVector3D hi(-1e9,-1e9,-1e9);
+    m_boundingBoxMin = QVector3D(1e9,1e9,1e9);
+    m_boundingBoxMax = QVector3D(-1e9,-1e9,-1e9);
 
     for(Chunk &chunk : m_chunks) {
         if(m_sort) chunk.sort(m_cameraPosition);
-        lo[0] = std::min(lo[0], chunk.corners()[0][0]);
-        lo[1] = std::min(lo[1], chunk.corners()[0][1]);
-        lo[2] = std::min(lo[2], chunk.corners()[0][2]);
+        m_boundingBoxMin[0] = std::min(m_boundingBoxMin[0], chunk.corners()[0][0]);
+        m_boundingBoxMin[1] = std::min(m_boundingBoxMin[1], chunk.corners()[0][1]);
+        m_boundingBoxMin[2] = std::min(m_boundingBoxMin[2], chunk.corners()[0][2]);
 
-        hi[0] = std::max(hi[0], chunk.corners()[7][0]);
-        hi[1] = std::max(hi[1], chunk.corners()[7][1]);
-        hi[2] = std::max(hi[2], chunk.corners()[7][2]);
+        m_boundingBoxMax[0] = std::max(m_boundingBoxMax[0], chunk.corners()[7][0]);
+        m_boundingBoxMax[1] = std::max(m_boundingBoxMax[1], chunk.corners()[7][1]);
+        m_boundingBoxMax[2] = std::max(m_boundingBoxMax[2], chunk.corners()[7][2]);
 
         m_particles.insert( m_particles.end(), chunk.particles().begin(), chunk.particles().end() );
         atomCount += chunk.particles().size();
@@ -224,6 +224,9 @@ void Server::writeState()
         json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_particles.size()));
         json["binaryFileName"] = m_dataFileName;
         json["lockFileName"] = m_lockFileName;
+        json["boundingBoxMin"] = QJsonArray({m_boundingBoxMin[0], m_boundingBoxMin[1], m_boundingBoxMin[2]});
+        json["boundingBoxMax"] = QJsonArray({m_boundingBoxMax[0], m_boundingBoxMax[1], m_boundingBoxMax[2]});
+
         QJsonDocument saveObject(json);
         stream << saveObject.toJson();
         file.close();
