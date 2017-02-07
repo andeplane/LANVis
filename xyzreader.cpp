@@ -83,7 +83,6 @@ void XYZReader::readFile(QString filename)
             } else break; // If this is a multi timestep xyz-file, just ignore the rest
         }
     }
-    qDebug() << "Found " << positionCount << " atoms.";
 
     if(positionCount != m_points.size()) {
         qDebug() << QString("Error, could not parse XYZ file");

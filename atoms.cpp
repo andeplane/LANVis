@@ -95,8 +95,6 @@ void Atoms::synchronizeRenderer() {
     if(!m_dirty) return;
     int numSpheres = m_sphereDataBytes.size() / sizeof(SphereVBOData);
     m_sphereData->setData(m_sphereDataBytes, numSpheres);
-    // m_sphereData->setPositions(m_atomData.positions);
-    qDebug() << "Did set " << numSpheres << " spheres";
 
     setDirty(false);
 }
