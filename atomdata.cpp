@@ -9,8 +9,6 @@ void AtomData::resize(int size)
     positions.resize(size);
     colors.resize(size);
     radii.resize(size);
-    types.resize(size);
-    visible.resize(size);
 }
 
 int AtomData::size()
@@ -23,16 +21,12 @@ void AtomData::reset()
     positions.clear();
     colors.clear();
     radii.clear();
-    types.clear();
-    visible.clear();
 }
 
 long AtomData::memoryUsage()
 {
     return (positions.capacity() + colors.capacity())*sizeof(QVector3D)
-            +(radii.capacity())*sizeof(float)
-            +types.capacity()*sizeof(int)
-            +visible.capacity()*sizeof(bool);
+            +(radii.capacity())*sizeof(float);
 }
 
 AtomData::~AtomData()

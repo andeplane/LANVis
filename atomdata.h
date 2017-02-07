@@ -14,8 +14,6 @@ public:
     QVector<QVector3D> positions;
     QVector<QVector3D> colors;
     QVector<float> radii;
-    QVector<int> types;
-    QVector<bool> visible;
     void resize(int size);
     int size();
     void reset();

@@ -14,36 +14,44 @@ class Atoms : public QObject
     Q_PROPERTY(BondData* bondData READ bondData NOTIFY bondDataChanged)
     Q_PROPERTY(bool sort READ sort WRITE setSort NOTIFY sortChanged)
     Q_PROPERTY(bool dirty READ dirty WRITE setDirty NOTIFY dirtyChanged)
+    Q_PROPERTY(float sphereScale READ sphereScale WRITE setSphereScale NOTIFY sphereScaleChanged)
 public:
     explicit Atoms(QObject *parent = 0);
     void synchronizeRenderer();
+    void generateSphereData();
 
     SphereData* sphereData() const;
     BondData* bondData() const;
     bool sort() const;
     bool dirty() const;
     AtomData &atomData();
+    void setData(const QVector<QVector3D> &positions, const QVector<QString> &types);
+    void setSphereData(SphereData *sphereData);
+    float sphereScale() const;
 
 signals:
     void sphereDataChanged(SphereData* sphereData);
     void bondDataChanged(BondData* bondData);
     void sortChanged(bool sort);
     void dirtyChanged(bool dirty);
+    void sphereScaleChanged(float sphereScale);
 
 public slots:
     void setSort(bool sort);
     void setDirty(bool dirty);
+    void setSphereScale(float sphereScale);
 
 private:
-    void generateSphereData(AtomData &atomData);
+    void setDefaultStyle();
+
     AtomData m_atomData;
-    QMap<QString, AtomStyle*> m_atomStyleTypes;
+    QMap<QString, AtomStyle*> m_atomStyles;
     SphereData* m_sphereData;
     QByteArray m_sphereDataBytes;
     BondData* m_bondData;
     bool m_sort;
     bool m_dirty;
-    void setDefaultStyle();
+    float m_sphereScale;
 };
 
 #endif // ATOMS_H

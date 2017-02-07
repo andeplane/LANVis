@@ -11,10 +11,10 @@ MyWorker::MyWorker() : m_state(nullptr)
 }
 
 MySimulator::MySimulator(QNode *parent)
-    : Simulator(parent), m_state(new State())
+    : Simulator(parent), m_state(new State(this))
 
 {
-
+    m_state->atoms()->setSphereData(new SphereData(this));
 }
 
 State *MySimulator::state() const
@@ -69,18 +69,15 @@ void MyWorker::synchronizeSimulator(Simulator *simulator)
     MySimulator *mySimulator = qobject_cast<MySimulator*>(simulator);
     if(mySimulator) {
         m_state = mySimulator->state();
-        m_state->atoms()->synchronizeRenderer();
         m_stateFileName = mySimulator->stateFileName();
-
-        // Synchronize data between QML thread and computing thread (MySimulator is on QML, MyWorker is computing thread).
-        // This is for instance data from user through GUI (sliders, buttons, text fields etc)
+        m_typesFileName = mySimulator->typesFileName();
+        m_state->atoms()->synchronizeRenderer();
     }
 }
 
 void MyWorker::work()
 {
-    if(m_state) {
-        qDebug() << "Trying to open " << m_stateFileName;
+    if(m_state && !m_stateFileName.isEmpty()) {
         QFile loadFile(m_stateFileName);
         if (!loadFile.open(QIODevice::ReadOnly)) {
             qWarning("Couldn't open state file");

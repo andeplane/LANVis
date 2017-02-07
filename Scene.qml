@@ -10,6 +10,7 @@ import ShaderNodes 1.0 as Nodes
 import LANVis 1.0
 
 Scene3D {
+    id: root
     aspects: ["render", "input", "logic"]
     property var mouseMover: flyModeController.mouseMover
     property alias visualizer: visualizer

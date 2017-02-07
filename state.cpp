@@ -3,7 +3,7 @@
 #include <QString>
 
 State::State(QObject *parent) : QObject(parent),
-    m_atoms(new Atoms())
+    m_atoms(new Atoms(this))
 {
 
 }
@@ -22,17 +22,14 @@ void State::update(const QJsonObject &object)
 {
     int timestamp = object["timestamp"].toInt();
     if(timestamp > m_timestamp) {
-        QString xyzFilename = object["xyzFilename"].toString();
+        m_timestamp = timestamp;
+        qDebug() << "New timestamp: " << timestamp;
+        QString xyzFilename = object["xyzFileName"].toString();
+        qDebug() << "XYZ file: " << xyzFilename;
         XYZReader reader;
         reader.readFile(xyzFilename);
-        AtomData &atomData = m_atoms->atomData();
-        const QVector<QString> &types = reader.types();
-        const QVector<QVector3D> &points = reader.points();
-        atomData.resize(points.size());
-        atomData.positions = points;
-
-        m_atoms->setDirty(true);
-        m_timestamp = timestamp;
+        m_atoms->setData(reader.points(), reader.types());
+        m_atoms->generateSphereData();
     }
 }
 

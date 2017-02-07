@@ -24,6 +24,7 @@ private:
     virtual void work();
     State *m_state;
     QString m_stateFileName;
+    QString m_typesFileName;
 };
 
 class MySimulator : public Simulator
