@@ -70,7 +70,7 @@ Scene3D {
             position: Qt.vector3d(0.0, 50.0, 0.0) // do not change without taking upvector into account
             viewCenter: Qt.vector3d(0, 0, 0) // do not change without taking upvector into account
             upVector: Qt.vector3d(0.0, 0.0, 1.0)
-            onPositionChanged: cameraMoved()
+            onPositionChanged: updateNearestPoint()
         }
 
         property var lights: [
