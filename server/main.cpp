@@ -3,16 +3,24 @@
 #include <iostream>
 #include <unistd.h>
 #include "server.h"
-
+#define KIF
 using namespace std;
 
 int main(int argc, char *argv[])
 {
+#ifdef KIF
+    QString xyzFileName("/scratch/largesystem/dump.xyz");
+    QString lammpsDumpFileName("/scratch/largesystem/dump2.lmp.bin");
+    QString dataFileName("/scratch/largesystem/dump.bin");
+    QString stateFileName("/scratch/largesystem/state.json");
+    QString clientStateFileName("/scratch/largesystem/client.json");
+#else
     QString xyzFileName("/projects/tmp/dump.xyz");
     QString lammpsDumpFileName("/projects/tmp/dump2.lmp.bin");
     QString dataFileName("/projects/tmp/dump.bin");
     QString stateFileName("/projects/tmp/state.json");
     QString clientStateFileName("/projects/tmp/client.json");
+#endif
 
     Server server;
     server.setStateFileName(stateFileName);
