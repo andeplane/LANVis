@@ -78,6 +78,8 @@ Scene3D {
             camera: visualizer.camera
             sphereData: simulator.state.atoms.sphereData
             fragmentColor: renderingQuality==="high" ? spheresHighQuality : fragmentBuilder.normalDotCamera
+            posMin: 10
+            posMax: 100000
         }
     }
 }
