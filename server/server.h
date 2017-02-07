@@ -28,8 +28,8 @@ public:
 
     QString lockFileName() const;
     void setLockFileName(const QString &lockFileName);
-
 private:
+    void sortParticles();
     void sortChunks();
     inline int index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
     QVector3D m_origo;
@@ -37,6 +37,7 @@ private:
     int m_nx, m_ny, m_nz;
     int m_maxNumberOfAtoms;
     float m_chunkSize;
+    bool m_sort;
     QString m_fileName;
     QString m_dataFileName;
     QString m_lockFileName;

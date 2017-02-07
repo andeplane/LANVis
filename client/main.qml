@@ -145,20 +145,20 @@ ApplicationWindow {
         radius: 2
         Row {
             spacing: 20
+            anchors.margins: 5
             Row {
                 Label {
                     width: 170
-                    text: "Max num atoms: "+maxAtomCountSlider.value.toFixed(0)
+                    text: "Max num atoms: "+maxAtomCountSlider.value.toFixed(0)+" k"
                 }
                 QQC1.Slider {
                     id: maxAtomCountSlider
                     height: 20
-                    minimumValue: 10000
-                    maximumValue: 1e7
-                    value: 300000
-                    stepSize: 1000
-                    onValueChanged: scene.simulator.clientState.maxNumberOfAtoms = value
-                    focus: Qt.NoFocus
+                    minimumValue: 10
+                    maximumValue: 1000
+                    value: 300
+                    stepSize: 10
+                    onValueChanged: scene.simulator.clientState.maxNumberOfAtoms = value*1000
                 }
             }
             Row {
@@ -169,7 +169,6 @@ ApplicationWindow {
 
             Row {
                 Label {
-                    width: parent.width*0.4
                     text: "Attenuation"
                 }
                 QQC1.Slider {
@@ -183,6 +182,20 @@ ApplicationWindow {
                         target: scene.light
                         property: "attenuation"
                         value: lightAttenuation.value
+                    }
+                }
+            }
+
+            Row {
+                QQC1.CheckBox {
+                    id: sort
+                    height: 20
+                    text: "Sort"
+                    checked: scene.simulator.clientState.sort
+                    Binding {
+                        target: scene.simulator.clientState
+                        property: "sort"
+                        value: sort.checked
                     }
                 }
             }

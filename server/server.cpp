@@ -10,7 +10,7 @@
 #include <QDateTime>
 #include <QLockFile>
 
-Server::Server() : m_chunkSize(50), m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfAtoms(300000)
+Server::Server() : m_chunkSize(50), m_sort(true), m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfAtoms(300000)
 {
     setDefaultStyles();
 }
@@ -74,14 +74,15 @@ void Server::setupChunks()
         for(int j=0; j<m_ny; j++) {
             for(int k=0; k<m_nz; k++) {
                 Chunk &chunk = m_chunks[index(i,j,k)];
-                chunk.corners[0] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
-                chunk.corners[1] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
-                chunk.corners[2] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
-                chunk.corners[3] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
-                chunk.corners[4] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
-                chunk.corners[5] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
-                chunk.corners[6] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
-                chunk.corners[7] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
+                std::vector<QVector3D> &corners = chunk.corners();
+                corners[0] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
+                corners[1] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
+                corners[2] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
+                corners[3] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
+                corners[4] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
+                corners[5] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
+                corners[6] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
+                corners[7] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
             }
         }
     }
@@ -163,7 +164,7 @@ void Server::placeParticleInChunks() {
         int j = (m_allParticles[particleIndex].position[1]-m_origo[1]) * oneOverChunkSize;
         int k = (m_allParticles[particleIndex].position[2]-m_origo[2]) * oneOverChunkSize;
         Chunk &chunk = m_chunks[index(i,j,k)];
-        chunk.particles.push_back(m_allParticles[particleIndex]);
+        chunk.particles().push_back(m_allParticles[particleIndex]);
     }
 }
 
@@ -172,10 +173,23 @@ void Server::updatePositions()
     m_particles.clear();
     unsigned int atomCount = 0;
     sortChunks();
+
+    QVector3D lo(1e9,1e9,1e9);
+    QVector3D hi(-1e9,-1e9,-1e9);
+
     for(Chunk &chunk : m_chunks) {
-        m_particles.insert( m_particles.end(), chunk.particles.begin(), chunk.particles.end() );
-        atomCount += chunk.particles.size();
-        if(atomCount > m_maxNumberOfAtoms) return;
+        if(m_sort) chunk.sort(m_cameraPosition);
+        lo[0] = std::min(lo[0], chunk.corners()[0][0]);
+        lo[1] = std::min(lo[1], chunk.corners()[0][1]);
+        lo[2] = std::min(lo[2], chunk.corners()[0][2]);
+
+        hi[0] = std::max(hi[0], chunk.corners()[7][0]);
+        hi[1] = std::max(hi[1], chunk.corners()[7][1]);
+        hi[2] = std::max(hi[2], chunk.corners()[7][2]);
+
+        m_particles.insert( m_particles.end(), chunk.particles().begin(), chunk.particles().end() );
+        atomCount += chunk.particles().size();
+        if(atomCount > m_maxNumberOfAtoms) break;
     }
 }
 
@@ -259,6 +273,17 @@ void Server::sortChunks()
     });
 }
 
+void Server::sortParticles()
+{
+    std::sort(m_particles.begin(), m_particles.end(),
+        [&](const Particle& a, const Particle& b)
+    {
+        float da = (a.position - m_cameraPosition).lengthSquared();
+        float db = (b.position - m_cameraPosition).lengthSquared();
+        return da < db;
+    });
+}
+
 QString Server::lockFileName() const
 {
     return m_lockFileName;
@@ -278,7 +303,6 @@ bool Server::update(QString clientStateFileName)
     }
 
     QByteArray stateData = loadFile.readAll();
-    // if(stateData.isEmpty()) return false;
 
     QJsonParseError error;
     QJsonDocument doc(QJsonDocument::fromJson(stateData, &error));
@@ -288,17 +312,19 @@ bool Server::update(QString clientStateFileName)
 
     QJsonArray    arr = obj["cameraPosition"].toArray();
     int maxNumberOfAtoms = obj["maxNumberOfAtoms"].toInt();
+    bool sort = obj["sort"].toBool();
 
     QVector3D newCameraPositon;
     newCameraPositon[0] = arr[0].toDouble();
     newCameraPositon[1] = arr[1].toDouble();
     newCameraPositon[2] = arr[2].toDouble();
     float distanceToOldPositionSquared = (newCameraPositon - m_cameraPosition).lengthSquared();
-    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfAtoms!=m_maxNumberOfAtoms;
+    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfAtoms!=m_maxNumberOfAtoms || m_sort != sort;
     if(!anyChanges) return false;
 
     m_maxNumberOfAtoms = maxNumberOfAtoms;
     m_cameraPosition = newCameraPositon;
+    m_sort = sort;
 
     updatePositions();
     return true;

@@ -7,7 +7,7 @@
 #include <QTextStream>
 #include <QDebug>
 
-ClientState::ClientState(QObject *parent) : QObject(parent), m_maxNumberOfAtoms(300000)
+ClientState::ClientState(QObject *parent) : QObject(parent), m_maxNumberOfAtoms(300000), m_sort(true)
 {
 
 }
@@ -26,6 +26,7 @@ void ClientState::save(QString fileName)
         QJsonArray array = { m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2] };
         json["maxNumberOfAtoms"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfAtoms));
         json["cameraPosition"] = array;
+        json["sort"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_sort));
         QJsonDocument saveObject(json);
         stream << saveObject.toJson();
     }
@@ -35,6 +36,11 @@ void ClientState::save(QString fileName)
 int ClientState::maxNumberOfAtoms() const
 {
     return m_maxNumberOfAtoms;
+}
+
+bool ClientState::sort() const
+{
+    return m_sort;
 }
 
 void ClientState::setCameraPosition(QVector3D cameraPosition)
@@ -53,4 +59,13 @@ void ClientState::setMaxNumberOfAtoms(int maxNumberOfAtoms)
 
     m_maxNumberOfAtoms = maxNumberOfAtoms;
     emit maxNumberOfAtomsChanged(maxNumberOfAtoms);
+}
+
+void ClientState::setSort(bool sort)
+{
+    if (m_sort == sort)
+        return;
+
+    m_sort = sort;
+    emit sortChanged(sort);
 }

@@ -4,12 +4,20 @@
 #include "../client/particle.h"
 #include <QVector>
 #include <vector>
-struct Chunk
+class Chunk
 {
-    Chunk() { corners.resize(8); }
+public:
+    Chunk() { m_corners.resize(8); }
+
     float minDistanceTo(const QVector3D &point) const;
-    std::vector<QVector3D> corners;
-    std::vector<Particle> particles;
+    QVector3D nearestCorner(const QVector3D &point) const;
+    void sort(const QVector3D &point);
+    std::vector<QVector3D> &corners();
+    std::vector<Particle> &particles();
+
+private:
+    std::vector<QVector3D> m_corners;
+    std::vector<Particle>  m_particles;
 };
 
 #endif // CHUNK_H
