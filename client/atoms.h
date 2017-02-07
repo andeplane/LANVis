@@ -27,7 +27,7 @@ public:
     bool sort() const;
     bool dirty() const;
 
-    void loadBinary(QString fileName);
+    bool loadBinary(QString fileName);
     void setData(const QVector<QVector3D> &positions, const QVector<QString> &types);
     void setSphereData(SphereData *sphereData);
     float sphereScale() const;

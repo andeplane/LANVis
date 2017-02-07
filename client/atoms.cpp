@@ -65,12 +65,12 @@ void Atoms::generateSphereData() {
     setDirty(true);
 }
 
-void Atoms::loadBinary(QString fileName)
+bool Atoms::loadBinary(QString fileName)
 {
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly)) {
         qDebug() << "Could not open file " << fileName;
-        return;
+        return false;
     }
 
     QByteArray ba = file.readAll();
@@ -79,6 +79,7 @@ void Atoms::loadBinary(QString fileName)
     int numParticles = ba.length() / sizeof(Particle);
     m_particles.resize(numParticles);
     memcpy(&m_particles.front(), particles, numParticles*sizeof(Particle));
+    return true;
 }
 
 void Atoms::setData(const QVector<QVector3D> &positions, const QVector<QString> &types)

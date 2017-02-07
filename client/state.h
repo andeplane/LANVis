@@ -24,7 +24,7 @@ public slots:
     void setAtoms(Atoms* atoms);
 
 private:
-    int m_timestamp;
+    double m_timestamp;
     Atoms* m_atoms;
 };
 

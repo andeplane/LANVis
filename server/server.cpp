@@ -201,7 +201,7 @@ void Server::writeState()
         QTextStream stream(&file);
         QJsonObject json;
 
-        json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<int>(QDateTime::currentDateTime().toTime_t()));
+        json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<double>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
         json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_particles.size()));
         json["binaryFileName"] = m_dataFileName;
         QJsonDocument saveObject(json);

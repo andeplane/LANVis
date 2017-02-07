@@ -20,8 +20,9 @@ Atoms *State::atoms() const
 
 void State::update(const QJsonObject &object)
 {
-    int timestamp = object["timestamp"].toInt();
+    double timestamp = object["timestamp"].toDouble();
     if(timestamp > m_timestamp) {
+        bool ok = true;
         m_timestamp = timestamp;
         if(object.contains("xyzFileName")) {
             QString xyzFilename = object["xyzFileName"].toString();
@@ -29,7 +30,7 @@ void State::update(const QJsonObject &object)
             reader.readFile(xyzFilename);
             m_atoms->setData(reader.positions(), reader.types());
         } else if(object.contains("binaryFileName")) {
-            m_atoms->loadBinary(object["binaryFileName"].toString());
+            ok = m_atoms->loadBinary(object["binaryFileName"].toString());
         }
 
         m_atoms->generateSphereData();

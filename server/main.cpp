@@ -3,7 +3,7 @@
 #include <iostream>
 #include <unistd.h>
 #include "server.h"
-#define KIF
+// #define KIF
 using namespace std;
 
 int main(int argc, char *argv[])

@@ -30,8 +30,8 @@ Scene3D {
             projectionType: CameraLens.PerspectiveProjection
             fieldOfView: 50
             aspectRatio: root.width / root.height
-            nearPlane : root.renderMode === "forward" ? 1.0 : 3.0
-            farPlane : root.renderMode === "forward" ? 10000.0 : 300.0
+            nearPlane : 1
+            farPlane : 100000
             position: Qt.vector3d(0.0, 50.0, 0.0) // do not change without taking upvector into account
             viewCenter: Qt.vector3d(0, 0, 0) // do not change without taking upvector into account
             upVector: Qt.vector3d(0.0, 0.0, 1.0)

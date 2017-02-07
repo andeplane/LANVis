@@ -147,7 +147,7 @@ ApplicationWindow {
             Row {
                 Label {
                     width: 170
-                    text: "Max num atoms: "+maxAtomCountSlider.value
+                    text: "Max num atoms: "+maxAtomCountSlider.value.toFixed(0)
                 }
                 Slider {
                     id: maxAtomCountSlider
@@ -155,6 +155,7 @@ ApplicationWindow {
                     from:  10000
                     to: 1e7
                     value: 300000
+                    stepSize: 1000
                     onValueChanged: scene.simulator.clientState.maxNumberOfAtoms = value
                     focus: Qt.NoFocus
                 }
