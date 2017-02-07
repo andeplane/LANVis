@@ -11,8 +11,9 @@ ApplicationWindow {
     Scene {
         id: scene
         property bool captureCursor: true
-        typesFileName: "/projects/types.json"
-        stateFileName: "/projects/state.json"
+        typesFileName: "/projects/tmp/types.json"
+        clientStateFileName: "/projects/tmp/client.json"
+        stateFileName: "/projects/tmp/state.json"
         anchors.fill: parent
         focus: true
         mouseMover: MouseMover {
@@ -103,10 +104,6 @@ ApplicationWindow {
             previousX = mouse.x
             previousY = mouse.y
         }
-    }
-    Button {
-        text: "Load"
-        onClicked: scene.stateFileName = "/projects/state.json"
     }
 
     Shortcut {

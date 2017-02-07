@@ -12,7 +12,7 @@ class ClientState : public QObject
 public:
     explicit ClientState(QObject *parent = 0);
     QVector3D cameraPosition() const;
-
+    void save(QString fileName);
 signals:
 
     void cameraPositionChanged(QVector3D cameraPosition);

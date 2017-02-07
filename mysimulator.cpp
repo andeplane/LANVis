@@ -11,7 +11,7 @@ MyWorker::MyWorker() : m_state(nullptr)
 }
 
 MySimulator::MySimulator(QNode *parent)
-    : Simulator(parent), m_state(new State(this))
+    : Simulator(parent), m_state(new State(this)), m_clientState(new ClientState(this))
 
 {
     m_state->atoms()->setSphereData(new SphereData(this));
@@ -30,6 +30,21 @@ QString MySimulator::stateFileName() const
 QString MySimulator::typesFileName() const
 {
     return m_typesFileName;
+}
+
+ClientState *MySimulator::clientState() const
+{
+    return m_clientState;
+}
+
+QVector3D MySimulator::cameraPosition() const
+{
+    return m_cameraPosition;
+}
+
+QString MySimulator::clientStateFileName() const
+{
+    return m_clientStateFileName;
 }
 
 void MySimulator::setState(State *state)
@@ -59,6 +74,33 @@ void MySimulator::setTypesFileName(QString typesFileName)
     emit typesFileNameChanged(typesFileName);
 }
 
+void MySimulator::setClientState(ClientState *clientState)
+{
+    if (m_clientState == clientState)
+        return;
+
+    m_clientState = clientState;
+    emit clientStateChanged(clientState);
+}
+
+void MySimulator::setCameraPosition(QVector3D cameraPosition)
+{
+    if (m_cameraPosition == cameraPosition)
+        return;
+
+    m_cameraPosition = cameraPosition;
+    emit cameraPositionChanged(cameraPosition);
+}
+
+void MySimulator::setClientStateFileName(QString clientStateFileName)
+{
+    if (m_clientStateFileName == clientStateFileName)
+        return;
+
+    m_clientStateFileName = clientStateFileName;
+    emit clientStateFileNameChanged(clientStateFileName);
+}
+
 SimulatorWorker *MySimulator::createWorker()
 {
     return new MyWorker();
@@ -72,6 +114,8 @@ void MyWorker::synchronizeSimulator(Simulator *simulator)
         m_stateFileName = mySimulator->stateFileName();
         m_typesFileName = mySimulator->typesFileName();
         m_state->atoms()->synchronizeRenderer();
+        mySimulator->clientState()->setCameraPosition(mySimulator->cameraPosition());
+        mySimulator->clientState()->save(mySimulator->clientStateFileName());
     }
 }
 

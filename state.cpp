@@ -23,9 +23,7 @@ void State::update(const QJsonObject &object)
     int timestamp = object["timestamp"].toInt();
     if(timestamp > m_timestamp) {
         m_timestamp = timestamp;
-        qDebug() << "New timestamp: " << timestamp;
         QString xyzFilename = object["xyzFileName"].toString();
-        qDebug() << "XYZ file: " << xyzFilename;
         XYZReader reader;
         reader.readFile(xyzFilename);
         m_atoms->setData(reader.points(), reader.types());

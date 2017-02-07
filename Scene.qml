@@ -16,6 +16,7 @@ Scene3D {
     property var mouseMover: flyModeController.mouseMover
     property alias visualizer: visualizer
     property alias stateFileName: simulator.stateFileName
+    property alias clientStateFileName: simulator.clientStateFileName
     property alias typesFileName: simulator.typesFileName
     hoverEnabled: true
     multisample: true
@@ -47,6 +48,7 @@ Scene3D {
 
         MySimulator {
             id: simulator
+            cameraPosition: camera.position
         }
 
         Light {
