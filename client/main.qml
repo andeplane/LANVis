@@ -200,6 +200,26 @@ ApplicationWindow {
                 }
             }
 
+            Row {
+                Label {
+                    width: 120
+                    text: "Chunk size: "+chunkSize.value.toFixed(0)
+                }
+                QQC1.Slider {
+                    id: chunkSize
+                    height: 20
+                    minimumValue: 10
+                    maximumValue: 250
+                    stepSize: 10
+                    value: scene.simulator.clientState.chunkSize
+
+                    Binding {
+                        target: scene.simulator.clientState
+                        property: "chunkSize"
+                        value: chunkSize.value
+                    }
+                }
+            }
         }
     }
 }

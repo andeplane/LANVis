@@ -7,7 +7,7 @@
 #include <QTextStream>
 #include <QDebug>
 
-ClientState::ClientState(QObject *parent) : QObject(parent), m_maxNumberOfAtoms(300000), m_sort(true)
+ClientState::ClientState(QObject *parent) : QObject(parent), m_maxNumberOfAtoms(300000), m_sort(true), m_chunkSize(50)
 {
 
 }
@@ -25,6 +25,7 @@ void ClientState::save(QString fileName)
         QJsonObject json;
         QJsonArray array = { m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2] };
         json["maxNumberOfAtoms"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfAtoms));
+        json["chunkSize"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_chunkSize));
         json["cameraPosition"] = array;
         json["sort"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_sort));
         QJsonDocument saveObject(json);
@@ -41,6 +42,11 @@ int ClientState::maxNumberOfAtoms() const
 bool ClientState::sort() const
 {
     return m_sort;
+}
+
+float ClientState::chunkSize() const
+{
+    return m_chunkSize;
 }
 
 void ClientState::setCameraPosition(QVector3D cameraPosition)
@@ -68,4 +74,13 @@ void ClientState::setSort(bool sort)
 
     m_sort = sort;
     emit sortChanged(sort);
+}
+
+void ClientState::setChunkSize(float chunkSize)
+{
+    if (m_chunkSize == chunkSize)
+        return;
+
+    m_chunkSize = chunkSize;
+    emit chunkSizeChanged(chunkSize);
 }
