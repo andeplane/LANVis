@@ -31,7 +31,6 @@ Scene3D {
     multisample: true
 
     function updateNearestPoint() {
-        console.log("Updating nearest point")
         // Finds the projection of the camera position onto the system box
         // If camera is inside, nearestPoint is camera pos. If outside, one of the 6 faces on system box
         // It is used to have attenuation only work for relative coordinates inside the system so system
@@ -57,7 +56,6 @@ Scene3D {
         if(z < z0) zp = z0
         if(z > z1) zp = z1
         nearestPoint = Qt.vector3d(xp, yp, zp)
-        console.log("Nearest point: ", nearestPoint, " and distance: ", distanceToNearestPoint)
     }
 
     Visualizer {
