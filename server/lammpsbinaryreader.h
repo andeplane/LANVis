@@ -4,6 +4,7 @@
 #include <QString>
 #include <QVector>
 #include <QVector3D>
+#include <vector>
 
 #include "stdio.h"
 #include "string.h"
@@ -46,16 +47,16 @@ class LAMMPSBinaryReader
 public:
     LAMMPSBinaryReader() { }
     void readFile(QString fileName);
-    const QVector<QVector3D> &positions() const;
-    QVector<int> types() const;
+    const std::vector<QVector3D> &positions() const;
+    std::vector<int> types() const;
     QVector3D origo() const;
     QVector3D size() const;
 
 private:
     QVector3D m_origo;
     QVector3D m_size;
-    QVector<QVector3D> m_positions;
-    QVector<int> m_types;
+    std::vector<QVector3D> m_positions;
+    std::vector<int> m_types;
 };
 
 #endif // LAMMPSBINARYREADER_H

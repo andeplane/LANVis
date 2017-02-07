@@ -3,6 +3,7 @@
 #include <QVector>
 #include <QString>
 #include <QMap>
+#include <vector>
 #include "atomstyle.h"
 #include "chunk.h"
 #include "../client/particle.h"
@@ -22,7 +23,7 @@ public:
 
     QString stateFileName() const;
     void setStateFileName(const QString &stateFileName);
-    const QVector<Particle> &particles() const;
+    const std::vector<Particle> &particles() const;
 
 private:
     void sortChunks();
@@ -36,9 +37,9 @@ private:
     QString m_dataFileName;
     QString m_stateFileName;
     QVector3D m_cameraPosition;
-    QVector<Chunk>    m_chunks;
-    QVector<Particle> m_particles;
-    QVector<Particle> m_allParticles;
+    std::vector<Chunk>    m_chunks;
+    std::vector<Particle> m_particles;
+    std::vector<Particle> m_allParticles;
     QMap<QString, AtomStyle*> m_atomStyles;
     void setDefaultStyles();
     void setupChunks();

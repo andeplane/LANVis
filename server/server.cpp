@@ -128,8 +128,8 @@ void Server::loadLAMMPSBinary(QString fileName)
 {
     LAMMPSBinaryReader reader;
     reader.readFile(fileName);
-    const QVector<QVector3D> &positions = reader.positions();
-    const QVector<int>       &types     = reader.types();
+    const std::vector<QVector3D> &positions = reader.positions();
+    const std::vector<int>       &types     = reader.types();
     qDebug() << "Found " << reader.positions().size() << " atoms.";
     m_allParticles.resize(positions.size());
 
@@ -172,7 +172,7 @@ void Server::updatePositions()
     unsigned int atomCount = 0;
     sortChunks();
     for(Chunk &chunk : m_chunks) {
-        m_particles.append(chunk.particles);
+        m_particles.insert( m_particles.end(), chunk.particles.begin(), chunk.particles.end() );
         atomCount += chunk.particles.size();
         if(atomCount > m_maxNumberOfAtoms) return;
     }
@@ -232,7 +232,7 @@ void Server::setStateFileName(const QString &stateFileName)
     m_stateFileName = stateFileName;
 }
 
-const QVector<Particle> &Server::particles() const
+const std::vector<Particle> &Server::particles() const
 {
     return m_particles;
 }
