@@ -45,8 +45,6 @@ void LAMMPSBinaryReader::readFile(QString fileName)
     int boundary[3][2];
 
     fread(&natoms,sizeof(bigint),1,filePtr);
-    qDebug() << "sizeof(int) = " << sizeof(int);
-    qDebug() << "sizeof(bool) = " << sizeof(bool);
     fread(&triclinic,sizeof(int),1,filePtr);
 
     fread(&boundary[0][0],6*sizeof(int),1,filePtr);
