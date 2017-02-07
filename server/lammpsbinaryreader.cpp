@@ -64,7 +64,8 @@ void LAMMPSBinaryReader::readFile(QString fileName)
 
     fread(&size_one,sizeof(int),1,filePtr);
     fread(&nchunk,sizeof(int),1,filePtr);
-
+    qDebug() << "Number of atoms: " << natoms;
+    qDebug() << "Memory requirements: " << natoms*4*4.0/1e9 << " GB.";
     m_positions.resize(natoms);
     m_types.resize(natoms);
 

@@ -9,7 +9,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     QString xyzFileName("/projects/tmp/dump.xyz");
-    QString lammpsDumpFileName("/projects/tmp/dump2.lmp.bin");
+    QString lammpsDumpFileName("/projects/tmp/dump.lmp.bin");
     QString dataFileName("/projects/tmp/dump.bin");
     QString stateFileName("/projects/tmp/state.json");
     QString clientStateFileName("/projects/tmp/client.json");
