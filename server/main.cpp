@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
 #ifdef KIF
     QString xyzFileName("/scratch/largesystem/dump.xyz");
-    QString lammpsDumpFileName("/scratch/largesystem/dump2.lmp.bin");
+    QString lammpsDumpFileName("/scratch/largesystem/dump.lmp.bin");
     QString dataFileName("/scratch/largesystem/dump.bin");
     QString stateFileName("/scratch/largesystem/state.json");
     QString clientStateFileName("/scratch/largesystem/client.json");
