@@ -68,16 +68,17 @@ class LAMMPSBinaryReader
 {
 public:
     LAMMPSBinaryReader() { }
-    QString fileName;
-    FILE *filePtr = nullptr;
-    int maxbuf = 0;
-    double *buf = NULL;
-    State state;
-    bool hasNextTimestep = false;
+    void readFile(QString fileName);
+    const QVector<QVector3D> &positions() const;
+    QVector<int> types() const;
+    QVector3D origo() const;
+    QVector3D size() const;
 
-    bool open(QString fileName = "");
-    void loadNextTimestep();
-    void close();
+private:
+    QVector3D m_origo;
+    QVector3D m_size;
+    QVector<QVector3D> m_positions;
+    QVector<int> m_types;
 };
 
 #endif // LAMMPSBINARYREADER_H

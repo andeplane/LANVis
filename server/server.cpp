@@ -1,3 +1,4 @@
+#include "lammpsbinaryreader.h"
 #include "server.h"
 #include "../client/xyzreader.h"
 
@@ -14,6 +15,9 @@ Server::Server() : m_rCut(50), m_chunkSize(50), m_nx(0), m_ny(0), m_nz(0)
 }
 
 void Server::setDefaultStyles() {
+    m_atomStyles.insert("1", new AtomStyle(2.27, "#F0C8A0"));
+    m_atomStyles.insert("2", new AtomStyle(1.52, "#AA0000"));
+
     m_atomStyles.insert("hydrogen", new AtomStyle(1.20, "#CCCCCC"));
     m_atomStyles.insert("helium", new AtomStyle(1.40, "#D9FFFF"));
     m_atomStyles.insert("lithium", new AtomStyle(1.82, "#CC80FF"));
@@ -117,10 +121,43 @@ void Server::loadXYZ(QString fileName)
     }
     m_origo = min;
     m_size = max - min;
-    setupChunks();
+    placeParticleInChunks();
+}
 
-    float oneOverChunkSize = 1.0/m_chunkSize;
+void Server::loadLAMMPSBinary(QString fileName)
+{
+    LAMMPSBinaryReader reader;
+    reader.readFile(fileName);
+    const QVector<QVector3D> &positions = reader.positions();
+    const QVector<int>       &types     = reader.types();
+    qDebug() << "Found " << reader.positions().size() << " atoms.";
+    m_allParticles.resize(positions.size());
+
     for(int particleIndex=0; particleIndex<positions.size(); particleIndex++) {
+        const QVector3D &position = positions.at(particleIndex);
+        float radius = 1.0;
+        QVector3D color(1.0, 0.9, 0.8);
+        QString typeAsString = QString("%1").arg(types[particleIndex]);
+        if(m_atomStyles.contains(typeAsString)) {
+            radius = m_atomStyles[typeAsString]->radius;
+            color[0] = m_atomStyles[typeAsString]->color.redF();
+            color[1] = m_atomStyles[typeAsString]->color.greenF();
+            color[2] = m_atomStyles[typeAsString]->color.blueF();
+        }
+
+        m_allParticles[particleIndex].color = color;
+        m_allParticles[particleIndex].radius = radius;
+        m_allParticles[particleIndex].position = position;
+    }
+    m_origo = reader.origo();
+    m_size = reader.size();
+    placeParticleInChunks();
+}
+
+void Server::placeParticleInChunks() {
+    setupChunks();
+    float oneOverChunkSize = 1.0/m_chunkSize;
+    for(int particleIndex=0; particleIndex<m_allParticles.size(); particleIndex++) {
         int i = (m_allParticles[particleIndex].position[0]-m_origo[0]) * oneOverChunkSize;
         int j = (m_allParticles[particleIndex].position[1]-m_origo[1]) * oneOverChunkSize;
         int k = (m_allParticles[particleIndex].position[2]-m_origo[2]) * oneOverChunkSize;
@@ -200,6 +237,11 @@ QString Server::stateFileName() const
 void Server::setStateFileName(const QString &stateFileName)
 {
     m_stateFileName = stateFileName;
+}
+
+const QVector<Particle> &Server::particles() const
+{
+    return m_particles;
 }
 
 void Server::update(QString clientStateFileName)

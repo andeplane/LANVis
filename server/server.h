@@ -12,6 +12,7 @@ class Server
 public:
     Server();
     void loadXYZ(QString fileName);
+    void loadLAMMPSBinary(QString fileName);
     void update(QString clientStateFileName);
     void updatePositions();
     void writePositions();
@@ -21,6 +22,7 @@ public:
 
     QString stateFileName() const;
     void setStateFileName(const QString &stateFileName);
+    const QVector<Particle> &particles() const;
 
 private:
     inline int index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
@@ -39,6 +41,7 @@ private:
     QMap<QString, AtomStyle*> m_atomStyles;
     void setDefaultStyles();
     void setupChunks();
+    void placeParticleInChunks();
 };
 
 #endif // SERVER_H

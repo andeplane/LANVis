@@ -12,19 +12,9 @@ const QVector<QString> &XYZReader::types() const
     return m_types;
 }
 
-void XYZReader::setTypes(const QVector<QString> &types)
-{
-    m_types = types;
-}
-
 const QVector<QVector3D> &XYZReader::positions() const
 {
     return m_positions;
-}
-
-void XYZReader::setPositions(const QVector<QVector3D> &points)
-{
-    m_positions = points;
 }
 
 void XYZReader::readFile(QString filename)
