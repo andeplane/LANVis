@@ -41,7 +41,7 @@ void LAMMPSBinaryReader::readFile(QString fileName)
     bigint natoms;
     int size_one, nchunk;
     double xlo,xhi,ylo,yhi,zlo,zhi,xy,xz,yz;
-    bool triclinic = false;
+    int triclinic = false;
     int boundary[3][2];
 
     fread(&natoms,sizeof(bigint),1,filePtr);
