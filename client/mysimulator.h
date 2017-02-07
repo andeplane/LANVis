@@ -23,6 +23,8 @@ private:
     // SimulatorWorker interface
     virtual void synchronizeSimulator(Simulator *simulator);
     virtual void work();
+    QString m_clientStateFileName;
+    ClientState *m_clientState;
     State *m_state;
     QString m_stateFileName;
     QString m_typesFileName;

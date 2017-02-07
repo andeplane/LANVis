@@ -5,7 +5,7 @@
 #include <random>
 #include <SimVis/SphereData>
 
-MyWorker::MyWorker() : m_state(nullptr)
+MyWorker::MyWorker() : m_state(nullptr), m_clientState(nullptr)
 {
 
 }
@@ -111,11 +111,12 @@ void MyWorker::synchronizeSimulator(Simulator *simulator)
     MySimulator *mySimulator = qobject_cast<MySimulator*>(simulator);
     if(mySimulator) {
         m_state = mySimulator->state();
+        m_clientState = mySimulator->clientState();
+        m_clientStateFileName = mySimulator->clientStateFileName();
         m_stateFileName = mySimulator->stateFileName();
         m_typesFileName = mySimulator->typesFileName();
         m_state->atoms()->synchronizeRenderer();
         mySimulator->clientState()->setCameraPosition(mySimulator->cameraPosition());
-        mySimulator->clientState()->save(mySimulator->clientStateFileName());
     }
 }
 
@@ -132,4 +133,5 @@ void MyWorker::work()
         QJsonDocument loadDoc(QJsonDocument::fromJson(stateData));
         m_state->update(loadDoc.object());
     }
+    if(m_clientState) m_clientState->save(m_clientStateFileName);
 }
