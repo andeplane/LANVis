@@ -53,16 +53,21 @@ Scene3D {
 
         Light {
             id: light1
-            position: visualizer.camera.position
+            position: visualizer.camera.position.plus(
+                          (visualizer.camera.viewVector.normalized().plus(
+                               visualizer.camera.upVector.normalized()).plus(
+                               visualizer.camera.viewVector.crossProduct(visualizer.camera.upVector)).normalized()).times(20))
             strength: 0.5
-            attenuation: 0.5
+            attenuation: 1.0
         }
-
         Light {
             id: light2
-            position: visualizer.camera.position
-            strength: 0.2
-            attenuation: 0.1
+            position: visualizer.camera.position.minus(
+                          (visualizer.camera.viewVector.normalized().plus(
+                               visualizer.camera.upVector.normalized()).plus(
+                               visualizer.camera.viewVector.crossProduct(visualizer.camera.upVector)).normalized()).times(10))
+            strength: 0.5
+            attenuation: 25.0
         }
 
         FlyModeController {

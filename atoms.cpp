@@ -1,7 +1,7 @@
 #include "atoms.h"
 
 Atoms::Atoms(QObject *parent) : QObject(parent),
-    m_sphereData(nullptr), m_bondData(nullptr), m_sort(false), m_dirty(false), m_sphereScale(0.23)
+    m_sphereData(nullptr), m_bondData(nullptr), m_sort(false), m_dirty(false), m_sphereScale(0.5)
 {
     setDefaultStyle();
 }
