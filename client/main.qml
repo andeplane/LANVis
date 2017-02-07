@@ -166,6 +166,26 @@ ApplicationWindow {
                 }
             }
 
+            Row {
+                Label {
+                    width: parent.width*0.4
+                    text: "Attenuation"
+                }
+                Slider {
+                    id: lightAttenuation
+                    height: 20
+                    from: 0
+                    to: 5
+                    value: scene.light.attenuation
+
+                    Binding {
+                        target: scene.light
+                        property: "attenuation"
+                        value: lightAttenuation.value
+                    }
+                }
+            }
+
         }
     }
 }

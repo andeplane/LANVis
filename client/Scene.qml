@@ -19,6 +19,7 @@ Scene3D {
     property alias stateFileName: simulator.stateFileName
     property alias clientStateFileName: simulator.clientStateFileName
     property alias typesFileName: simulator.typesFileName
+    property alias light: light
     property var   renderingQuality: "high"
     hoverEnabled: true
     multisample: true
@@ -38,7 +39,7 @@ Scene3D {
         }
 
         property var lights: [
-            light1
+            light
         ]
 
         clearColor: "#000"
@@ -53,7 +54,7 @@ Scene3D {
         }
 
         Light {
-            id: light1
+            id: light
             position: visualizer.camera.position.plus(
                           (visualizer.camera.viewVector.normalized().plus(
                                visualizer.camera.upVector.normalized()).plus(
