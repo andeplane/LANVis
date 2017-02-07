@@ -13,6 +13,7 @@ class Atoms : public QObject
     Q_OBJECT
     Q_PROPERTY(SphereData* sphereData READ sphereData NOTIFY sphereDataChanged)
     Q_PROPERTY(BondData* bondData READ bondData NOTIFY bondDataChanged)
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(bool sort READ sort WRITE setSort NOTIFY sortChanged)
     Q_PROPERTY(bool dirty READ dirty WRITE setDirty NOTIFY dirtyChanged)
     Q_PROPERTY(float sphereScale READ sphereScale WRITE setSphereScale NOTIFY sphereScaleChanged)
@@ -30,12 +31,15 @@ public:
     void setData(const QVector<QVector3D> &positions, const QVector<QString> &types);
     void setSphereData(SphereData *sphereData);
     float sphereScale() const;
+    int count() const;
+
 signals:
     void sphereDataChanged(SphereData* sphereData);
     void bondDataChanged(BondData* bondData);
     void sortChanged(bool sort);
     void dirtyChanged(bool dirty);
     void sphereScaleChanged(float sphereScale);
+    void countChanged(int count);
 
 public slots:
     void setSort(bool sort);

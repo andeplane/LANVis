@@ -108,6 +108,7 @@ void Atoms::synchronizeRenderer() {
     if(!m_dirty) return;
     int numSpheres = m_sphereDataBytes.size() / sizeof(SphereVBOData);
     m_sphereData->setData(m_sphereDataBytes, numSpheres);
+    emit countChanged(m_particles.size());
     setDirty(false);
 }
 
@@ -166,4 +167,9 @@ void Atoms::setSphereData(SphereData *sphereData)
 float Atoms::sphereScale() const
 {
     return m_sphereScale;
+}
+
+int Atoms::count() const
+{
+    return m_particles.size();
 }

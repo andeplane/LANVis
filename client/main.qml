@@ -113,6 +113,16 @@ ApplicationWindow {
     }
 
     Shortcut {
+        sequence: "+"
+        onActivated: rCutSlider.value += 20
+    }
+
+    Shortcut {
+        sequence: "-"
+        onActivated: rCutSlider.value -= 20
+    }
+
+    Shortcut {
         sequence: "Q"
         onActivated: {
             if(scene.renderingQuality==="high") {
@@ -129,21 +139,29 @@ ApplicationWindow {
             left: parent.left
             right: parent.right
         }
-        height: 50
-        color: "white"
+        height: 20
+        color: Qt.rgba(1.0, 1.0, 1.0, 0.7)
         radius: 2
-        Column {
+        Row {
+            spacing: 20
             Row {
+                Label {
+                    width: 120
+                    text: "Cutoff: "+rCutSlider.value.toFixed(1)+" Å"
+                }
                 Slider {
                     id: rCutSlider
+                    height: 20
                     from:  10
                     to: 1000
                     value: 100
                     onValueChanged: scene.simulator.clientState.rCut = value
                     focus: Qt.NoFocus
                 }
+            }
+            Row {
                 Label {
-                    text: "Cutoff: "+rCutSlider.value.toFixed(1)+" Å"
+                    text: scene.simulator.state.atoms.count+" particles"
                 }
             }
 

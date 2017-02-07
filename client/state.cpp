@@ -29,7 +29,6 @@ void State::update(const QJsonObject &object)
             reader.readFile(xyzFilename);
             m_atoms->setData(reader.positions(), reader.types());
         } else if(object.contains("binaryFileName")) {
-            qDebug() << "Loading binary";
             m_atoms->loadBinary(object["binaryFileName"].toString());
         }
 
