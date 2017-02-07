@@ -23,10 +23,16 @@ void State::update(const QJsonObject &object)
     int timestamp = object["timestamp"].toInt();
     if(timestamp > m_timestamp) {
         m_timestamp = timestamp;
-        QString xyzFilename = object["xyzFileName"].toString();
-        XYZReader reader;
-        reader.readFile(xyzFilename);
-        m_atoms->setData(reader.positions(), reader.types());
+        if(object.contains("xyzFileName")) {
+            QString xyzFilename = object["xyzFileName"].toString();
+            XYZReader reader;
+            reader.readFile(xyzFilename);
+            m_atoms->setData(reader.positions(), reader.types());
+        } else if(object.contains("binaryFileName")) {
+            qDebug() << "Loading binary";
+            m_atoms->loadBinary(object["binaryFileName"].toString());
+        }
+
         m_atoms->generateSphereData();
     }
 }

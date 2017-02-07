@@ -100,6 +100,7 @@ ApplicationWindow {
         onPressed: {
             mouse.accepted = false
             scene.captureCursor = true
+            scene.focus = true
 
             previousX = mouse.x
             previousY = mouse.y
@@ -109,6 +110,44 @@ ApplicationWindow {
     Shortcut {
         sequence: "Escape"
         onActivated: scene.captureCursor = false
+    }
+
+    Shortcut {
+        sequence: "Q"
+        onActivated: {
+            if(scene.renderingQuality==="high") {
+                scene.renderingQuality = "low"
+            } else {
+                scene.renderingQuality = "high"
+            }
+        }
+    }
+
+    Rectangle {
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
+        height: 50
+        color: "white"
+        radius: 2
+        Column {
+            Row {
+                Slider {
+                    id: rCutSlider
+                    from:  10
+                    to: 1000
+                    value: 100
+                    onValueChanged: scene.simulator.clientState.rCut = value
+                    focus: Qt.NoFocus
+                }
+                Label {
+                    text: "Cutoff: "+rCutSlider.value.toFixed(1)+" Å"
+                }
+            }
+
+        }
     }
 }
 

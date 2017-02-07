@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QDateTime>
 
 Server::Server() : m_rCut(50)
 {
@@ -96,17 +97,58 @@ void Server::updatePositions()
     }
 }
 
-void Server::writePositions(QString fileName)
+void Server::writePositions()
 {
     int numBytes = m_subParticles.size()*sizeof(Particle);
-    const char *array = reinterpret_cast<const char*>(&m_subParticles.front());
+    if(numBytes > 0) {
+        const char *array = reinterpret_cast<const char*>(&m_subParticles.front());
 
-    QFile file(fileName);
-    if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        qDebug() << "Could not open file " << fileName;
+        QFile file(m_dataFileName);
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            qDebug() << "Could not open file " << m_dataFileName;
+        }
+        file.write(array, numBytes);
+
+        file.close();
     }
-    file.write(array, numBytes);
-    file.close();
+}
+
+void Server::writeState()
+{
+    QFile file(m_stateFileName);
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        QTextStream stream(&file);
+        QJsonObject json;
+
+        json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<int>(QDateTime::currentDateTime().toTime_t()));
+        json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_subParticles.size()));
+        json["binaryFileName"] = m_dataFileName;
+        QJsonDocument saveObject(json);
+        stream << saveObject.toJson();
+        file.close();
+    } else {
+        qDebug() << "Could not open file " << m_stateFileName;
+    }
+}
+
+QString Server::dataFileName() const
+{
+    return m_dataFileName;
+}
+
+void Server::setDataFileName(const QString &dataFileName)
+{
+    m_dataFileName = dataFileName;
+}
+
+QString Server::stateFileName() const
+{
+    return m_stateFileName;
+}
+
+void Server::setStateFileName(const QString &stateFileName)
+{
+    m_stateFileName = stateFileName;
 }
 
 void Server::update(QString clientStateFileName)
@@ -121,6 +163,7 @@ void Server::update(QString clientStateFileName)
     QJsonDocument doc(QJsonDocument::fromJson(stateData));
     QJsonObject   obj = doc.object();
     QJsonArray    arr = obj["cameraPosition"].toArray();
+    m_rCut = obj["rCut"].toDouble();
 
     m_cameraPosition[0] = arr[0].toDouble();
     m_cameraPosition[1] = arr[1].toDouble();

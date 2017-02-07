@@ -9,10 +9,13 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     QString xyzFileName("/projects/tmp/dump.xyz");
-    QString outFileName("/projects/tmp/dump.bin");
+    QString dataFileName("/projects/tmp/dump.bin");
+    QString stateFileName("/projects/tmp/state.json");
     QString clientStateFileName("/projects/tmp/client.json");
 
     Server server;
+    server.setStateFileName(stateFileName);
+    server.setDataFileName(dataFileName);
     QElapsedTimer t;
     t.start();
     server.loadXYZ(xyzFileName);
@@ -21,7 +24,8 @@ int main(int argc, char *argv[])
         t.restart();
         server.update(clientStateFileName);
         qDebug() << "Updated position took " << t.restart() << " ms.";
-        server.writePositions(outFileName);
+        server.writePositions();
+        server.writeState();
         qDebug() << "Writing file took " << t.restart() << " ms.";
         usleep(100000);
     }

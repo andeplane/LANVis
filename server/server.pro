@@ -9,7 +9,7 @@ SOURCES += \
     atomstyle.cpp
 
 HEADERS += \
-    particle.h \
     ../client/xyzreader.h \
+    ../client/particle.h \
     server.h \
     atomstyle.h

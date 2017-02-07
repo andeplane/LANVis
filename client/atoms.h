@@ -3,6 +3,7 @@
 
 #include "atomdata.h"
 #include "atomstyle.h"
+#include "particle.h"
 #include <QObject>
 #include <SimVis/SphereData>
 #include <SimVis/BondData>
@@ -24,11 +25,11 @@ public:
     BondData* bondData() const;
     bool sort() const;
     bool dirty() const;
-    AtomData &atomData();
+
+    void loadBinary(QString fileName);
     void setData(const QVector<QVector3D> &positions, const QVector<QString> &types);
     void setSphereData(SphereData *sphereData);
     float sphereScale() const;
-
 signals:
     void sphereDataChanged(SphereData* sphereData);
     void bondDataChanged(BondData* bondData);
@@ -44,7 +45,7 @@ public slots:
 private:
     void setDefaultStyle();
 
-    AtomData m_atomData;
+    QVector<Particle> m_particles;
     QMap<QString, AtomStyle*> m_atomStyles;
     SphereData* m_sphereData;
     QByteArray m_sphereDataBytes;

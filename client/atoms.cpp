@@ -1,4 +1,7 @@
 #include "atoms.h"
+#include "particle.h"
+
+#include <QFile>
 
 Atoms::Atoms(QObject *parent) : QObject(parent),
     m_sphereData(nullptr), m_bondData(nullptr), m_sort(false), m_dirty(false), m_sphereScale(0.5)
@@ -51,21 +54,31 @@ void Atoms::setDefaultStyle() {
 }
 
 void Atoms::generateSphereData() {
-
-    m_sphereDataBytes.resize(m_atomData.size() * sizeof(SphereVBOData));
+    m_sphereDataBytes.resize(m_particles.size() * sizeof(SphereVBOData));
     SphereVBOData *vboData = reinterpret_cast<SphereVBOData *>(m_sphereDataBytes.data());
-    for(int i=0; i<m_atomData.size(); i++) {
+    for(int i=0; i<m_particles.size(); i++) {
         SphereVBOData &vbo = vboData[i];
-        vbo.position = m_atomData.positions[i];
-        vbo.color = m_atomData.colors[i];
-        vbo.radius = m_atomData.radii[i] * m_sphereScale;
+        vbo.position = m_particles[i].position;
+        vbo.color = m_particles[i].color;
+        vbo.radius = m_particles[i].radius * m_sphereScale;
     }
     setDirty(true);
 }
 
-AtomData &Atoms::atomData()
+void Atoms::loadBinary(QString fileName)
 {
-    return m_atomData;
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Could not open file " << fileName;
+        return;
+    }
+
+    QByteArray ba = file.readAll();
+    file.close();
+    Particle *particles = reinterpret_cast<Particle *>(ba.data());
+    int numParticles = ba.length() / sizeof(Particle);
+    m_particles.resize(numParticles);
+    memcpy(&m_particles.front(), particles, numParticles*sizeof(Particle));
 }
 
 void Atoms::setData(const QVector<QVector3D> &positions, const QVector<QString> &types)
@@ -74,9 +87,8 @@ void Atoms::setData(const QVector<QVector3D> &positions, const QVector<QString> 
         qFatal("Error in Atoms::setData: positions.size() != types.size().");
     }
 
-    m_atomData.resize(positions.size());
-    m_atomData.positions = positions;
-    for(int i=0; i<m_atomData.size(); i++) {
+    m_particles.resize(positions.size());
+    for(int i=0; i<m_particles.size(); i++) {
         float radius = 1.0;
         QVector3D color(1.0, 0.9, 0.8);
 
@@ -86,8 +98,9 @@ void Atoms::setData(const QVector<QVector3D> &positions, const QVector<QString> 
             color[1] = m_atomStyles[types[i]]->color.greenF();
             color[2] = m_atomStyles[types[i]]->color.blueF();
         }
-        m_atomData.radii[i] = radius;
-        m_atomData.colors[i] = color;
+        m_particles[i].radius = radius;
+        m_particles[i].color = color;
+        m_particles[i].position = positions[i];
     }
 }
 
@@ -95,7 +108,6 @@ void Atoms::synchronizeRenderer() {
     if(!m_dirty) return;
     int numSpheres = m_sphereDataBytes.size() / sizeof(SphereVBOData);
     m_sphereData->setData(m_sphereDataBytes, numSpheres);
-
     setDirty(false);
 }
 

@@ -46,4 +46,5 @@ HEADERS += \
     xyzreader.h \
     state.h \
     clientstate.h \
-    atomstyle.h
+    atomstyle.h \
+    particle.h

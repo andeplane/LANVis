@@ -15,9 +15,11 @@ Scene3D {
     aspects: ["render", "input", "logic"]
     property var mouseMover: flyModeController.mouseMover
     property alias visualizer: visualizer
+    property alias simulator: simulator
     property alias stateFileName: simulator.stateFileName
     property alias clientStateFileName: simulator.clientStateFileName
     property alias typesFileName: simulator.typesFileName
+    property var   renderingQuality: "high"
     hoverEnabled: true
     multisample: true
 
@@ -36,8 +38,7 @@ Scene3D {
         }
 
         property var lights: [
-            light1,
-            light2
+            light1
         ]
 
         clearColor: "#000"
@@ -57,17 +58,8 @@ Scene3D {
                           (visualizer.camera.viewVector.normalized().plus(
                                visualizer.camera.upVector.normalized()).plus(
                                visualizer.camera.viewVector.crossProduct(visualizer.camera.upVector)).normalized()).times(20))
-            strength: 0.5
-            attenuation: 1.0
-        }
-        Light {
-            id: light2
-            position: visualizer.camera.position.minus(
-                          (visualizer.camera.viewVector.normalized().plus(
-                               visualizer.camera.upVector.normalized()).plus(
-                               visualizer.camera.viewVector.crossProduct(visualizer.camera.upVector)).normalized()).times(10))
-            strength: 0.5
-            attenuation: 25.0
+            strength: 1.0
+            attenuation: 5.0
         }
 
         FlyModeController {
@@ -76,7 +68,7 @@ Scene3D {
         }
 
         StandardMaterial {
-            id: spheresMediumQuality
+            id: spheresHighQuality
             color: spheresEntity.fragmentBuilder.color
             lights: visualizer.lights
         }
@@ -85,7 +77,7 @@ Scene3D {
             id: spheresEntity
             camera: visualizer.camera
             sphereData: simulator.state.atoms.sphereData
-            fragmentColor: spheresMediumQuality
+            fragmentColor: renderingQuality==="high" ? spheresHighQuality : fragmentBuilder.normalDotCamera
         }
     }
 }

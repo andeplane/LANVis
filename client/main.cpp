@@ -5,6 +5,7 @@
 
 #include "mysimulator.h"
 #include "mousemover.h"
+#include "clientstate.h"
 #include "state.h"
 #include "atoms.h"
 
@@ -17,6 +18,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<MySimulator>("LANVis", 1, 0, "MySimulator");
     qmlRegisterType<State>("LANVis", 1, 0, "State");
+    qmlRegisterType<ClientState>("LANVis", 1, 0, "ClientState");
     qmlRegisterType<Atoms>("LANVis", 1, 0, "Atoms");
     qmlRegisterType<MouseMover>("LANVis", 1, 0, "MouseMover");
     QApplication app(argc, argv);

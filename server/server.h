@@ -4,7 +4,8 @@
 #include <QString>
 #include <QMap>
 #include "atomstyle.h"
-#include "particle.h"
+#include "../client/particle.h"
+
 class Server
 {
 public:
@@ -12,9 +13,18 @@ public:
     void loadXYZ(QString fileName);
     void update(QString clientStateFileName);
     void updatePositions();
-    void writePositions(QString fileName);
+    void writePositions();
+    void writeState();
+    QString dataFileName() const;
+    void setDataFileName(const QString &dataFileName);
+
+    QString stateFileName() const;
+    void setStateFileName(const QString &stateFileName);
+
 private:
     QString m_fileName;
+    QString m_dataFileName;
+    QString m_stateFileName;
     float m_rCut;
     QVector3D m_cameraPosition;
     QVector<Particle> m_allParticles;
