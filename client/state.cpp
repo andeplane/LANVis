@@ -26,7 +26,7 @@ void State::update(const QJsonObject &object)
         QString xyzFilename = object["xyzFileName"].toString();
         XYZReader reader;
         reader.readFile(xyzFilename);
-        m_atoms->setData(reader.points(), reader.types());
+        m_atoms->setData(reader.positions(), reader.types());
         m_atoms->generateSphereData();
     }
 }

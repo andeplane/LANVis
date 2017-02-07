@@ -14,8 +14,8 @@ public:
     const QVector<QString> &types() const;
     void setTypes(const QVector<QString> &types);
 
-    const QVector<QVector3D> &points() const;
-    void setPoints(const QVector<QVector3D> &points);
+    const QVector<QVector3D> &positions() const;
+    void setPositions(const QVector<QVector3D> &positions);
 
 signals:
 
@@ -23,7 +23,7 @@ public slots:
 
 private:
     QVector<QString>   m_types;
-    QVector<QVector3D> m_points;
+    QVector<QVector3D> m_positions;
 
 };
 

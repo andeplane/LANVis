@@ -17,14 +17,14 @@ void XYZReader::setTypes(const QVector<QString> &types)
     m_types = types;
 }
 
-const QVector<QVector3D> &XYZReader::points() const
+const QVector<QVector3D> &XYZReader::positions() const
 {
-    return m_points;
+    return m_positions;
 }
 
-void XYZReader::setPoints(const QVector<QVector3D> &points)
+void XYZReader::setPositions(const QVector<QVector3D> &points)
 {
-    m_points = points;
+    m_positions = points;
 }
 
 void XYZReader::readFile(QString filename)
@@ -45,7 +45,7 @@ void XYZReader::readFile(QString filename)
     // Set lengths to zero and update based on the maximum measured coordinate in the atoms. Add a small epsilon after we're done
     // so x / m_lx always is smaller than the number of voxels in that dimension.
     m_types.resize(0);
-    m_points.resize(0);
+    m_positions.resize(0);
     while (!file.atEnd()) {
         QString line = file.readLine();
         if(++lineNumber == 2) continue; // second line which is a comment, ignore.
@@ -60,7 +60,7 @@ void XYZReader::readFile(QString filename)
                 return;
             }
             foundNumberOfAtoms = true;
-            m_points.resize(numberOfAtoms);
+            m_positions.resize(numberOfAtoms);
             m_types.resize(numberOfAtoms);
         } else if(splitted.count() == 5) {
             // AtomType x y z \n
@@ -74,17 +74,17 @@ void XYZReader::readFile(QString filename)
                 qDebug() << QString("Error, tried to read atom line, but '%1' didn't cast well.").arg(line);
                 return;
             }
-            if(positionCount<m_points.size()) {
+            if(positionCount<m_positions.size()) {
                 m_types [positionCount]    = atomType;
-                m_points[positionCount][0] = x;
-                m_points[positionCount][1] = y;
-                m_points[positionCount][2] = z;
+                m_positions[positionCount][0] = x;
+                m_positions[positionCount][1] = y;
+                m_positions[positionCount][2] = z;
                 positionCount++;
             } else break; // If this is a multi timestep xyz-file, just ignore the rest
         }
     }
 
-    if(positionCount != m_points.size()) {
+    if(positionCount != m_positions.size()) {
         qDebug() << QString("Error, could not parse XYZ file");
     }
 }
