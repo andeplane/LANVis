@@ -146,7 +146,7 @@ ApplicationWindow {
             spacing: 20
             Row {
                 Label {
-                    width: 120
+                    width: 170
                     text: "Max num atoms: "+maxAtomCountSlider.value
                 }
                 Slider {
