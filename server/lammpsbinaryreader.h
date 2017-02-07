@@ -41,29 +41,6 @@ typedef int64_t bigint;
 #define BIGINT_FORMAT "%" PRId64
 #endif
 
-struct Atom {
-    QVector3D position;
-    int atomType;
-    int atomId;
-};
-
-struct State {
-    double xlo = 0;
-    double xhi = 0;
-    double ylo = 0;
-    double yhi = 0;
-    double zlo = 0;
-    double zhi = 0;
-    double xy = 0;
-    double xz = 0;
-    double yz = 0;
-
-    QVector<Atom> atoms;
-    int64_t timestep = 0;
-    bool triclinic = false;
-    int boundary[3][2];
-};
-
 class LAMMPSBinaryReader
 {
 public:

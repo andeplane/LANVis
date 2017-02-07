@@ -7,7 +7,7 @@
 struct Chunk
 {
     Chunk() { corners.resize(8); }
-    float minDistanceTo(const QVector3D &point);
+    float minDistanceTo(const QVector3D &point) const;
     QVector<QVector3D> corners;
     QVector<Particle> particles;
 };

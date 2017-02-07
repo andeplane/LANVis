@@ -30,9 +30,8 @@ void LAMMPSBinaryReader::readFile(QString fileName)
 
     int maxbuf = 0;
     double *buf = NULL;
-    State state;
-
-    fread(&state.timestep,sizeof(bigint),1,filePtr);
+    bigint timestep;
+    fread(&timestep,sizeof(bigint),1,filePtr);
     // detect end-of-file
     if (feof(filePtr)) {
         fclose(filePtr);
@@ -41,34 +40,36 @@ void LAMMPSBinaryReader::readFile(QString fileName)
 
     bigint natoms;
     int size_one, nchunk;
+    double xlo,xhi,ylo,yhi,zlo,zhi,xy,xz,yz;
+    bool triclinic = false;
     int boundary[3][2];
-    char boundstr[9];
 
     fread(&natoms,sizeof(bigint),1,filePtr);
-    m_positions.resize(natoms);
-    m_types.resize(natoms);
-    fread(&state.triclinic,sizeof(int),1,filePtr);
+    fread(&triclinic,sizeof(int),1,filePtr);
 
-    fread(&state.boundary[0][0],6*sizeof(int),1,filePtr);
-    fread(&state.xlo,sizeof(double),1,filePtr);
-    fread(&state.xhi,sizeof(double),1,filePtr);
-    fread(&state.ylo,sizeof(double),1,filePtr);
-    fread(&state.yhi,sizeof(double),1,filePtr);
-    fread(&state.zlo,sizeof(double),1,filePtr);
-    fread(&state.zhi,sizeof(double),1,filePtr);
-    if (state.triclinic) {
-        fread(&state.xy,sizeof(double),1,filePtr);
-        fread(&state.xz,sizeof(double),1,filePtr);
-        fread(&state.yz,sizeof(double),1,filePtr);
+    fread(&boundary[0][0],6*sizeof(int),1,filePtr);
+    fread(&xlo,sizeof(double),1,filePtr);
+    fread(&xhi,sizeof(double),1,filePtr);
+    fread(&ylo,sizeof(double),1,filePtr);
+    fread(&yhi,sizeof(double),1,filePtr);
+    fread(&zlo,sizeof(double),1,filePtr);
+    fread(&zhi,sizeof(double),1,filePtr);
+    if (triclinic) {
+        fread(&xy,sizeof(double),1,filePtr);
+        fread(&xz,sizeof(double),1,filePtr);
+        fread(&yz,sizeof(double),1,filePtr);
     }
-    m_origo[0] = state.xlo; m_origo[1] = state.ylo; m_origo[2] = state.zlo;
-    m_size[0] = state.xhi-state.xlo; m_size[1] = state.yhi-state.ylo; m_size[2] = state.zhi-state.zlo;
+    m_origo[0] = xlo; m_origo[1] = ylo; m_origo[2] = zlo;
+    m_size[0] = xhi-xlo; m_size[1] = yhi-ylo; m_size[2] = zhi-zlo;
 
     fread(&size_one,sizeof(int),1,filePtr);
     fread(&nchunk,sizeof(int),1,filePtr);
-    state.atoms.resize(natoms);
-    int atomIndex = 0;
+
+    m_positions.resize(natoms);
+    m_types.resize(natoms);
+
     // loop over processor chunks in file
+    int atomIndex = 0;
     for (int i = 0; i < nchunk; i++) {
         int chunkSize;
         fread(&chunkSize,sizeof(int),1,filePtr);

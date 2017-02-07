@@ -7,7 +7,7 @@
 #include <QTextStream>
 #include <QDebug>
 
-ClientState::ClientState(QObject *parent) : QObject(parent), m_rCut(100)
+ClientState::ClientState(QObject *parent) : QObject(parent), m_maxNumberOfAtoms(300000)
 {
 
 }
@@ -24,7 +24,7 @@ void ClientState::save(QString fileName)
         QTextStream stream(&file);
         QJsonObject json;
         QJsonArray array = { m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2] };
-        json["rCut"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_rCut));
+        json["maxNumberOfAtoms"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfAtoms));
         json["cameraPosition"] = array;
         QJsonDocument saveObject(json);
         stream << saveObject.toJson();
@@ -32,9 +32,9 @@ void ClientState::save(QString fileName)
     file.close();
 }
 
-float ClientState::rCut() const
+int ClientState::maxNumberOfAtoms() const
 {
-    return m_rCut;
+    return m_maxNumberOfAtoms;
 }
 
 void ClientState::setCameraPosition(QVector3D cameraPosition)
@@ -46,11 +46,11 @@ void ClientState::setCameraPosition(QVector3D cameraPosition)
     emit cameraPositionChanged(cameraPosition);
 }
 
-void ClientState::setRCut(float rCut)
+void ClientState::setMaxNumberOfAtoms(int maxNumberOfAtoms)
 {
-    if (m_rCut == rCut)
+    if (m_maxNumberOfAtoms == maxNumberOfAtoms)
         return;
 
-    m_rCut = rCut;
-    emit rCutChanged(rCut);
+    m_maxNumberOfAtoms = maxNumberOfAtoms;
+    emit maxNumberOfAtomsChanged(maxNumberOfAtoms);
 }

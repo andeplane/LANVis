@@ -8,24 +8,24 @@ class ClientState : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVector3D cameraPosition READ cameraPosition WRITE setCameraPosition NOTIFY cameraPositionChanged)
-    Q_PROPERTY(float rCut READ rCut WRITE setRCut NOTIFY rCutChanged)
+    Q_PROPERTY(int maxNumberOfAtoms READ maxNumberOfAtoms WRITE setMaxNumberOfAtoms NOTIFY maxNumberOfAtomsChanged)
 public:
     explicit ClientState(QObject *parent = 0);
     QVector3D cameraPosition() const;
     void save(QString fileName);
-    float rCut() const;
+    int maxNumberOfAtoms() const;
 
 signals:
     void cameraPositionChanged(QVector3D cameraPosition);
-    void rCutChanged(float rCut);
+    void maxNumberOfAtomsChanged(int maxNumberOfAtoms);
 
 public slots:
     void setCameraPosition(QVector3D cameraPosition);
-    void setRCut(float rCut);
+    void setMaxNumberOfAtoms(int maxNumberOfAtoms);
 
 private:
     QVector3D m_cameraPosition;
-    float m_rCut;
+    int m_maxNumberOfAtoms;
 };
 
 #endif // CLIENTSTATE_H

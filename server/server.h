@@ -25,11 +25,12 @@ public:
     const QVector<Particle> &particles() const;
 
 private:
+    void sortChunks();
     inline int index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
     QVector3D m_origo;
     QVector3D m_size;
     int m_nx, m_ny, m_nz;
-    float m_rCut;
+    int m_maxNumberOfAtoms;
     float m_chunkSize;
     QString m_fileName;
     QString m_dataFileName;

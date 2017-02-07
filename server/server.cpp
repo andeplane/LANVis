@@ -9,7 +9,7 @@
 #include <QJsonObject>
 #include <QDateTime>
 
-Server::Server() : m_rCut(50), m_chunkSize(50), m_nx(0), m_ny(0), m_nz(0)
+Server::Server() : m_chunkSize(50), m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfAtoms(300000)
 {
     setDefaultStyles();
 }
@@ -169,19 +169,12 @@ void Server::placeParticleInChunks() {
 void Server::updatePositions()
 {
     m_particles.clear();
-    float cutsq = m_rCut*m_rCut;
+    unsigned int atomCount = 0;
+    sortChunks();
     for(Chunk &chunk : m_chunks) {
-        if(chunk.minDistanceTo(m_cameraPosition) < m_rCut) {
-            for(const Particle &particle : chunk.particles) {
-                float dx = particle.position[0] - m_cameraPosition[0];
-                float dy = particle.position[1] - m_cameraPosition[1];
-                float dz = particle.position[2] - m_cameraPosition[2];
-                float dr2 = dx*dx + dy*dy + dz*dz;
-                if(dr2 < cutsq) {
-                    m_particles.push_back(particle);
-                }
-            }
-        }
+        m_particles.append(chunk.particles);
+        atomCount += chunk.particles.size();
+        if(atomCount > m_maxNumberOfAtoms) return;
     }
 }
 
@@ -244,6 +237,17 @@ const QVector<Particle> &Server::particles() const
     return m_particles;
 }
 
+void Server::sortChunks()
+{
+    std::sort(m_chunks.begin(), m_chunks.end(),
+        [&](const Chunk& a, const Chunk& b)
+    {
+        float da = a.minDistanceTo(m_cameraPosition);
+        float db = b.minDistanceTo(m_cameraPosition);
+        return da < db;
+    });
+}
+
 void Server::update(QString clientStateFileName)
 {
     QFile loadFile(clientStateFileName);
@@ -256,7 +260,7 @@ void Server::update(QString clientStateFileName)
     QJsonDocument doc(QJsonDocument::fromJson(stateData));
     QJsonObject   obj = doc.object();
     QJsonArray    arr = obj["cameraPosition"].toArray();
-    m_rCut = obj["rCut"].toDouble();
+    m_maxNumberOfAtoms = obj["maxNumberOfAtoms"].toInt();
 
     m_cameraPosition[0] = arr[0].toDouble();
     m_cameraPosition[1] = arr[1].toDouble();

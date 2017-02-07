@@ -147,15 +147,15 @@ ApplicationWindow {
             Row {
                 Label {
                     width: 120
-                    text: "Cutoff: "+rCutSlider.value.toFixed(1)+" Å"
+                    text: "Max num atoms: "+maxAtomCountSlider.value
                 }
                 Slider {
-                    id: rCutSlider
+                    id: maxAtomCountSlider
                     height: 20
-                    from:  10
-                    to: 1000
-                    value: 100
-                    onValueChanged: scene.simulator.clientState.rCut = value
+                    from:  10000
+                    to: 1e7
+                    value: 300000
+                    onValueChanged: scene.simulator.clientState.maxNumberOfAtoms = value
                     focus: Qt.NoFocus
                 }
             }
