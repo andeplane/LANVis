@@ -14,7 +14,7 @@ public:
     Server();
     void loadXYZ(QString fileName);
     void loadLAMMPSBinary(QString fileName);
-    void update(QString clientStateFileName);
+    bool update(QString clientStateFileName);
     void updatePositions();
     void writePositions();
     void writeState();
@@ -24,6 +24,7 @@ public:
     QString stateFileName() const;
     void setStateFileName(const QString &stateFileName);
     const std::vector<Particle> &particles() const;
+    const std::vector<Particle> &allParticles() const;
 
     QString lockFileName() const;
     void setLockFileName(const QString &lockFileName);

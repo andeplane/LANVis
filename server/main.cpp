@@ -35,11 +35,14 @@ int main(int argc, char *argv[])
     qDebug() << "Loading file took " << t.elapsed() << " ms.";
     while(true) {
         t.restart();
-        server.update(clientStateFileName);
-        qDebug() << "Updated position took " << t.restart() << " ms.";
-        server.writePositions();
-        server.writeState();
-        qDebug() << "Writing file took " << t.restart() << " ms with " << server.particles().size() << " particles.";
+        bool anyChanges = server.update(clientStateFileName);
+        if(anyChanges) {
+            qDebug() << "Updated position on " << server.allParticles().size() << " particles took " << t.restart() << " ms.";
+            server.writePositions();
+            server.writeState();
+            qDebug() << "Writing file with " << server.particles().size() << " took " << t.restart() << " ms.";
+        }
+
         usleep(300000);
     }
 

@@ -243,6 +243,11 @@ const std::vector<Particle> &Server::particles() const
     return m_particles;
 }
 
+const std::vector<Particle> &Server::allParticles() const
+{
+    return m_allParticles;
+}
+
 void Server::sortChunks()
 {
     std::sort(m_chunks.begin(), m_chunks.end(),
@@ -264,33 +269,37 @@ void Server::setLockFileName(const QString &lockFileName)
     m_lockFileName = lockFileName;
 }
 
-void Server::update(QString clientStateFileName)
+bool Server::update(QString clientStateFileName)
 {
     QFile loadFile(clientStateFileName);
     if (!loadFile.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open state file");
-        return;
+        return false;
     }
 
     QByteArray stateData = loadFile.readAll();
-    if(stateData.isEmpty()) return;
+    // if(stateData.isEmpty()) return false;
 
     QJsonParseError error;
     QJsonDocument doc(QJsonDocument::fromJson(stateData, &error));
-    if(doc.isNull()) return;
+    if(doc.isNull()) return false;
 
     QJsonObject   obj = doc.object();
 
     QJsonArray    arr = obj["cameraPosition"].toArray();
-    m_maxNumberOfAtoms = obj["maxNumberOfAtoms"].toInt();
+    int maxNumberOfAtoms = obj["maxNumberOfAtoms"].toInt();
 
-    m_cameraPosition[0] = arr[0].toDouble();
-    m_cameraPosition[1] = arr[1].toDouble();
-    m_cameraPosition[2] = arr[2].toDouble();
-    if(m_cameraPosition[1] == 0) {
-        qDebug() << "Error with file, here is it: " << stateData;
-        exit(1);
-    }
-    qDebug() << "Camera position: " << m_cameraPosition;
+    QVector3D newCameraPositon;
+    newCameraPositon[0] = arr[0].toDouble();
+    newCameraPositon[1] = arr[1].toDouble();
+    newCameraPositon[2] = arr[2].toDouble();
+    float distanceToOldPositionSquared = (newCameraPositon - m_cameraPosition).lengthSquared();
+    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfAtoms!=m_maxNumberOfAtoms;
+    if(!anyChanges) return false;
+
+    m_maxNumberOfAtoms = maxNumberOfAtoms;
+    m_cameraPosition = newCameraPositon;
+
     updatePositions();
+    return true;
 }

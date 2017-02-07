@@ -1,5 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
+import QtQuick.Controls 1.4 as QQC1
 import LANVis 1.0
 
 ApplicationWindow {
@@ -149,11 +150,11 @@ ApplicationWindow {
                     width: 170
                     text: "Max num atoms: "+maxAtomCountSlider.value.toFixed(0)
                 }
-                Slider {
+                QQC1.Slider {
                     id: maxAtomCountSlider
                     height: 20
-                    from:  10000
-                    to: 1e7
+                    minimumValue: 10000
+                    maximumValue: 1e7
                     value: 300000
                     stepSize: 1000
                     onValueChanged: scene.simulator.clientState.maxNumberOfAtoms = value
@@ -171,11 +172,11 @@ ApplicationWindow {
                     width: parent.width*0.4
                     text: "Attenuation"
                 }
-                Slider {
+                QQC1.Slider {
                     id: lightAttenuation
                     height: 20
-                    from: 0
-                    to: 5
+                    minimumValue: 0
+                    maximumValue: 5
                     value: scene.light.attenuation
 
                     Binding {
