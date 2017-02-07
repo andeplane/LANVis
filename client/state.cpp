@@ -1,5 +1,6 @@
 #include "state.h"
 #include "xyzreader.h"
+#include <QLockFile>
 #include <QString>
 
 State::State(QObject *parent) : QObject(parent),
@@ -22,18 +23,23 @@ void State::update(const QJsonObject &object)
 {
     double timestamp = object["timestamp"].toDouble();
     if(timestamp > m_timestamp) {
-        bool ok = true;
-        m_timestamp = timestamp;
-        if(object.contains("xyzFileName")) {
-            QString xyzFilename = object["xyzFileName"].toString();
-            XYZReader reader;
-            reader.readFile(xyzFilename);
-            m_atoms->setData(reader.positions(), reader.types());
-        } else if(object.contains("binaryFileName")) {
-            ok = m_atoms->loadBinary(object["binaryFileName"].toString());
-        }
+        bool ok = false;
+        QLockFile lockFile(object["lockFileName"].toString());
 
-        m_atoms->generateSphereData();
+        if(lockFile.tryLock(200)) {
+            m_timestamp = timestamp;
+            if(object.contains("xyzFileName")) {
+                QString xyzFilename = object["xyzFileName"].toString();
+                XYZReader reader;
+                ok = reader.readFile(xyzFilename);
+                m_atoms->setData(reader.positions(), reader.types());
+            } else if(object.contains("binaryFileName")) {
+                ok = m_atoms->loadBinary(object["binaryFileName"].toString());
+            }
+
+            if(ok) m_atoms->generateSphereData();
+            lockFile.unlock();
+        }
     }
 }
 

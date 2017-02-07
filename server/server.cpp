@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QDateTime>
+#include <QLockFile>
 
 Server::Server() : m_chunkSize(50), m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfAtoms(300000)
 {
@@ -180,17 +181,21 @@ void Server::updatePositions()
 
 void Server::writePositions()
 {
-    int numBytes = m_particles.size()*sizeof(Particle);
-    if(numBytes > 0) {
-        const char *array = reinterpret_cast<const char*>(&m_particles.front());
+    QLockFile lockFile(m_lockFileName);
+    if(lockFile.tryLock(200)) {
+        int numBytes = m_particles.size()*sizeof(Particle);
+        if(numBytes > 0) {
+            const char *array = reinterpret_cast<const char*>(&m_particles.front());
 
-        QFile file(m_dataFileName);
-        if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-            qDebug() << "Could not open file " << m_dataFileName;
+            QFile file(m_dataFileName);
+            if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+                qDebug() << "Could not open file " << m_dataFileName;
+            }
+            file.write(array, numBytes);
+
+            file.close();
         }
-        file.write(array, numBytes);
-
-        file.close();
+        lockFile.unlock();
     }
 }
 
@@ -204,6 +209,7 @@ void Server::writeState()
         json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<double>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
         json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_particles.size()));
         json["binaryFileName"] = m_dataFileName;
+        json["lockFileName"] = m_lockFileName;
         QJsonDocument saveObject(json);
         stream << saveObject.toJson();
         file.close();
@@ -248,6 +254,16 @@ void Server::sortChunks()
     });
 }
 
+QString Server::lockFileName() const
+{
+    return m_lockFileName;
+}
+
+void Server::setLockFileName(const QString &lockFileName)
+{
+    m_lockFileName = lockFileName;
+}
+
 void Server::update(QString clientStateFileName)
 {
     QFile loadFile(clientStateFileName);
@@ -257,13 +273,24 @@ void Server::update(QString clientStateFileName)
     }
 
     QByteArray stateData = loadFile.readAll();
-    QJsonDocument doc(QJsonDocument::fromJson(stateData));
+    if(stateData.isEmpty()) return;
+
+    QJsonParseError error;
+    QJsonDocument doc(QJsonDocument::fromJson(stateData, &error));
+    if(doc.isNull()) return;
+
     QJsonObject   obj = doc.object();
+
     QJsonArray    arr = obj["cameraPosition"].toArray();
     m_maxNumberOfAtoms = obj["maxNumberOfAtoms"].toInt();
 
     m_cameraPosition[0] = arr[0].toDouble();
     m_cameraPosition[1] = arr[1].toDouble();
     m_cameraPosition[2] = arr[2].toDouble();
+    if(m_cameraPosition[1] == 0) {
+        qDebug() << "Error with file, here is it: " << stateData;
+        exit(1);
+    }
+    qDebug() << "Camera position: " << m_cameraPosition;
     updatePositions();
 }

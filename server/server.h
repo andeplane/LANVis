@@ -25,6 +25,9 @@ public:
     void setStateFileName(const QString &stateFileName);
     const std::vector<Particle> &particles() const;
 
+    QString lockFileName() const;
+    void setLockFileName(const QString &lockFileName);
+
 private:
     void sortChunks();
     inline int index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
@@ -35,6 +38,7 @@ private:
     float m_chunkSize;
     QString m_fileName;
     QString m_dataFileName;
+    QString m_lockFileName;
     QString m_stateFileName;
     QVector3D m_cameraPosition;
     std::vector<Chunk>    m_chunks;

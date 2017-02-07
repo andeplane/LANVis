@@ -10,7 +10,7 @@ class XYZReader : public QObject
     Q_OBJECT
 public:
     explicit XYZReader(QObject *parent = 0);
-    void readFile(QString filename);
+    bool readFile(QString filename);
     const QVector<QString> &types() const;
     void setTypes(const QVector<QString> &types);
 

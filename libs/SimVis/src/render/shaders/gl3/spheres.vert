@@ -42,10 +42,10 @@ void main() {
 
     // TODO should find needed size or move closer to camera. NOTE: 0.6 is a hack, should be 0.5
     // Another factor of 2 since the scale is somehow the diameter?
-    position += 2*0.6*(-up - right)*(scale*float(vertexId==0.0));
-    position += 2*0.6*(-up + right)*(scale*float(vertexId==1.0));
-    position += 2*0.6*(up - right)*(scale*float(vertexId==2.0));
-    position += 2*0.6*(up + right)*(scale*float(vertexId==3.0));
+    position += 2*0.53*(-up - right)*(scale*float(vertexId==0.0));
+    position += 2*0.53*(-up + right)*(scale*float(vertexId==1.0));
+    position += 2*0.53*(up - right)*(scale*float(vertexId==2.0));
+    position += 2*0.53*(up + right)*(scale*float(vertexId==3.0));
 
     vec4 modelPositionTmp = modelMatrix * vec4(position, 1.0);
     modelPosition = modelPositionTmp.xyz;

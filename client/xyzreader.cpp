@@ -17,14 +17,14 @@ const QVector<QVector3D> &XYZReader::positions() const
     return m_positions;
 }
 
-void XYZReader::readFile(QString filename)
+bool XYZReader::readFile(QString filename)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         file.setFileName(QUrl(filename).toLocalFile());
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qWarning() << "Could not open file "+filename;
-            return;
+            return false;
         }
     }
 
@@ -47,7 +47,7 @@ void XYZReader::readFile(QString filename)
 
             if(!ok) {
                 qDebug() << QString("Error, tried to read number of atoms, but line '%1' didn't cast well.").arg(line);
-                return;
+                return false;
             }
             foundNumberOfAtoms = true;
             m_positions.resize(numberOfAtoms);
@@ -62,7 +62,7 @@ void XYZReader::readFile(QString filename)
             float z = splitted[3].toFloat(&z_ok);
             if(!x_ok || !y_ok || !z_ok) {
                 qDebug() << QString("Error, tried to read atom line, but '%1' didn't cast well.").arg(line);
-                return;
+                return false;
             }
             if(positionCount<m_positions.size()) {
                 m_types [positionCount]    = atomType;
@@ -76,5 +76,7 @@ void XYZReader::readFile(QString filename)
 
     if(positionCount != m_positions.size()) {
         qDebug() << QString("Error, could not parse XYZ file");
+        return false;
     }
+    return true;
 }

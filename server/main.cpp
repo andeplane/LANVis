@@ -20,11 +20,13 @@ int main(int argc, char *argv[])
     QString dataFileName("/projects/tmp/dump.bin");
     QString stateFileName("/projects/tmp/state.json");
     QString clientStateFileName("/projects/tmp/client.json");
+    QString lockFileName("/projects/tmp/LANVis.lock");
 #endif
 
     Server server;
     server.setStateFileName(stateFileName);
     server.setDataFileName(dataFileName);
+    server.setLockFileName(lockFileName);
     QElapsedTimer t;
     t.start();
     qDebug() << "Loading " << lammpsDumpFileName << "...";
@@ -38,7 +40,7 @@ int main(int argc, char *argv[])
         server.writePositions();
         server.writeState();
         qDebug() << "Writing file took " << t.restart() << " ms with " << server.particles().size() << " particles.";
-        usleep(100000);
+        usleep(300000);
     }
 
     return 0;

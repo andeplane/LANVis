@@ -78,6 +78,7 @@ bool Atoms::loadBinary(QString fileName)
     Particle *particles = reinterpret_cast<Particle *>(ba.data());
     int numParticles = ba.length() / sizeof(Particle);
     m_particles.resize(numParticles);
+    qDebug() << "Num particles: " << numParticles;
     memcpy(&m_particles.front(), particles, numParticles*sizeof(Particle));
     return true;
 }
