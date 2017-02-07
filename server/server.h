@@ -29,7 +29,6 @@ public:
     QString lockFileName() const;
     void setLockFileName(const QString &lockFileName);
 private:
-    void sortParticles();
     void sortChunks();
     inline int index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
     QVector3D m_boundingBoxMin;
@@ -46,6 +45,7 @@ private:
     QString m_stateFileName;
     QVector3D m_cameraPosition;
     std::vector<Chunk>    m_chunks;
+    std::vector<Chunk*>   m_chunkPtrs;
     std::vector<Particle> m_particles;
     std::vector<Particle> m_allParticles;
     QMap<QString, AtomStyle*> m_atomStyles;

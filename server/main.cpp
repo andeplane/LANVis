@@ -16,7 +16,10 @@ int main(int argc, char *argv[])
     QString clientStateFileName("/scratch/largesystem/client.json");
 #else
     QString xyzFileName("/projects/tmp/dump.xyz");
-    QString lammpsDumpFileName("/projects/tmp/dump2.lmp.bin");
+    // QString lammpsDumpFileName("/projects/tmp/dump_20m.lmp.bin");
+    // QString lammpsDumpFileName("/projects/tmp/dump_small.lmp.bin");
+
+    QString lammpsDumpFileName("/projects/tmp/dump_270m.lmp.bin");
     QString dataFileName("/projects/tmp/dump.bin");
     QString stateFileName("/projects/tmp/state.json");
     QString clientStateFileName("/projects/tmp/client.json");

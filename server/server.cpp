@@ -70,6 +70,10 @@ void Server::setupChunks()
     m_nz = m_size[2]/m_chunkSize + 1;
     int numChunks = m_nx*m_ny*m_nz;
     m_chunks.resize(numChunks);
+    m_chunkPtrs.resize(numChunks);
+    for(int i=0; i<numChunks; i++) {
+        m_chunkPtrs[i] = &m_chunks[i]; // TODO: handle this better than raw pointers
+    }
 
     for(int i=0; i<m_nx; i++) {
         for(int j=0; j<m_ny; j++) {
@@ -182,18 +186,18 @@ void Server::updatePositions()
     m_boundingBoxMin = QVector3D(1e9,1e9,1e9);
     m_boundingBoxMax = QVector3D(-1e9,-1e9,-1e9);
 
-    for(Chunk &chunk : m_chunks) {
-        if(m_sort) chunk.sort(m_cameraPosition);
-        m_boundingBoxMin[0] = std::min(m_boundingBoxMin[0], chunk.corners()[0][0]);
-        m_boundingBoxMin[1] = std::min(m_boundingBoxMin[1], chunk.corners()[0][1]);
-        m_boundingBoxMin[2] = std::min(m_boundingBoxMin[2], chunk.corners()[0][2]);
+    for(Chunk *chunk : m_chunkPtrs) {
+        if(m_sort) chunk->sort(m_cameraPosition);
+        m_boundingBoxMin[0] = std::min(m_boundingBoxMin[0], chunk->corners()[0][0]);
+        m_boundingBoxMin[1] = std::min(m_boundingBoxMin[1], chunk->corners()[0][1]);
+        m_boundingBoxMin[2] = std::min(m_boundingBoxMin[2], chunk->corners()[0][2]);
 
-        m_boundingBoxMax[0] = std::max(m_boundingBoxMax[0], chunk.corners()[7][0]);
-        m_boundingBoxMax[1] = std::max(m_boundingBoxMax[1], chunk.corners()[7][1]);
-        m_boundingBoxMax[2] = std::max(m_boundingBoxMax[2], chunk.corners()[7][2]);
+        m_boundingBoxMax[0] = std::max(m_boundingBoxMax[0], chunk->corners()[7][0]);
+        m_boundingBoxMax[1] = std::max(m_boundingBoxMax[1], chunk->corners()[7][1]);
+        m_boundingBoxMax[2] = std::max(m_boundingBoxMax[2], chunk->corners()[7][2]);
 
-        m_particles.insert( m_particles.end(), chunk.particles().begin(), chunk.particles().end() );
-        atomCount += chunk.particles().size();
+        m_particles.insert( m_particles.end(), chunk->particles().begin(), chunk->particles().end() );
+        atomCount += chunk->particles().size();
         if(atomCount > m_maxNumberOfAtoms) break;
     }
 }
@@ -272,22 +276,19 @@ const std::vector<Particle> &Server::allParticles() const
 
 void Server::sortChunks()
 {
-    std::sort(m_chunks.begin(), m_chunks.end(),
-        [&](const Chunk& a, const Chunk& b)
-    {
-        float da = a.minDistanceTo(m_cameraPosition);
-        float db = b.minDistanceTo(m_cameraPosition);
-        return da < db;
-    });
-}
+//    std::sort(m_chunks.begin(), m_chunks.end(),
+//        [&](const Chunk& a, const Chunk& b)
+//    {
+//        float da = a.minDistanceTo(m_cameraPosition);
+//        float db = b.minDistanceTo(m_cameraPosition);
+//        return da < db;
+//    });
 
-void Server::sortParticles()
-{
-    std::sort(m_particles.begin(), m_particles.end(),
-        [&](const Particle& a, const Particle& b)
+    std::sort(m_chunkPtrs.begin(), m_chunkPtrs.end(),
+        [&](const Chunk* a, const Chunk* b)
     {
-        float da = (a.position - m_cameraPosition).lengthSquared();
-        float db = (b.position - m_cameraPosition).lengthSquared();
+        float da = a->minDistanceTo(m_cameraPosition);
+        float db = b->minDistanceTo(m_cameraPosition);
         return da < db;
     });
 }
