@@ -4,7 +4,7 @@
 #include <QString>
 #include <QMap>
 #include <vector>
-#include "atomstyle.h"
+#include "particlestyle.h"
 #include "chunk.h"
 #include "../client/particle.h"
 
@@ -36,7 +36,7 @@ private:
     QVector3D m_origo;
     QVector3D m_size;
     int m_nx, m_ny, m_nz;
-    int m_maxNumberOfAtoms;
+    int m_maxNumberOfParticles;
     float m_chunkSize;
     float m_lodDistance;
     int m_lodLevels;
@@ -50,7 +50,7 @@ private:
     std::vector<Chunk*>   m_chunkPtrs;
     std::vector<Particle> m_particles;
     std::vector<Particle> m_allParticles;
-    QMap<QString, AtomStyle*> m_atomStyles;
+    QMap<QString, ParticleStyle*> m_particleStyles;
     void setDefaultStyles();
     void setupChunks();
     void placeParticleInChunks();

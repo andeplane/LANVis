@@ -150,22 +150,22 @@ ApplicationWindow {
                 spacing: 10
                 Label {
                     width: 150
-                    text: "Max num atoms: "+maxAtomCountSlider.value.toFixed(0)+"k"
+                    text: "Max num particles: "+maxParticlesCountSlider.value.toFixed(0)+"k"
                 }
                 QQC1.Slider {
-                    id: maxAtomCountSlider
+                    id: maxParticlesCountSlider
                     height: 20
                     width: 100
                     minimumValue: 10
                     maximumValue: 1000
                     value: 300
                     stepSize: 10
-                    onValueChanged: scene.simulator.clientState.maxNumberOfAtoms = value*1000
+                    onValueChanged: scene.simulator.clientState.maxNumberOfParticles = value*1000
                 }
             }
             Row {
                 Label {
-                    text: scene.simulator.state.atoms.count+" particles"
+                    text: scene.simulator.state.particles.count+" particles"
                 }
             }
 

@@ -14,7 +14,7 @@ MySimulator::MySimulator(QNode *parent)
     : Simulator(parent), m_state(new State(this)), m_clientState(new ClientState(this))
 
 {
-    m_state->atoms()->setSphereData(new SphereData(this));
+    m_state->particles()->setSphereData(new SphereData(this));
 }
 
 State *MySimulator::state() const
@@ -115,7 +115,7 @@ void MyWorker::synchronizeSimulator(Simulator *simulator)
         m_clientStateFileName = mySimulator->clientStateFileName();
         m_stateFileName = mySimulator->stateFileName();
         m_typesFileName = mySimulator->typesFileName();
-        m_state->atoms()->synchronizeRenderer();
+        m_state->particles()->synchronizeRenderer();
         mySimulator->clientState()->setCameraPosition(mySimulator->cameraPosition());
     }
 }

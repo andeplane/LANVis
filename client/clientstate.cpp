@@ -8,7 +8,7 @@
 #include <QDebug>
 
 ClientState::ClientState(QObject *parent) : QObject(parent),
-    m_maxNumberOfAtoms(300000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5)
+    m_maxNumberOfParticles(300000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5)
 {
 
 }
@@ -25,7 +25,7 @@ void ClientState::save(QString fileName)
         QTextStream stream(&file);
         QJsonObject json;
         QJsonArray array = { m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2] };
-        json["maxNumberOfAtoms"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfAtoms));
+        json["maxNumberOfParticles"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfParticles));
         json["lodLevels"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_lodLevels));
         json["chunkSize"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_chunkSize));
         json["lodDistance"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodDistance));
@@ -37,9 +37,9 @@ void ClientState::save(QString fileName)
     file.close();
 }
 
-int ClientState::maxNumberOfAtoms() const
+int ClientState::maxNumberOfParticles() const
 {
-    return m_maxNumberOfAtoms;
+    return m_maxNumberOfParticles;
 }
 
 bool ClientState::sort() const
@@ -71,13 +71,13 @@ void ClientState::setCameraPosition(QVector3D cameraPosition)
     emit cameraPositionChanged(cameraPosition);
 }
 
-void ClientState::setMaxNumberOfAtoms(int maxNumberOfAtoms)
+void ClientState::setMaxNumberOfParticles(int maxNumberOfParticles)
 {
-    if (m_maxNumberOfAtoms == maxNumberOfAtoms)
+    if (m_maxNumberOfParticles == maxNumberOfParticles)
         return;
 
-    m_maxNumberOfAtoms = maxNumberOfAtoms;
-    emit maxNumberOfAtomsChanged(maxNumberOfAtoms);
+    m_maxNumberOfParticles = maxNumberOfParticles;
+    emit maxNumberOfParticlesChanged(maxNumberOfParticles);
 }
 
 void ClientState::setSort(bool sort)

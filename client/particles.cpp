@@ -1,15 +1,14 @@
-#include "atoms.h"
-#include "particle.h"
+#include "particles.h"
 
 #include <QFile>
 
-Atoms::Atoms(QObject *parent) : QObject(parent),
+Particles::Particles(QObject *parent) : QObject(parent),
     m_sphereData(nullptr), m_dirty(false), m_sphereScale(0.5)
 {
 
 }
 
-void Atoms::generateSphereData() {
+void Particles::generateSphereData() {
     m_sphereDataBytes.resize(m_particles.size() * sizeof(SphereVBOData));
     SphereVBOData *vboData = reinterpret_cast<SphereVBOData *>(m_sphereDataBytes.data());
     for(int i=0; i<m_particles.size(); i++) {
@@ -21,7 +20,7 @@ void Atoms::generateSphereData() {
     setDirty(true);
 }
 
-bool Atoms::loadBinary(QString fileName)
+bool Particles::loadBinary(QString fileName)
 {
     QFile file(fileName);
     if(!file.open(QIODevice::ReadOnly)) {
@@ -38,7 +37,7 @@ bool Atoms::loadBinary(QString fileName)
     return true;
 }
 
-void Atoms::synchronizeRenderer() {
+void Particles::synchronizeRenderer() {
     if(!m_dirty) return;
     int numSpheres = m_sphereDataBytes.size() / sizeof(SphereVBOData);
     m_sphereData->setData(m_sphereDataBytes, numSpheres);
@@ -46,17 +45,17 @@ void Atoms::synchronizeRenderer() {
     setDirty(false);
 }
 
-SphereData *Atoms::sphereData() const
+SphereData *Particles::sphereData() const
 {
     return m_sphereData;
 }
 
-bool Atoms::dirty() const
+bool Particles::dirty() const
 {
     return m_dirty;
 }
 
-void Atoms::setDirty(bool dirty)
+void Particles::setDirty(bool dirty)
 {
     if (m_dirty == dirty)
         return;
@@ -65,7 +64,7 @@ void Atoms::setDirty(bool dirty)
     emit dirtyChanged(dirty);
 }
 
-void Atoms::setSphereScale(float sphereScale)
+void Particles::setSphereScale(float sphereScale)
 {
     if (m_sphereScale == sphereScale)
             return;
@@ -74,7 +73,7 @@ void Atoms::setSphereScale(float sphereScale)
         emit sphereScaleChanged(sphereScale);
 }
 
-void Atoms::setBoundingBoxMin(QVector3D boundingBoxMin)
+void Particles::setBoundingBoxMin(QVector3D boundingBoxMin)
 {
     if (m_boundingBoxMin == boundingBoxMin)
             return;
@@ -83,7 +82,7 @@ void Atoms::setBoundingBoxMin(QVector3D boundingBoxMin)
         emit boundingBoxMinChanged(boundingBoxMin);
 }
 
-void Atoms::setBoundingBoxMax(QVector3D boundingBoxMax)
+void Particles::setBoundingBoxMax(QVector3D boundingBoxMax)
 {
     if (m_boundingBoxMax == boundingBoxMax)
             return;
@@ -92,27 +91,27 @@ void Atoms::setBoundingBoxMax(QVector3D boundingBoxMax)
         emit boundingBoxMaxChanged(boundingBoxMax);
 }
 
-void Atoms::setSphereData(SphereData *sphereData)
+void Particles::setSphereData(SphereData *sphereData)
 {
     m_sphereData = sphereData;
 }
 
-float Atoms::sphereScale() const
+float Particles::sphereScale() const
 {
     return m_sphereScale;
 }
 
-int Atoms::count() const
+int Particles::count() const
 {
     return m_particles.size();
 }
 
-QVector3D Atoms::boundingBoxMin() const
+QVector3D Particles::boundingBoxMin() const
 {
     return m_boundingBoxMin;
 }
 
-QVector3D Atoms::boundingBoxMax() const
+QVector3D Particles::boundingBoxMax() const
 {
     return m_boundingBoxMax;
 }

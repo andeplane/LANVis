@@ -42,12 +42,12 @@ Scene3D {
         var xp = x
         var yp = y
         var zp = z
-        var x0 = simulator.state.atoms.boundingBoxMin.x
-        var y0 = simulator.state.atoms.boundingBoxMin.y
-        var z0 = simulator.state.atoms.boundingBoxMin.z
-        var x1 = simulator.state.atoms.boundingBoxMax.x
-        var y1 = simulator.state.atoms.boundingBoxMax.y
-        var z1 = simulator.state.atoms.boundingBoxMax.z
+        var x0 = simulator.state.particles.boundingBoxMin.x
+        var y0 = simulator.state.particles.boundingBoxMin.y
+        var z0 = simulator.state.particles.boundingBoxMin.z
+        var x1 = simulator.state.particles.boundingBoxMax.x
+        var y1 = simulator.state.particles.boundingBoxMax.y
+        var z1 = simulator.state.particles.boundingBoxMax.z
 
         if(x < x0) xp = x0
         if(x > x1) xp = x1
@@ -87,8 +87,8 @@ Scene3D {
             id: simulator
             cameraPosition: camera.position
             Component.onCompleted: {
-                simulator.state.atoms.boundingBoxMinChanged.connect(updateNearestPoint)
-                simulator.state.atoms.boundingBoxMaxChanged.connect(updateNearestPoint)
+                simulator.state.particles.boundingBoxMinChanged.connect(updateNearestPoint)
+                simulator.state.particles.boundingBoxMaxChanged.connect(updateNearestPoint)
             }
         }
 
@@ -118,7 +118,7 @@ Scene3D {
         Spheres {
             id: spheresEntity
             camera: visualizer.camera
-            sphereData: simulator.state.atoms.sphereData
+            sphereData: simulator.state.particles.sphereData
             fragmentColor: renderingQuality==="high" ? spheresHighQuality : fragmentBuilder.normalDotCamera
             posMin: 10
             posMax: 100000

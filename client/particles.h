@@ -1,13 +1,12 @@
-#ifndef ATOMS_H
-#define ATOMS_H
+#ifndef PARTICLES_H
+#define PARTICLES_H
 
-#include "atomdata.h"
 #include "particle.h"
 #include <QObject>
 #include <SimVis/SphereData>
 #include <SimVis/BondData>
 
-class Atoms : public QObject
+class Particles : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(SphereData* sphereData READ sphereData NOTIFY sphereDataChanged)
@@ -18,7 +17,7 @@ class Atoms : public QObject
     Q_PROPERTY(float sphereScale READ sphereScale WRITE setSphereScale NOTIFY sphereScaleChanged)
 
 public:
-    explicit Atoms(QObject *parent = 0);
+    explicit Particles(QObject *parent = 0);
     void synchronizeRenderer();
     void generateSphereData();
 
@@ -58,4 +57,4 @@ private:
     QVector3D m_boundingBoxMax;
 };
 
-#endif // ATOMS_H
+#endif // PARTICLES_H

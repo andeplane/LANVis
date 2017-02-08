@@ -12,56 +12,56 @@
 #include <QLockFile>
 #include <random>
 
-Server::Server() : m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfAtoms(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true)
+Server::Server() : m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfParticles(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true)
 {
     setDefaultStyles();
 }
 
 void Server::setDefaultStyles() {
-    m_atomStyles.insert("1", new AtomStyle(2.27, "#F0C8A0"));
-    m_atomStyles.insert("2", new AtomStyle(1.52, "#AA0000"));
+    m_particleStyles.insert("1", new ParticleStyle(2.27, "#F0C8A0"));
+    m_particleStyles.insert("2", new ParticleStyle(1.52, "#AA0000"));
 
-    m_atomStyles.insert("hydrogen", new AtomStyle(1.20, "#CCCCCC"));
-    m_atomStyles.insert("helium", new AtomStyle(1.40, "#D9FFFF"));
-    m_atomStyles.insert("lithium", new AtomStyle(1.82, "#CC80FF"));
-    m_atomStyles.insert("beryllium", new AtomStyle(1.53, "#C2FF00"));
-    m_atomStyles.insert("boron", new AtomStyle(1.92, "#FFB5B5"));
-    m_atomStyles.insert("carbon", new AtomStyle(1.70, "#505050"));
-    m_atomStyles.insert("nitrogen", new AtomStyle(1.55, "#3050F8"));
-    m_atomStyles.insert("oxygen", new AtomStyle(1.52, "#AA0000"));
-    m_atomStyles.insert("fluorine", new AtomStyle(1.35, "#90E050"));
-    m_atomStyles.insert("neon", new AtomStyle(1.54, "#3050F8"));
-    m_atomStyles.insert("sodium", new AtomStyle(2.27, "#AB5CF2"));
-    m_atomStyles.insert("magnesium", new AtomStyle(1.73, "#8AFF00"));
-    m_atomStyles.insert("aluminium", new AtomStyle(1.84, "#BFA6A6"));
-    m_atomStyles.insert("silicon", new AtomStyle(2.27, "#F0C8A0"));
-    m_atomStyles.insert("phosphorus", new AtomStyle(1.80, "#FF8000"));
-    m_atomStyles.insert("sulfur", new AtomStyle(1.80, "#FFFF30"));
-    m_atomStyles.insert("chlorine", new AtomStyle(1.75, "#1FF01F"));
-    m_atomStyles.insert("argon", new AtomStyle(1.88, "#80D1E3"));
-    m_atomStyles.insert("potassium", new AtomStyle(2.75, "#8F40D4"));
-    m_atomStyles.insert("calcium", new AtomStyle(2.31, "#3DFF00"));
+    m_particleStyles.insert("hydrogen", new ParticleStyle(1.20, "#CCCCCC"));
+    m_particleStyles.insert("helium", new ParticleStyle(1.40, "#D9FFFF"));
+    m_particleStyles.insert("lithium", new ParticleStyle(1.82, "#CC80FF"));
+    m_particleStyles.insert("beryllium", new ParticleStyle(1.53, "#C2FF00"));
+    m_particleStyles.insert("boron", new ParticleStyle(1.92, "#FFB5B5"));
+    m_particleStyles.insert("carbon", new ParticleStyle(1.70, "#505050"));
+    m_particleStyles.insert("nitrogen", new ParticleStyle(1.55, "#3050F8"));
+    m_particleStyles.insert("oxygen", new ParticleStyle(1.52, "#AA0000"));
+    m_particleStyles.insert("fluorine", new ParticleStyle(1.35, "#90E050"));
+    m_particleStyles.insert("neon", new ParticleStyle(1.54, "#3050F8"));
+    m_particleStyles.insert("sodium", new ParticleStyle(2.27, "#AB5CF2"));
+    m_particleStyles.insert("magnesium", new ParticleStyle(1.73, "#8AFF00"));
+    m_particleStyles.insert("aluminium", new ParticleStyle(1.84, "#BFA6A6"));
+    m_particleStyles.insert("silicon", new ParticleStyle(2.27, "#F0C8A0"));
+    m_particleStyles.insert("phosphorus", new ParticleStyle(1.80, "#FF8000"));
+    m_particleStyles.insert("sulfur", new ParticleStyle(1.80, "#FFFF30"));
+    m_particleStyles.insert("chlorine", new ParticleStyle(1.75, "#1FF01F"));
+    m_particleStyles.insert("argon", new ParticleStyle(1.88, "#80D1E3"));
+    m_particleStyles.insert("potassium", new ParticleStyle(2.75, "#8F40D4"));
+    m_particleStyles.insert("calcium", new ParticleStyle(2.31, "#3DFF00"));
 
-    m_atomStyles.insert("H", new AtomStyle(1.20, "#CCCCCC"));
-    m_atomStyles.insert("He", new AtomStyle(1.40, "#D9FFFF"));
-    m_atomStyles.insert("Li", new AtomStyle(1.82, "#CC80FF"));
-    m_atomStyles.insert("Be", new AtomStyle(1.53, "#C2FF00"));
-    m_atomStyles.insert("B", new AtomStyle(1.92, "#FFB5B5"));
-    m_atomStyles.insert("C", new AtomStyle(1.70, "#505050"));
-    m_atomStyles.insert("N", new AtomStyle(1.55, "#3050F8"));
-    m_atomStyles.insert("O", new AtomStyle(1.52, "#AA0000"));
-    m_atomStyles.insert("F", new AtomStyle(1.35, "#90E050"));
-    m_atomStyles.insert("Ne", new AtomStyle(1.54, "#3050F8"));
-    m_atomStyles.insert("Na", new AtomStyle(2.27, "#AB5CF2"));
-    m_atomStyles.insert("Mg", new AtomStyle(1.73, "#8AFF00"));
-    m_atomStyles.insert("Al", new AtomStyle(1.84, "#BFA6A6"));
-    m_atomStyles.insert("Si", new AtomStyle(2.27, "#F0C8A0"));
-    m_atomStyles.insert("P", new AtomStyle(1.80, "#FF8000"));
-    m_atomStyles.insert("S", new AtomStyle(1.80, "#FFFF30"));
-    m_atomStyles.insert("Cl", new AtomStyle(1.75, "#1FF01F"));
-    m_atomStyles.insert("Ar", new AtomStyle(1.88, "#80D1E3"));
-    m_atomStyles.insert("K", new AtomStyle(2.75, "#8F40D4"));
-    m_atomStyles.insert("Ca", new AtomStyle(2.31, "#3DFF00"));
+    m_particleStyles.insert("H", new ParticleStyle(1.20, "#CCCCCC"));
+    m_particleStyles.insert("He", new ParticleStyle(1.40, "#D9FFFF"));
+    m_particleStyles.insert("Li", new ParticleStyle(1.82, "#CC80FF"));
+    m_particleStyles.insert("Be", new ParticleStyle(1.53, "#C2FF00"));
+    m_particleStyles.insert("B", new ParticleStyle(1.92, "#FFB5B5"));
+    m_particleStyles.insert("C", new ParticleStyle(1.70, "#505050"));
+    m_particleStyles.insert("N", new ParticleStyle(1.55, "#3050F8"));
+    m_particleStyles.insert("O", new ParticleStyle(1.52, "#AA0000"));
+    m_particleStyles.insert("F", new ParticleStyle(1.35, "#90E050"));
+    m_particleStyles.insert("Ne", new ParticleStyle(1.54, "#3050F8"));
+    m_particleStyles.insert("Na", new ParticleStyle(2.27, "#AB5CF2"));
+    m_particleStyles.insert("Mg", new ParticleStyle(1.73, "#8AFF00"));
+    m_particleStyles.insert("Al", new ParticleStyle(1.84, "#BFA6A6"));
+    m_particleStyles.insert("Si", new ParticleStyle(2.27, "#F0C8A0"));
+    m_particleStyles.insert("P", new ParticleStyle(1.80, "#FF8000"));
+    m_particleStyles.insert("S", new ParticleStyle(1.80, "#FFFF30"));
+    m_particleStyles.insert("Cl", new ParticleStyle(1.75, "#1FF01F"));
+    m_particleStyles.insert("Ar", new ParticleStyle(1.88, "#80D1E3"));
+    m_particleStyles.insert("K", new ParticleStyle(2.75, "#8F40D4"));
+    m_particleStyles.insert("Ca", new ParticleStyle(2.31, "#3DFF00"));
 }
 
 void Server::setupChunks()
@@ -110,11 +110,11 @@ void Server::loadXYZ(QString fileName)
         float radius = 1.0;
         QVector3D color(1.0, 0.9, 0.8);
 
-        if(m_atomStyles.contains(types[particleIndex])) {
-            radius = m_atomStyles[types[particleIndex]]->radius;
-            color[0] = m_atomStyles[types[particleIndex]]->color.redF();
-            color[1] = m_atomStyles[types[particleIndex]]->color.greenF();
-            color[2] = m_atomStyles[types[particleIndex]]->color.blueF();
+        if(m_particleStyles.contains(types[particleIndex])) {
+            radius = m_particleStyles[types[particleIndex]]->radius;
+            color[0] = m_particleStyles[types[particleIndex]]->color.redF();
+            color[1] = m_particleStyles[types[particleIndex]]->color.greenF();
+            color[2] = m_particleStyles[types[particleIndex]]->color.blueF();
         }
 
         m_allParticles[particleIndex].color = color;
@@ -138,7 +138,7 @@ void Server::loadLAMMPSBinary(QString fileName)
     reader.readFile(fileName);
     const std::vector<QVector3D> &positions = reader.positions();
     const std::vector<int>       &types     = reader.types();
-    qDebug() << "Found " << reader.positions().size() << " atoms.";
+    qDebug() << "Found " << reader.positions().size() << " particles.";
     m_allParticles.resize(positions.size());
 
     for(size_t particleIndex=0; particleIndex<positions.size(); particleIndex++) {
@@ -146,11 +146,11 @@ void Server::loadLAMMPSBinary(QString fileName)
         float radius = 1.0;
         QVector3D color(1.0, 0.9, 0.8);
         QString typeAsString = QString("%1").arg(types[particleIndex]);
-        if(m_atomStyles.contains(typeAsString)) {
-            radius = m_atomStyles[typeAsString]->radius;
-            color[0] = m_atomStyles[typeAsString]->color.redF();
-            color[1] = m_atomStyles[typeAsString]->color.greenF();
-            color[2] = m_atomStyles[typeAsString]->color.blueF();
+        if(m_particleStyles.contains(typeAsString)) {
+            radius = m_particleStyles[typeAsString]->radius;
+            color[0] = m_particleStyles[typeAsString]->color.redF();
+            color[1] = m_particleStyles[typeAsString]->color.greenF();
+            color[2] = m_particleStyles[typeAsString]->color.blueF();
         }
 
         m_allParticles[particleIndex].color = color;
@@ -211,7 +211,7 @@ void Server::updatePositions()
 
         m_particles.insert( m_particles.end(), chunk->particles(lod).begin(), chunk->particles(lod).end() );
         atomCount += chunk->particles(lod).size();
-        if(atomCount > m_maxNumberOfAtoms) break;
+        if(atomCount > m_maxNumberOfParticles) break;
     }
 }
 
@@ -325,7 +325,7 @@ bool Server::update(QString clientStateFileName)
     QJsonObject   obj = doc.object();
 
     QJsonArray    arr = obj["cameraPosition"].toArray();
-    int maxNumberOfAtoms = obj["maxNumberOfAtoms"].toInt();
+    int maxNumberOfParticles = obj["maxNumberOfParticles"].toInt();
     float chunkSize = obj["chunkSize"].toDouble();
     float lodDistance = obj["lodDistance"].toDouble();
     int lodLevels = obj["lodLevels"].toInt();
@@ -339,10 +339,10 @@ bool Server::update(QString clientStateFileName)
     bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0;
     bool lodDirty = fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
 
-    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfAtoms!=m_maxNumberOfAtoms || m_sort != sort || chunksDirty || lodDirty;
+    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles || m_sort != sort || chunksDirty || lodDirty;
     if(!anyChanges) return false;
 
-    m_maxNumberOfAtoms = maxNumberOfAtoms;
+    m_maxNumberOfParticles = maxNumberOfParticles;
     m_cameraPosition = newCameraPositon;
     m_sort = sort;
 

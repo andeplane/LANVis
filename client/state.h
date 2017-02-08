@@ -3,29 +3,29 @@
 
 #include <QObject>
 #include <QJsonObject>
-#include "atoms.h"
+#include "particles.h"
 
 class State : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int timestamp READ timestamp WRITE setTimestamp NOTIFY timestampChanged)
-    Q_PROPERTY(Atoms* atoms READ atoms WRITE setAtoms NOTIFY atomsChanged)
+    Q_PROPERTY(Particles* particles READ particles WRITE setParticles NOTIFY particlesChanged)
 public:
     explicit State(QObject *parent = 0);
     int timestamp() const;
-    Atoms* atoms() const;
+    Particles* particles() const;
     void update(const QJsonObject &object);
 signals:
     void timestampChanged(int timestamp);
-    void atomsChanged(Atoms* atoms);
+    void particlesChanged(Particles* particles);
 
 public slots:
     void setTimestamp(int timestamp);
-    void setAtoms(Atoms* atoms);
+    void setParticles(Particles* particles);
 
 private:
     double m_timestamp;
-    Atoms* m_atoms;
+    Particles* m_particles;
 };
 
 #endif // STATE_H

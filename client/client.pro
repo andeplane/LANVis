@@ -2,14 +2,6 @@ QT += qml quick
 
 CONFIG += c++11
 
-SOURCES += main.cpp \
-    mysimulator.cpp \
-    mousemover.cpp \
-    atoms.cpp \
-    atomdata.cpp \
-    state.cpp \
-    clientstate.cpp
-
 RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -36,11 +28,17 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+SOURCES += main.cpp \
+    mysimulator.cpp \
+    mousemover.cpp \
+    particles.cpp \
+    state.cpp \
+    clientstate.cpp
+
 HEADERS += \
     mysimulator.h \
     mousemover.h \
-    atoms.h \
-    atomdata.h \
+    particles.h \
     state.h \
     clientstate.h \
     particle.h
