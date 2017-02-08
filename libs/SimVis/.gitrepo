@@ -7,5 +7,5 @@
 	remote = git@github.com:Ovilab/SimVis
 	branch = dev
 	commit = 24a11c6f57a233230e78815df8ff0361a5b0c961
-	parent = 0d0b2cce9b82c441ac030f4735e23495247ac52e
+	parent = bcb3b4252fd719ddf199f25df779cab388b9386c
 	cmdver = 0.3.1
