@@ -10,8 +10,9 @@
 #include <QJsonObject>
 #include <QDateTime>
 #include <QLockFile>
+#include <random>
 
-Server::Server() : m_chunkSize(50), m_sort(true), m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfAtoms(300000)
+Server::Server() : m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true), m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfAtoms(300000)
 {
     setDefaultStyles();
 }
@@ -165,15 +166,23 @@ void Server::placeParticleInChunks() {
     setupChunks();
     float oneOverChunkSize = 1.0/m_chunkSize;
     for(Chunk &chunk : m_chunks) {
-        chunk.particles().clear();
+        chunk.clear();
     }
 
-    for(int particleIndex=0; particleIndex<m_allParticles.size(); particleIndex++) {
-        int i = (m_allParticles[particleIndex].position[0]-m_origo[0]) * oneOverChunkSize;
-        int j = (m_allParticles[particleIndex].position[1]-m_origo[1]) * oneOverChunkSize;
-        int k = (m_allParticles[particleIndex].position[2]-m_origo[2]) * oneOverChunkSize;
+    for(const Particle &particle : m_allParticles) {
+        int i = (particle.position[0]-m_origo[0]) * oneOverChunkSize;
+        int j = (particle.position[1]-m_origo[1]) * oneOverChunkSize;
+        int k = (particle.position[2]-m_origo[2]) * oneOverChunkSize;
         Chunk &chunk = m_chunks[index(i,j,k)];
-        chunk.particles().push_back(m_allParticles[particleIndex]);
+        chunk.particles(0).push_back(particle);
+    }
+
+    std::random_device rd;
+    std::mt19937 generator(rd());
+    std::uniform_real_distribution<float> distribution(0, 1);
+    qDebug() << "Building LOD with " << m_lodLevels << " levels";
+    for(Chunk &chunk : m_chunks) {
+        chunk.buildLOD(m_lodLevels, generator, distribution);
     }
 }
 
@@ -187,7 +196,11 @@ void Server::updatePositions()
     m_boundingBoxMax = QVector3D(-1e9,-1e9,-1e9);
 
     for(Chunk *chunk : m_chunkPtrs) {
-        if(m_sort) chunk->sort(m_cameraPosition);
+        float distance = chunk->minDistanceTo(m_cameraPosition);
+        int lod = distance / m_lodDistance;
+        if(lod > 3) lod = 3;
+
+        if(m_sort) chunk->sort(m_cameraPosition, lod);
         m_boundingBoxMin[0] = std::min(m_boundingBoxMin[0], chunk->corners()[0][0]);
         m_boundingBoxMin[1] = std::min(m_boundingBoxMin[1], chunk->corners()[0][1]);
         m_boundingBoxMin[2] = std::min(m_boundingBoxMin[2], chunk->corners()[0][2]);
@@ -196,8 +209,8 @@ void Server::updatePositions()
         m_boundingBoxMax[1] = std::max(m_boundingBoxMax[1], chunk->corners()[7][1]);
         m_boundingBoxMax[2] = std::max(m_boundingBoxMax[2], chunk->corners()[7][2]);
 
-        m_particles.insert( m_particles.end(), chunk->particles().begin(), chunk->particles().end() );
-        atomCount += chunk->particles().size();
+        m_particles.insert( m_particles.end(), chunk->particles(lod).begin(), chunk->particles(lod).end() );
+        atomCount += chunk->particles(lod).size();
         if(atomCount > m_maxNumberOfAtoms) break;
     }
 }
@@ -276,14 +289,6 @@ const std::vector<Particle> &Server::allParticles() const
 
 void Server::sortChunks()
 {
-//    std::sort(m_chunks.begin(), m_chunks.end(),
-//        [&](const Chunk& a, const Chunk& b)
-//    {
-//        float da = a.minDistanceTo(m_cameraPosition);
-//        float db = b.minDistanceTo(m_cameraPosition);
-//        return da < db;
-//    });
-
     std::sort(m_chunkPtrs.begin(), m_chunkPtrs.end(),
         [&](const Chunk* a, const Chunk* b)
     {
@@ -322,6 +327,8 @@ bool Server::update(QString clientStateFileName)
     QJsonArray    arr = obj["cameraPosition"].toArray();
     int maxNumberOfAtoms = obj["maxNumberOfAtoms"].toInt();
     float chunkSize = obj["chunkSize"].toDouble();
+    float lodDistance = obj["lodDistance"].toDouble();
+    int lodLevels = obj["lodLevels"].toInt();
     bool sort = obj["sort"].toBool();
 
     QVector3D newCameraPositon;
@@ -330,13 +337,18 @@ bool Server::update(QString clientStateFileName)
     newCameraPositon[2] = arr[2].toDouble();
     float distanceToOldPositionSquared = (newCameraPositon - m_cameraPosition).lengthSquared();
     bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0;
-    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfAtoms!=m_maxNumberOfAtoms || m_sort != sort || chunksDirty;
+    bool lodDirty = fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
+
+    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfAtoms!=m_maxNumberOfAtoms || m_sort != sort || chunksDirty || lodDirty;
     if(!anyChanges) return false;
 
     m_maxNumberOfAtoms = maxNumberOfAtoms;
     m_cameraPosition = newCameraPositon;
     m_sort = sort;
-    if(chunksDirty) {
+
+    if(chunksDirty || lodDirty) {
+        m_lodLevels = lodLevels;
+        m_lodDistance = lodDistance;
         m_chunkSize = chunkSize;
         placeParticleInChunks();
     }

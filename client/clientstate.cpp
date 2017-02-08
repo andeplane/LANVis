@@ -7,7 +7,8 @@
 #include <QTextStream>
 #include <QDebug>
 
-ClientState::ClientState(QObject *parent) : QObject(parent), m_maxNumberOfAtoms(300000), m_sort(true), m_chunkSize(50)
+ClientState::ClientState(QObject *parent) : QObject(parent),
+    m_maxNumberOfAtoms(300000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5)
 {
 
 }
@@ -25,7 +26,9 @@ void ClientState::save(QString fileName)
         QJsonObject json;
         QJsonArray array = { m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2] };
         json["maxNumberOfAtoms"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfAtoms));
+        json["lodLevels"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_lodLevels));
         json["chunkSize"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_chunkSize));
+        json["lodDistance"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodDistance));
         json["cameraPosition"] = array;
         json["sort"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_sort));
         QJsonDocument saveObject(json);
@@ -47,6 +50,16 @@ bool ClientState::sort() const
 float ClientState::chunkSize() const
 {
     return m_chunkSize;
+}
+
+float ClientState::lodDistance() const
+{
+    return m_lodDistance;
+}
+
+int ClientState::lodLevels() const
+{
+    return m_lodLevels;
 }
 
 void ClientState::setCameraPosition(QVector3D cameraPosition)
@@ -83,4 +96,22 @@ void ClientState::setChunkSize(float chunkSize)
 
     m_chunkSize = chunkSize;
     emit chunkSizeChanged(chunkSize);
+}
+
+void ClientState::setLodDistance(float lodDistance)
+{
+    if (m_lodDistance == lodDistance)
+        return;
+
+    m_lodDistance = lodDistance;
+    emit lodDistanceChanged(lodDistance);
+}
+
+void ClientState::setLodLevels(int lodLevels)
+{
+    if (m_lodLevels == lodLevels)
+        return;
+
+    m_lodLevels = lodLevels;
+    emit lodLevelsChanged(lodLevels);
 }

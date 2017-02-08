@@ -38,6 +38,8 @@ private:
     int m_nx, m_ny, m_nz;
     int m_maxNumberOfAtoms;
     float m_chunkSize;
+    float m_lodDistance;
+    int m_lodLevels;
     bool m_sort;
     QString m_fileName;
     QString m_dataFileName;

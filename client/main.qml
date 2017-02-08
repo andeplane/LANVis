@@ -147,13 +147,15 @@ ApplicationWindow {
             spacing: 20
             anchors.margins: 5
             Row {
+                spacing: 10
                 Label {
-                    width: 170
-                    text: "Max num atoms: "+maxAtomCountSlider.value.toFixed(0)+" k"
+                    width: 150
+                    text: "Max num atoms: "+maxAtomCountSlider.value.toFixed(0)+"k"
                 }
                 QQC1.Slider {
                     id: maxAtomCountSlider
                     height: 20
+                    width: 100
                     minimumValue: 10
                     maximumValue: 1000
                     value: 300
@@ -168,12 +170,14 @@ ApplicationWindow {
             }
 
             Row {
+                spacing: 10
                 Label {
                     text: "Attenuation"
                 }
                 QQC1.Slider {
                     id: lightAttenuation
                     height: 20
+                    width: 100
                     minimumValue: 0
                     maximumValue: 5
                     value: scene.light.attenuation
@@ -190,6 +194,7 @@ ApplicationWindow {
                 QQC1.CheckBox {
                     id: sort
                     height: 20
+                    width: 100
                     text: "Sort"
                     checked: scene.simulator.clientState.sort
                     Binding {
@@ -201,13 +206,15 @@ ApplicationWindow {
             }
 
             Row {
+                spacing: 10
                 Label {
-                    width: 120
+                    width: 100
                     text: "Chunk size: "+chunkSize.value.toFixed(0)
                 }
                 QQC1.Slider {
                     id: chunkSize
                     height: 20
+                    width: 100
                     minimumValue: 10
                     maximumValue: 250
                     stepSize: 10
@@ -217,6 +224,52 @@ ApplicationWindow {
                         target: scene.simulator.clientState
                         property: "chunkSize"
                         value: chunkSize.value
+                    }
+                }
+            }
+
+            Row {
+                spacing: 10
+                Label {
+                    width: 120
+                    text: "LOD distance: "+lodDistance.value.toFixed(0)
+                }
+                QQC1.Slider {
+                    id: lodDistance
+                    height: 20
+                    width: 100
+                    minimumValue: 50
+                    maximumValue: 1000
+                    stepSize: 25
+                    value: scene.simulator.clientState.lodDistance
+
+                    Binding {
+                        target: scene.simulator.clientState
+                        property: "lodDistance"
+                        value: lodDistance.value
+                    }
+                }
+            }
+
+            Row {
+                spacing: 10
+                Label {
+                    width: 120
+                    text: lodLevels.value.toFixed(0)+" LOD levels"
+                }
+                QQC1.Slider {
+                    id: lodLevels
+                    height: 20
+                    width: 100
+                    minimumValue: 0
+                    maximumValue: 10
+                    stepSize: 1
+                    value: scene.simulator.clientState.lodLevels
+
+                    Binding {
+                        target: scene.simulator.clientState
+                        property: "lodLevels"
+                        value: lodLevels.value
                     }
                 }
             }
