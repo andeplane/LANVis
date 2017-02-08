@@ -30,7 +30,6 @@ bool XYZReader::readFile(QString filename)
 
     int numberOfAtoms = 0;
     int lineNumber = 0;
-    bool foundNumberOfAtoms = false;
     int positionCount = 0;
     // Set lengths to zero and update based on the maximum measured coordinate in the atoms. Add a small epsilon after we're done
     // so x / m_lx always is smaller than the number of voxels in that dimension.
@@ -49,7 +48,6 @@ bool XYZReader::readFile(QString filename)
                 qDebug() << QString("Error, tried to read number of atoms, but line '%1' didn't cast well.").arg(line);
                 return false;
             }
-            foundNumberOfAtoms = true;
             m_positions.resize(numberOfAtoms);
             m_types.resize(numberOfAtoms);
         } else if(splitted.count() == 5) {

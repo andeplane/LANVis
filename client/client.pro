@@ -7,7 +7,6 @@ SOURCES += main.cpp \
     mousemover.cpp \
     atoms.cpp \
     atomdata.cpp \
-    xyzreader.cpp \
     state.cpp \
     clientstate.cpp \
     atomstyle.cpp
@@ -43,7 +42,6 @@ HEADERS += \
     mousemover.h \
     atoms.h \
     atomdata.h \
-    xyzreader.h \
     state.h \
     clientstate.h \
     atomstyle.h \

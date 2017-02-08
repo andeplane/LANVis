@@ -4,14 +4,14 @@ CONFIG -= app_bundle
 
 SOURCES += \
     main.cpp \
-    ../client/xyzreader.cpp \
+    xyzreader.cpp \
     server.cpp \
     atomstyle.cpp \
     lammpsbinaryreader.cpp \
     chunk.cpp
 
 HEADERS += \
-    ../client/xyzreader.h \
+    xyzreader.h \
     ../client/particle.h \
     server.h \
     atomstyle.h \

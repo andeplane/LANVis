@@ -1,6 +1,6 @@
 #include "lammpsbinaryreader.h"
 #include "server.h"
-#include "../client/xyzreader.h"
+#include "xyzreader.h"
 
 #include <cmath>
 #include <QDebug>
@@ -12,7 +12,7 @@
 #include <QLockFile>
 #include <random>
 
-Server::Server() : m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true), m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfAtoms(300000)
+Server::Server() : m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfAtoms(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true)
 {
     setDefaultStyles();
 }
@@ -141,7 +141,7 @@ void Server::loadLAMMPSBinary(QString fileName)
     qDebug() << "Found " << reader.positions().size() << " atoms.";
     m_allParticles.resize(positions.size());
 
-    for(int particleIndex=0; particleIndex<positions.size(); particleIndex++) {
+    for(size_t particleIndex=0; particleIndex<positions.size(); particleIndex++) {
         const QVector3D &position = positions.at(particleIndex);
         float radius = 1.0;
         QVector3D color(1.0, 0.9, 0.8);
@@ -189,7 +189,7 @@ void Server::placeParticleInChunks() {
 void Server::updatePositions()
 {
     m_particles.clear();
-    unsigned int atomCount = 0;
+    int atomCount = 0;
     sortChunks();
 
     m_boundingBoxMin = QVector3D(1e9,1e9,1e9);

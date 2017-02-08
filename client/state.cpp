@@ -1,5 +1,4 @@
 #include "state.h"
-#include "xyzreader.h"
 #include <QJsonArray>
 #include <QLockFile>
 #include <QString>
@@ -35,12 +34,7 @@ void State::update(const QJsonObject &object)
             m_atoms->setBoundingBoxMin(boundingBoxMin);
             m_atoms->setBoundingBoxMax(boundingBoxMax);
             m_timestamp = timestamp;
-            if(object.contains("xyzFileName")) {
-                QString xyzFilename = object["xyzFileName"].toString();
-                XYZReader reader;
-                ok = reader.readFile(xyzFilename);
-                m_atoms->setData(reader.positions(), reader.types());
-            } else if(object.contains("binaryFileName")) {
+            if(object.contains("binaryFileName")) {
                 ok = m_atoms->loadBinary(object["binaryFileName"].toString());
             }
 

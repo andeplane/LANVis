@@ -5,7 +5,7 @@
 #include <random>
 #include <SimVis/SphereData>
 
-MyWorker::MyWorker() : m_state(nullptr), m_clientState(nullptr)
+MyWorker::MyWorker() : m_clientState(nullptr), m_state(nullptr)
 {
 
 }

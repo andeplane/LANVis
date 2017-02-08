@@ -8,7 +8,7 @@ Chunk::Chunk() {
 
 void Chunk::clear()
 {
-    for(int i=0; i<m_particles.size(); i++) {
+    for(size_t i=0; i<m_particles.size(); i++) {
         m_particles[i].clear();
     }
 }
@@ -59,7 +59,7 @@ void Chunk::buildLOD(int levels, std::mt19937 &generator, std::uniform_real_dist
 {
     m_particles.resize(levels+1);
 
-    for(int i=1; i<m_particles.size(); i++) {
+    for(size_t i=1; i<m_particles.size(); i++) {
         int numParticles = m_particles[0].size() * pow(0.75, i);
         m_particles[i].reserve(numParticles);
     }
