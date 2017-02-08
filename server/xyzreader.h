@@ -24,7 +24,6 @@ public slots:
 private:
     QVector<QString>   m_types;
     QVector<QVector3D> m_positions;
-
 };
 
 #endif // XYZREADER_H

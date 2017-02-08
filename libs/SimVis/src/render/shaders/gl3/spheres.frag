@@ -43,9 +43,7 @@ void main(void) {
     vec3 sphereIntersection = rayOrigin + t * rayDirection;
 
     vec3 normal = normalize(sphereIntersection);
-    float distanceSquared = dot(rayDirection, rayDirection);
-    // vec3 normalDotCamera = color*dot(normal, normalize(rayDirection)) / (1.0 + 0.0005*distanceSquared);
-    vec3 normalDotCamera = color*dot(normal, normalize(rayDirection)) / (1.0 + 0.00002*distanceSquared);
+    vec3 normalDotCamera = color*dot(normal, normalize(rayDirection));
 
     float pi = 3.1415926535897932384626433832795;
 

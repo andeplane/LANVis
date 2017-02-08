@@ -10,9 +10,11 @@ import QtQuick 2.0 as QQ2
 Entity {
     id: spheresRoot
     property var layer
-    property var variable: 0.0
-    property string vertexShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres.vert"
-    property string fragmentShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres.frag"
+    property string quality: "high"
+    property string vertexLowQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres-low.vert"
+    property string fragmentLowQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres-low.frag"
+    property string vertexHighQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres.vert"
+    property string fragmentHighQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres.frag"
     //    property string vertexShaderSourceFile: "qrc:/SimVis/render/shaders/es2/spheres.vert"
     //    property string fragmentShaderSourceFile: "qrc:/SimVis/render/shaders/es2/spheres.frag"
     property alias fragmentColor: _fragmentColor.value
@@ -48,7 +50,7 @@ Entity {
                     renderPasses: RenderPass {
                         id: builderRenderPass
                         shaderProgram: ShaderProgram {
-                            vertexShaderCode: loadSource(vertexShaderSourceFile)
+                            vertexShaderCode: spheresRoot.quality==="high" ? loadSource(vertexHighQualityShaderSourceFile) : loadSource(vertexLowQualityShaderSourceFile)
                             fragmentShaderCode: _fragmentBuilder.finalShader
                         }
                         ShaderBuilder {
@@ -90,7 +92,7 @@ Entity {
                                 name: "sphereId"
                                 result: "sphereId"
                             }
-                            sourceFile: fragmentShaderSourceFile
+                            sourceFile: spheresRoot.quality==="high" ? fragmentHighQualityShaderSourceFile : fragmentLowQualityShaderSourceFile
                             outputs: [
                                 ShaderOutput {
                                     id: _fragmentColor

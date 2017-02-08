@@ -1,5 +1,6 @@
 #include "lammpsbinaryreader.h"
 #include "server.h"
+#include "xyzbinaryreader.h"
 #include "xyzreader.h"
 
 #include <cmath>
@@ -20,6 +21,11 @@ Server::Server() : m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfParticles(300000), m_
 void Server::setDefaultStyles() {
     m_particleStyles.insert("1", new ParticleStyle(2.27, "#F0C8A0"));
     m_particleStyles.insert("2", new ParticleStyle(1.52, "#AA0000"));
+    m_particleStyles.insert("4", new ParticleStyle(1.84, "#BFA6A6"));
+    m_particleStyles.insert("5", new ParticleStyle(1.70, "#505050"));
+    m_particleStyles.insert("6", new ParticleStyle(1.52, "#AA0000"));
+    m_particleStyles.insert("7", new ParticleStyle(1.52, "#AA0000"));
+    m_particleStyles.insert("8", new ParticleStyle(2.27, "#F0C8A0"));
 
     m_particleStyles.insert("hydrogen", new ParticleStyle(1.20, "#CCCCCC"));
     m_particleStyles.insert("helium", new ParticleStyle(1.40, "#D9FFFF"));
@@ -127,6 +133,71 @@ void Server::loadXYZ(QString fileName)
         min[2] = std::min(min[2], position[2]);
         max[2] = std::max(max[2], position[2]);
     }
+    m_origo = min;
+    m_size = max - min;
+    placeParticleInChunks();
+}
+
+void Server::loadXYZBinary(QString fileName)
+{
+    XYZBinaryReader reader;
+    bool success = reader.readFile(fileName);
+    if(!success) return;
+    auto &columns = reader.columns();
+
+    m_allParticles.resize(reader.numParticles());
+    QVector3D min(columns[1][0], columns[2][0], columns[3][0]); // type x y z ...
+    QVector3D max(columns[1][0], columns[2][0], columns[3][0]);
+    int numKeepParticles = 0;
+    for(size_t particleIndex=0; particleIndex<m_allParticles.size(); particleIndex++) {
+        QVector3D position;
+        int type = int(columns[0][particleIndex]);
+        float x = columns[1][particleIndex];
+        float y = columns[2][particleIndex];
+        float z = columns[3][particleIndex];
+        float occupancy = columns[4][particleIndex];
+        float beta = columns[5][particleIndex];
+
+        if(z > 100 && z < 250) {
+            float radius = 1.0;
+            QVector3D color(1.0, 0.9, 0.8);
+            position[0] = x;
+            position[1] = y;
+            position[2] = z;
+
+            QString typeStr = QString("%1").arg(type);
+            if(m_particleStyles.contains(typeStr)) {
+                radius   = m_particleStyles[typeStr]->radius;
+                color[0] = m_particleStyles[typeStr]->color.redF();
+                color[1] = m_particleStyles[typeStr]->color.greenF();
+                color[2] = m_particleStyles[typeStr]->color.blueF();
+            }
+            if(type==4 || type==6) {
+                if(beta>0.5) {
+                    color = QVector3D(0.8,0.8,0.8);
+                } else {
+                    float occupancyScale = occupancy;
+                    if(occupancyScale>1.0) occupancyScale = 1.0;
+                    if(occupancyScale<0.0) occupancyScale = 0.0;
+                    color[1] *= 0.9*occupancyScale + 0.1;
+                    color[2] *= 0.9*occupancyScale + 0.1;
+                }
+            }
+
+            m_allParticles[numKeepParticles].color = color;
+            m_allParticles[numKeepParticles].radius = radius;
+            m_allParticles[numKeepParticles].position = position;
+            min[0] = std::min(min[0], position[0]);
+            max[0] = std::max(max[0], position[0]);
+            min[1] = std::min(min[1], position[1]);
+            max[1] = std::max(max[1], position[1]);
+            min[2] = std::min(min[2], position[2]);
+            max[2] = std::max(max[2], position[2]);
+            numKeepParticles++;
+        }
+    }
+    m_allParticles.resize(numKeepParticles);
+    qDebug() << "We now have " << numKeepParticles << " particles";
     m_origo = min;
     m_size = max - min;
     placeParticleInChunks();
@@ -290,7 +361,7 @@ const std::vector<Particle> &Server::allParticles() const
 void Server::sortChunks()
 {
     std::sort(m_chunkPtrs.begin(), m_chunkPtrs.end(),
-        [&](const Chunk* a, const Chunk* b)
+              [&](const Chunk* a, const Chunk* b)
     {
         float da = a->minDistanceTo(m_cameraPosition);
         float db = b->minDistanceTo(m_cameraPosition);
@@ -323,7 +394,6 @@ bool Server::update(QString clientStateFileName)
     if(doc.isNull()) return false;
 
     QJsonObject   obj = doc.object();
-
     QJsonArray    arr = obj["cameraPosition"].toArray();
     int maxNumberOfParticles = obj["maxNumberOfParticles"].toInt();
     float chunkSize = obj["chunkSize"].toDouble();

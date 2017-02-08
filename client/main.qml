@@ -15,6 +15,7 @@ ApplicationWindow {
         typesFileName: "/projects/tmp/types.json"
         clientStateFileName: "/projects/tmp/client.json"
         stateFileName: "/projects/tmp/state.json"
+        renderingQuality: "low"
         anchors.fill: parent
         focus: true
         mouseMover: MouseMover {
@@ -157,7 +158,7 @@ ApplicationWindow {
                     height: 20
                     width: 100
                     minimumValue: 10
-                    maximumValue: 1000
+                    maximumValue: 5000
                     value: 300
                     stepSize: 10
                     onValueChanged: scene.simulator.clientState.maxNumberOfParticles = value*1000

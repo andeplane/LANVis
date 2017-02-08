@@ -8,7 +8,8 @@ SOURCES += \
     server.cpp \
     particlestyle.cpp \
     lammpsbinaryreader.cpp \
-    chunk.cpp
+    chunk.cpp \
+    xyzbinaryreader.cpp
 
 HEADERS += \
     xyzreader.h \
@@ -16,4 +17,5 @@ HEADERS += \
     server.h \
     particlestyle.h \
     lammpsbinaryreader.h \
-    chunk.h
+    chunk.h \
+    xyzbinaryreader.h
