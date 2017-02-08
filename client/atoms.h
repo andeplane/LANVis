@@ -2,7 +2,6 @@
 #define ATOMS_H
 
 #include "atomdata.h"
-#include "atomstyle.h"
 #include "particle.h"
 #include <QObject>
 #include <SimVis/SphereData>
@@ -51,10 +50,8 @@ private:
     void setDefaultStyle();
 
     QVector<Particle> m_particles;
-    QMap<QString, AtomStyle*> m_atomStyles;
     SphereData* m_sphereData;
     QByteArray m_sphereDataBytes;
-    bool m_sort;
     bool m_dirty;
     float m_sphereScale;
     QVector3D m_boundingBoxMin;

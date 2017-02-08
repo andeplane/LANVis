@@ -8,8 +8,7 @@ SOURCES += main.cpp \
     atoms.cpp \
     atomdata.cpp \
     state.cpp \
-    clientstate.cpp \
-    atomstyle.cpp
+    clientstate.cpp
 
 RESOURCES += qml.qrc
 
@@ -44,5 +43,4 @@ HEADERS += \
     atomdata.h \
     state.h \
     clientstate.h \
-    atomstyle.h \
     particle.h
