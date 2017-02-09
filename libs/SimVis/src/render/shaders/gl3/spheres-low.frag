@@ -1,10 +1,9 @@
-#version 330
+#version 330 core
 #pragma shadernodes header
 
-in vec3 vs_vertexPosition;
+in vec3 position;
 in vec3 color;
-in vec2 vs_textureCoords;
-in float vs_radius;
+in vec2 textureCoord;
 
 out vec4 fragColor;
 
@@ -15,10 +14,11 @@ uniform vec3 eyePosition;
 uniform vec3 viewVector;
 
 void main(void) {
-    float x = vs_textureCoords.s;
-    float y = vs_textureCoords.t;
+    float x = textureCoord.s;
+    float y = textureCoord.t;
     float rsq = x*x+y*y;
-    if(rsq > 0.9) {
+
+    if(rsq > 0.95) {
         discard;
     }
 
@@ -29,10 +29,11 @@ void main(void) {
 
     vec3 normal = x*right - y*up - z*view;
 
-    vec3 rayDirection = vs_vertexPosition-eyePosition;
+    vec3 rayDirection = position-eyePosition;
     float distanceSquared = dot(rayDirection, rayDirection);
-    vec3 position = vs_vertexPosition;
+    vec3 normalDotCamera = color*dot(-normal, view);
+
+    vec3 position = position;
 
 #pragma shadernodes body
-
 }

@@ -21,11 +21,12 @@ Server::Server() : m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfParticles(300000), m_
 void Server::setDefaultStyles() {
     m_particleStyles.insert("1", new ParticleStyle(2.27, "#F0C8A0"));
     m_particleStyles.insert("2", new ParticleStyle(1.52, "#AA0000"));
-    m_particleStyles.insert("4", new ParticleStyle(1.84, "#BFA6A6"));
+    m_particleStyles.insert("4", new ParticleStyle(1.84, "#119900"));
+    m_particleStyles.insert("6", new ParticleStyle(1.84, "#119900"));
+
     m_particleStyles.insert("5", new ParticleStyle(1.70, "#505050"));
-    m_particleStyles.insert("6", new ParticleStyle(1.52, "#AA0000"));
     m_particleStyles.insert("7", new ParticleStyle(1.52, "#AA0000"));
-    m_particleStyles.insert("8", new ParticleStyle(2.27, "#F0C8A0"));
+    m_particleStyles.insert("8", new ParticleStyle(3.5, "#F0C8A0"));
 
     m_particleStyles.insert("hydrogen", new ParticleStyle(1.20, "#CCCCCC"));
     m_particleStyles.insert("helium", new ParticleStyle(1.40, "#D9FFFF"));
@@ -158,7 +159,7 @@ void Server::loadXYZBinary(QString fileName)
         float occupancy = columns[4][particleIndex];
         float beta = columns[5][particleIndex];
 
-        if(z > 100 && z < 250) {
+        if(z > 40 && z < 80) {
             float radius = 1.0;
             QVector3D color(1.0, 0.9, 0.8);
             position[0] = x;
@@ -175,12 +176,13 @@ void Server::loadXYZBinary(QString fileName)
             if(type==4 || type==6) {
                 if(beta>0.5) {
                     color = QVector3D(0.8,0.8,0.8);
+                    radius *= 1.9;
                 } else {
                     float occupancyScale = occupancy;
-                    if(occupancyScale>1.0) occupancyScale = 1.0;
+                    if(occupancyScale>2.0) occupancyScale = 2.0;
                     if(occupancyScale<0.0) occupancyScale = 0.0;
-                    color[1] *= 0.9*occupancyScale + 0.1;
-                    color[2] *= 0.9*occupancyScale + 0.1;
+                    color[1] *= 0.5*0.5*occupancyScale + 0.5;
+                    color[2] *= 0.5*0.5*occupancyScale + 0.5;
                 }
             }
 

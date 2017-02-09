@@ -9,6 +9,10 @@ import LANVis 1.0
 Entity {
     id: root
     signal pressed
+    property bool rotating: false
+    property var  lastRotation: undefined
+    property bool moving: keyboardXAxis.value!=0||keyboardYAxis.value!=0||rotating
+
     property MouseMover mouseMover
     property var rootItem
     property Camera camera
@@ -215,6 +219,11 @@ Entity {
 
                 if(leftMouseButtonAction.active || rightMouseButtonAction.active) {
                     pressed()
+                }
+
+                if(root.lastRotation !== undefined) {
+                    var now = new Date()
+                    root.rotating = now - root.lastRotation < 200
                 }
 
                 var flymodeFinalSpeed = linearSpeed * (shiftAction.active ? 5.0 : 1.0)

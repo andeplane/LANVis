@@ -26,9 +26,9 @@ protected:
 private:
     Qt3DRender::QAttribute *m_positionAttribute;
     Qt3DRender::QAttribute *m_idAttribute;
-    Qt3DRender::QAttribute *m_indexAttribute;
+    // Qt3DRender::QAttribute *m_indexAttribute;
     Qt3DRender::QBuffer *m_vertexBuffer;
-    Qt3DRender::QBuffer *m_indexBuffer;
+    // Qt3DRender::QBuffer *m_indexBuffer;
 };
 
 #endif // SPHERESPOINTGEOMETRY_H

@@ -17,13 +17,14 @@ Scene3D {
     aspects: ["render", "input", "logic"]
     signal cameraMoved
     property var mouseMover: flyModeController.mouseMover
+    property alias controller: flyModeController
     property alias visualizer: visualizer
     property alias simulator: simulator
     property alias stateFileName: simulator.stateFileName
     property alias clientStateFileName: simulator.clientStateFileName
     property alias typesFileName: simulator.typesFileName
     property alias light: light
-    property alias renderingQuality: spheresEntity.quality
+    property string renderingQuality: "high"
     property vector3d nearestPoint: Qt.vector3d(0,0,0)
     property real distanceToNearestPoint: camera.position.minus(nearestPoint).length()
 
@@ -111,7 +112,6 @@ Scene3D {
             id: spheresHighQuality
             color: spheresEntity.fragmentBuilder.color
             attenuationOffset: root.distanceToNearestPoint
-
             lights: visualizer.lights
         }
 
@@ -119,8 +119,12 @@ Scene3D {
             id: spheresEntity
             camera: visualizer.camera
             sphereData: simulator.state.particles.sphereData
-            // fragmentColor: renderingQuality==="high" ? spheresHighQuality : fragmentBuilder.normalDotCamera
-            fragmentColor: spheresHighQuality
+            fragmentColor: {
+                if(flyModeController.moving) return fragmentBuilder.normalDotCamera
+                else if(root.renderingQuality==="high") return spheresHighQuality
+                else return fragmentBuilder.normalDotCamera
+            }
+            // fragmentColor: spheresHighQuality
             posMin: 10
             posMax: 100000
         }

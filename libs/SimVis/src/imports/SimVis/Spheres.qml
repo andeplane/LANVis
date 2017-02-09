@@ -11,8 +11,10 @@ Entity {
     id: spheresRoot
     property var layer
     property string quality: "high"
+    onQualityChanged: console.log("New quality: ", quality)
     property string vertexLowQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres-low.vert"
     property string fragmentLowQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres-low.frag"
+    property string geometryLowQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres-low.geom"
     property string vertexHighQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres.vert"
     property string fragmentHighQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres.frag"
     //    property string vertexShaderSourceFile: "qrc:/SimVis/render/shaders/es2/spheres.vert"
@@ -50,7 +52,9 @@ Entity {
                     renderPasses: RenderPass {
                         id: builderRenderPass
                         shaderProgram: ShaderProgram {
-                            vertexShaderCode: spheresRoot.quality==="high" ? loadSource(vertexHighQualityShaderSourceFile) : loadSource(vertexLowQualityShaderSourceFile)
+                            // vertexShaderCode: spheresRoot.quality==="high" ? loadSource(vertexHighQualityShaderSourceFile) : loadSource(vertexLowQualityShaderSourceFile)
+                            vertexShaderCode: loadSource(vertexLowQualityShaderSourceFile)
+                            geometryShaderCode: loadSource(geometryLowQualityShaderSourceFile)
                             fragmentShaderCode: _fragmentBuilder.finalShader
                         }
                         ShaderBuilder {
@@ -92,7 +96,8 @@ Entity {
                                 name: "sphereId"
                                 result: "sphereId"
                             }
-                            sourceFile: spheresRoot.quality==="high" ? fragmentHighQualityShaderSourceFile : fragmentLowQualityShaderSourceFile
+                            // sourceFile: spheresRoot.quality==="high" ? fragmentHighQualityShaderSourceFile : fragmentLowQualityShaderSourceFile
+                            sourceFile: fragmentLowQualityShaderSourceFile
                             outputs: [
                                 ShaderOutput {
                                     id: _fragmentColor
@@ -127,9 +132,44 @@ Entity {
     }
     GeometryRenderer {
         id: spheresMeshInstanced
-        primitiveType: GeometryRenderer.TriangleStrip
+        primitiveType: GeometryRenderer.Points
         enabled: instanceCount != 0
         instanceCount: sphereData.count
+
+//        geometry: SpheresPointGeometry {
+//            attributes: [
+//                Attribute {
+//                    name: "pos"
+//                    attributeType: Attribute.VertexAttribute
+//                    vertexBaseType: Attribute.Float
+//                    vertexSize: 3
+//                    byteOffset: 0
+//                    byteStride: (3 + 3 + 1) * 4
+//                    divisor: 1
+//                    buffer: sphereData ? sphereData.buffer : null
+//                },
+//                Attribute {
+//                    name: "col"
+//                    attributeType: Attribute.VertexAttribute
+//                    vertexBaseType: Attribute.Float
+//                    vertexSize: 3
+//                    byteOffset: 3*4
+//                    byteStride: (3 + 3 + 1) * 4
+//                    divisor: 1
+//                    buffer: sphereData ? sphereData.buffer : null
+//                },
+//                Attribute {
+//                    name: "scale"
+//                    attributeType: Attribute.VertexAttribute
+//                    vertexBaseType: Attribute.Float
+//                    vertexSize: 1
+//                    byteOffset: (3+3)*4
+//                    byteStride: (3 + 3 + 1) * 4
+//                    divisor: 1
+//                    buffer: sphereData ? sphereData.buffer : null
+//                }
+//            ]
+//        }
 
         geometry: SpheresPointGeometry {
             attributes: [
@@ -139,7 +179,7 @@ Entity {
                     vertexBaseType: Attribute.Float
                     vertexSize: 3
                     byteOffset: 0
-                    byteStride: (3 + 3 + 1) * 4
+                    byteStride: (3 + 3 + 1)*4
                     divisor: 1
                     buffer: sphereData ? sphereData.buffer : null
                 },
@@ -149,17 +189,17 @@ Entity {
                     vertexBaseType: Attribute.Float
                     vertexSize: 3
                     byteOffset: 3*4
-                    byteStride: (3 + 3 + 1) * 4
+                    byteStride: (3 + 3 + 1)*4
                     divisor: 1
                     buffer: sphereData ? sphereData.buffer : null
                 },
                 Attribute {
-                    name: "scale"
+                    name: "radius"
                     attributeType: Attribute.VertexAttribute
                     vertexBaseType: Attribute.Float
                     vertexSize: 1
                     byteOffset: (3+3)*4
-                    byteStride: (3 + 3 + 1) * 4
+                    byteStride: (3 + 3 + 1)*4
                     divisor: 1
                     buffer: sphereData ? sphereData.buffer : null
                 }

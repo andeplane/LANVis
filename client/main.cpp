@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QSurfaceFormat format;
-    format.setMajorVersion(3);
-    format.setMinorVersion(2);
+    format.setMajorVersion(4);
+    format.setMinorVersion(1);
     format.setProfile(QSurfaceFormat::CoreProfile);
     QSurfaceFormat::setDefaultFormat(format);
 

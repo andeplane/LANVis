@@ -70,13 +70,14 @@ ApplicationWindow {
             }
 
             // TODO fix sudden jitter on fast movement
-
             if(ignoreNext) {
                 previousX = mouse.x
                 previousY = mouse.y
                 ignoreNext = false
                 return
             }
+
+            scene.controller.lastRotation = new Date()
 
             var deltaX = mouse.x - previousX
             var deltaY = mouse.y - previousY

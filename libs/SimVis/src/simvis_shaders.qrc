@@ -4,6 +4,7 @@
         <file>render/shaders/gl3/spheres.vert</file>
         <file>render/shaders/gl3/spheres-low.frag</file>
         <file>render/shaders/gl3/spheres-low.vert</file>
+        <file>render/shaders/gl3/spheres-low.geom</file>
         <file>render/shaders/gl3/cylinders.frag</file>
         <file>render/shaders/gl3/cylinders.geom</file>
         <file>render/shaders/gl3/cylinders.vert</file>
