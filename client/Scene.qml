@@ -23,6 +23,7 @@ Scene3D {
     property alias controller: flyModeController
     property alias visualizer: visualizer
     property alias simulator: simulator
+    property alias spheres: spheresEntity
     property alias stateFileName: simulator.stateFileName
     property alias clientStateFileName: simulator.clientStateFileName
     property alias typesFileName: simulator.typesFileName

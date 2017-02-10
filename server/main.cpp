@@ -19,8 +19,9 @@ int main(int argc, char *argv[])
     QString stateFileName("/scratch/largesystem/state.json");
     QString clientStateFileName("/scratch/largesystem/client.json");
 #else
-    QString xyzFileName("/projects/tmp/dump.xyz");
     QString xyzBinaryFileName("/projects/LANVis/Deform_totxyz/Deform_totxyz/localdeform40.bin");
+    // QString xyzBinaryFileName("/projects/LANVis/build-xyz2binary-Desktop_Qt_5_8_0_gcc6_64bit-Release/sio2_porous.bin");
+//    QString lammpsDumpFileName("/projects/tmp/dump_20m.lmp.bin");
     QString lammpsDumpFileName("/projects/tmp/dump_20m.lmp.bin");
     // QString lammpsDumpFileName("/projects/tmp/dump_small.lmp.bin");
     // QString lammpsDumpFileName("/projects/tmp/dump_270m.lmp.bin");
@@ -36,7 +37,7 @@ int main(int argc, char *argv[])
     server.setLockFileName(lockFileName);
     QElapsedTimer t;
     t.start();
-    qDebug() << "Loading " << lammpsDumpFileName << "...";
+    // qDebug() << "Loading " << lammpsDumpFileName << "...";
     // server.loadXYZ(xyzFileName);
     // server.loadLAMMPSBinary(lammpsDumpFileName);
     server.loadXYZBinary(xyzBinaryFileName);

@@ -12,8 +12,9 @@
 #include <QDateTime>
 #include <QLockFile>
 #include <random>
+#define ALUSTUFF
 
-Server::Server() : m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfParticles(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true)
+Server::Server() : m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfParticles(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(0), m_sort(true)
 {
     setDefaultStyles();
 }
@@ -156,12 +157,14 @@ void Server::loadXYZBinary(QString fileName)
         float x = columns[1][particleIndex];
         float y = columns[2][particleIndex];
         float z = columns[3][particleIndex];
+        float radius = 1.0;
+        QVector3D color(1.0, 0.9, 0.8);
+
+#ifdef ALUSTUFF
         float occupancy = columns[4][particleIndex];
         float beta = columns[5][particleIndex];
 
         if(z > 40 && z < 80) {
-            float radius = 1.0;
-            QVector3D color(1.0, 0.9, 0.8);
             position[0] = x;
             position[1] = y;
             position[2] = z;
@@ -185,7 +188,7 @@ void Server::loadXYZBinary(QString fileName)
                     color[2] *= 0.5*0.5*occupancyScale + 0.5;
                 }
             }
-
+#endif
             m_allParticles[numKeepParticles].color = color;
             m_allParticles[numKeepParticles].radius = radius;
             m_allParticles[numKeepParticles].position = position;
@@ -196,7 +199,9 @@ void Server::loadXYZBinary(QString fileName)
             min[2] = std::min(min[2], position[2]);
             max[2] = std::max(max[2], position[2]);
             numKeepParticles++;
+#ifdef ALUSTUFF
         }
+#endif
     }
     m_allParticles.resize(numKeepParticles);
     qDebug() << "We now have " << numKeepParticles << " particles";

@@ -8,7 +8,7 @@
 #include <QDebug>
 
 ClientState::ClientState(QObject *parent) : QObject(parent),
-    m_maxNumberOfParticles(300000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5)
+    m_maxNumberOfParticles(300000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(0)
 {
 
 }

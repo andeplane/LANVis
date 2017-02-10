@@ -4,5 +4,6 @@
         <file>qtquickcontrols2.conf</file>
         <file>FlyModeController.qml</file>
         <file>Scene.qml</file>
+        <file>priyarev2.png</file>
     </qresource>
 </RCC>

@@ -2,6 +2,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.1
 import QtQuick.Controls 1.4 as QQC1
 import LANVis 1.0
+import QtMultimedia 5.8
 
 ApplicationWindow {
     id: applicationRoot
@@ -15,7 +16,7 @@ ApplicationWindow {
         typesFileName: "/projects/tmp/types.json"
         clientStateFileName: "/projects/tmp/client.json"
         stateFileName: "/projects/tmp/state.json"
-        renderingQuality: "low"
+        renderingQuality: "high"
         anchors.fill: parent
         focus: true
         mouseMover: MouseMover {
@@ -117,12 +118,25 @@ ApplicationWindow {
 
     Shortcut {
         sequence: "+"
-        onActivated: rCutSlider.value += 20
+        onActivated: maxParticlesCountSlider.value += 50
     }
 
     Shortcut {
         sequence: "-"
-        onActivated: rCutSlider.value -= 20
+        onActivated: maxParticlesCountSlider.value -= 50
+    }
+
+    Shortcut {
+        sequence: "T"
+        onActivated: {
+            if(scene.spheres.trianglesOnly==0) {
+                scene.spheres.trianglesOnly = 1;
+            } else if(scene.spheres.trianglesOnly==1) {
+                scene.spheres.trianglesOnly = 2;
+            } else {
+                scene.spheres.trianglesOnly = 0;
+            }
+        }
     }
 
     Shortcut {
@@ -141,11 +155,15 @@ ApplicationWindow {
         y: 20
         clip: true
         width: 200
-        height: mouseArea.containsMouse ? 200 : 50
+        height: mouseArea.containsMouse ? 500 : 50
         radius: 5
         color: Qt.rgba(1.0, 1.0, 1.0, 0.8)
 
         Column {
+            x: 5
+            y: 5
+            spacing: 5
+
             Label {
                 text: "FPS: "+scene.fps
             }
@@ -156,11 +174,16 @@ ApplicationWindow {
             QQC1.Slider {
                 id: maxParticlesCountSlider
                 height: 20
-                minimumValue: 10
-                maximumValue: 5000
+                minimumValue: 50
+                maximumValue: parseInt(maxParticles.text)/1000
                 value: 300
-                stepSize: 10
+                stepSize: 50
                 onValueChanged: scene.simulator.clientState.maxNumberOfParticles = value*1000
+            }
+            TextField {
+                id: maxParticles
+                validator: IntValidator{bottom: 50000; top: 5000000;}
+                text: "300000"
             }
 
             Label {
@@ -257,6 +280,39 @@ ApplicationWindow {
             onPressed: {
                 mouse.accepted = false
             }
+        }
+    }
+    Item {
+        width: 640
+        height: 360
+
+        Camera {
+            id: camera
+
+            imageProcessing.whiteBalanceMode: CameraImageProcessing.WhiteBalanceFlash
+
+            exposure {
+                exposureCompensation: -1.0
+                exposureMode: Camera.ExposurePortrait
+            }
+
+            flash.mode: Camera.FlashRedEyeReduction
+
+            imageCapture {
+                onImageCaptured: {
+                    photoPreview.source = preview  // Show the preview in an Image
+                }
+            }
+        }
+
+        VideoOutput {
+            source: camera
+            anchors.fill: parent
+            focus : visible // to receive focus and capture key events when visible
+        }
+
+        Image {
+            id: photoPreview
         }
     }
 }

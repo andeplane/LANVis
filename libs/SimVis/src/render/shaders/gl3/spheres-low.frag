@@ -4,6 +4,7 @@
 in vec3 position;
 in vec3 color;
 in vec2 textureCoord;
+uniform sampler2D priya;
 
 out vec4 fragColor;
 
@@ -12,6 +13,7 @@ uniform mat4 inverseModelView;
 uniform mat4 inverseViewMatrix;
 uniform vec3 eyePosition;
 uniform vec3 viewVector;
+uniform float triangles;
 
 void main(void) {
     float x = textureCoord.s;
@@ -20,6 +22,15 @@ void main(void) {
 
     if(rsq > 0.95) {
         discard;
+    }
+
+    if(triangles==1) {
+        fragColor = vec4(x,y,0,1.0);
+        return;
+    } else if(triangles==2) {
+        vec3 diffuseColor = texture(priya, textureCoord).rgb;
+        fragColor = vec4(diffuseColor, 1.0);
+        return;
     }
 
     float z = sqrt(1.0 - rsq); // Equation for sphere, x^2 + y^2 + z^2 = R^2

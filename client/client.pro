@@ -42,3 +42,6 @@ HEADERS += \
     state.h \
     clientstate.h \
     particle.h
+
+FORMS += \
+    form.ui

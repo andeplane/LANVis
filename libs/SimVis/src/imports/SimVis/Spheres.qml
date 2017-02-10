@@ -25,6 +25,7 @@ Entity {
     property alias position: _fragmentBuilder.position
     property alias posMin: posMin.value
     property alias posMax: posMax.value
+    property alias trianglesOnly: triangles.value
 
     property SphereData sphereData
     property Camera camera
@@ -37,8 +38,30 @@ Entity {
         id: material
         parameters: [
             Parameter { id:posMin; name: "posMin"; value: 0.0 },
-            Parameter { id:posMax; name: "posMax"; value: 200.0 }
+            Parameter { id:posMax; name: "posMax"; value: 200.0 },
+            Parameter { id:triangles; name: "triangles"; value: 0.0 },
+            Parameter {
+                name: "priya"
+                value: Texture2D {
+                    id: diffuseTexture
+                    minificationFilter: Texture.LinearMipMapLinear
+                    magnificationFilter: Texture.Linear
+                    wrapMode {
+                        x: WrapMode.Repeat
+                        y: WrapMode.Repeat
+                    }
+                    generateMipMaps: true
+                    maximumAnisotropy: 16.0
+                    TextureImage {
+                        id: diffuseTextureImage
+                        source: "qrc:///priyarev2.png"
+                    }
+                }
+            }
+
         ]
+
+
         effect: Effect {
             techniques: [
                 Technique {
