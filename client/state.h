@@ -15,6 +15,8 @@ public:
     int timestamp() const;
     Particles* particles() const;
     void update(const QJsonObject &object);
+    Q_INVOKABLE void writeXYZ(QString fileName);
+
 signals:
     void timestampChanged(int timestamp);
     void particlesChanged(Particles* particles);

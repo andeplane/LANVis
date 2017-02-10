@@ -1,4 +1,5 @@
 #include "state.h"
+#include <QFile>
 #include <QJsonArray>
 #include <QLockFile>
 #include <QString>
@@ -42,6 +43,30 @@ void State::update(const QJsonObject &object)
             lockFile.unlock();
         }
     }
+}
+
+void State::writeXYZ(QString fileName)
+{
+    QFile file(fileName);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug() << "Error, could not open file " << fileName;
+        return;
+    }
+
+    QTextStream out(&file);
+    out << m_particles->count() << endl;
+    out << "Exported with LANVis" << endl;
+    for(Particle &particle : m_particles->get()) {
+        float x = particle.position.x();
+        float y = particle.position.y();
+        float z = particle.position.z();
+        float r = particle.color.x();
+        float g = particle.color.y();
+        float b = particle.color.z();
+        float radius = particle.radius;
+        out << x << " " << y << " " << z << " " << radius << " " << r << " " << g << " " << b << endl;
+    }
+    file.close();
 }
 
 void State::setTimestamp(int timestamp)

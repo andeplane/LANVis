@@ -115,3 +115,13 @@ QVector3D Particles::boundingBoxMax() const
 {
     return m_boundingBoxMax;
 }
+
+Particle &Particles::operator()(int index)
+{
+    return m_particles[index];
+}
+
+QVector<Particle> &Particles::get()
+{
+    return m_particles;
+}

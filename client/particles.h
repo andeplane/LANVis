@@ -30,6 +30,8 @@ public:
     int count() const;
     QVector3D boundingBoxMin() const;
     QVector3D boundingBoxMax() const;
+    Particle &operator()(int index);
+    QVector<Particle> &get();
 
 signals:
     void sphereDataChanged(SphereData* sphereData);

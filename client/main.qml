@@ -141,7 +141,7 @@ ApplicationWindow {
         y: 20
         clip: true
         width: 200
-        height: mouseArea.containsMouse ? 200 : 50
+        height: mouseArea.containsMouse ? 300 : 50
         radius: 5
         color: Qt.rgba(1.0, 1.0, 1.0, 0.8)
 
@@ -246,6 +246,10 @@ ApplicationWindow {
                     property: "sort"
                     value: sort.checked
                 }
+            }
+            Button {
+                text: "Dump XYZ"
+                onClicked: scene.simulator.state.writeXYZ("/tmp/state.xyz")
             }
         }
 
