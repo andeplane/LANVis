@@ -17,6 +17,7 @@ Scene3D {
     id: root
     aspects: ["render", "input", "logic"]
     signal cameraMoved
+    signal message
     property var mouseMover: flyModeController.mouseMover
     property int frames: 0
     property real fps: 60
@@ -89,6 +90,7 @@ Scene3D {
 
         MySimulator {
             id: simulator
+            onMessage: root.message(message)
             cameraPosition: camera.position
             Component.onCompleted: {
                 simulator.state.particles.boundingBoxMinChanged.connect(updateNearestPoint)

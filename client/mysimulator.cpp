@@ -15,6 +15,11 @@ MySimulator::MySimulator(QNode *parent)
 
 {
     m_state->particles()->setSphereData(new SphereData(this));
+
+    m_state->connect(m_state, &State::didWriteXYZFile, [&](QString fileName) {
+        emit message(QString("Saved XYZ file to %1").arg(fileName));
+        emit message(QString("Columns: x y z radius red green blue"));
+    });
 }
 
 State *MySimulator::state() const

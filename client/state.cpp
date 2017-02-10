@@ -67,6 +67,7 @@ void State::writeXYZ(QString fileName)
         out << x << " " << y << " " << z << " " << radius << " " << r << " " << g << " " << b << endl;
     }
     file.close();
+    didWriteXYZFile(fileName);
 }
 
 void State::setTimestamp(int timestamp)

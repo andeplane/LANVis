@@ -18,6 +18,16 @@ ApplicationWindow {
         renderingQuality: "low"
         anchors.fill: parent
         focus: true
+        Component.onCompleted: {
+            simulator.message.connect(function(message) {
+                messageOverlay.append(message)
+                messageOverlay.moveCursorSelection(messageOverlay.length)
+                messageOverlay.opacity = 1.0
+                delayedAnimationTimer.animation = hideMessageOverlay
+                delayedAnimationTimer.restart()
+            })
+        }
+
         mouseMover: MouseMover {
             id: mouseMover
             window: applicationRoot
@@ -247,9 +257,15 @@ ApplicationWindow {
                     value: sort.checked
                 }
             }
+            TextField {
+                id: xyzDumpFileName
+                text: "/tmp/state.xyz"
+            }
+
             Button {
+                property int counter: 0
                 text: "Dump XYZ"
-                onClicked: scene.simulator.state.writeXYZ("/tmp/state.xyz")
+                onClicked: scene.simulator.state.writeXYZ(xyzDumpFileName.text)
             }
         }
 
@@ -263,5 +279,34 @@ ApplicationWindow {
             }
         }
     }
-}
 
+    Timer {
+        id: delayedAnimationTimer
+        property var animation
+        interval: 2000
+        onTriggered: animation.start()
+    }
+
+    NumberAnimation {
+        id: hideMessageOverlay
+        target: messageOverlay
+
+        property: "opacity"
+        from: 1.0
+        to: 0.0
+        duration: 200
+        easing.type: Easing.InOutQuad
+        onStopped: {
+            messageOverlay.text = ""
+        }
+    }
+
+    TextArea {
+        id: messageOverlay
+        readOnly: true
+        color: "white"
+        width: 300
+        height: 300
+
+    }
+}

@@ -20,7 +20,7 @@ public:
 signals:
     void timestampChanged(int timestamp);
     void particlesChanged(Particles* particles);
-
+    void didWriteXYZFile(QString fileName);
 public slots:
     void setTimestamp(int timestamp);
     void setParticles(Particles* particles);

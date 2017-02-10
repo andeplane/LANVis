@@ -63,6 +63,7 @@ signals:
     void clientStateChanged(ClientState* clientState);
     void cameraPositionChanged(QVector3D cameraPosition);
     void clientStateFileNameChanged(QString clientStateFileName);
+    void message(QString message);
 
 protected:
     virtual SimulatorWorker *createWorker() override;
