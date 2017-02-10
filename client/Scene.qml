@@ -2,6 +2,7 @@ import QtQuick 2.7
 
 import Qt3D.Core 2.0
 import Qt3D.Render 2.0
+import Qt3D.Logic 2.0
 
 import QtQuick 2.0 as QQ2
 import QtQuick.Scene3D 2.0
@@ -17,6 +18,8 @@ Scene3D {
     aspects: ["render", "input", "logic"]
     signal cameraMoved
     property var mouseMover: flyModeController.mouseMover
+    property int frames: 0
+    property real fps: 60
     property alias controller: flyModeController
     property alias visualizer: visualizer
     property alias simulator: simulator
@@ -100,7 +103,7 @@ Scene3D {
                                visualizer.camera.upVector.normalized()).plus(
                                visualizer.camera.viewVector.crossProduct(visualizer.camera.upVector)).normalized()).times(20))
             strength: 1.0
-            attenuation: 5.0
+            attenuation: 0.1
         }
 
         FlyModeController {
@@ -115,13 +118,30 @@ Scene3D {
             lights: visualizer.lights
         }
 
+        FrameAction {
+            onTriggered: {
+                root.frames++
+            }
+        }
+
+        Timer {
+            interval: 1000
+            running: true
+            repeat: true
+            onTriggered: {
+                root.fps = root.frames
+                root.frames = 0
+            }
+        }
+
         Spheres {
             id: spheresEntity
             camera: visualizer.camera
             sphereData: simulator.state.particles.sphereData
             fragmentColor: {
-                if(flyModeController.moving) return fragmentBuilder.normalDotCamera
-                else if(root.renderingQuality==="high") return spheresHighQuality
+//                if(flyModeController.moving) return fragmentBuilder.normalDotCamera
+//                else
+                if(root.renderingQuality==="high") return spheresHighQuality
                 else return fragmentBuilder.normalDotCamera
             }
             // fragmentColor: spheresHighQuality

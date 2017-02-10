@@ -137,143 +137,125 @@ ApplicationWindow {
     }
 
     Rectangle {
-        anchors {
-            top: parent.top
-            left: parent.left
-            right: parent.right
+        x: parent.width-width
+        y: 20
+        clip: true
+        width: 200
+        height: mouseArea.containsMouse ? 200 : 50
+        radius: 5
+        color: Qt.rgba(1.0, 1.0, 1.0, 0.8)
+
+        Column {
+            Label {
+                text: "FPS: "+scene.fps
+            }
+            Label {
+                text: scene.simulator.state.particles.count+" particles"
+            }
+
+            QQC1.Slider {
+                id: maxParticlesCountSlider
+                height: 20
+                minimumValue: 10
+                maximumValue: 5000
+                value: 300
+                stepSize: 10
+                onValueChanged: scene.simulator.clientState.maxNumberOfParticles = value*1000
+            }
+
+            Label {
+                text: "LOD distance: "+lodDistance.value.toFixed(0)
+            }
+
+            QQC1.Slider {
+                id: lodDistance
+                height: 20
+                minimumValue: 50
+                maximumValue: 1000
+                stepSize: 50
+                value: scene.simulator.clientState.lodDistance
+
+                Binding {
+                    target: scene.simulator.clientState
+                    property: "lodDistance"
+                    value: lodDistance.value
+                }
+            }
+            Label {
+                text: lodLevels.value.toFixed(0)+" LOD levels"
+            }
+            QQC1.Slider {
+                id: lodLevels
+                height: 20
+                minimumValue: 0
+                maximumValue: 10
+                stepSize: 1
+                value: scene.simulator.clientState.lodLevels
+
+                Binding {
+                    target: scene.simulator.clientState
+                    property: "lodLevels"
+                    value: lodLevels.value
+                }
+            }
+            Label {
+                width: 100
+                text: "Chunk size: "+chunkSize.value.toFixed(0)
+            }
+            QQC1.Slider {
+                id: chunkSize
+                height: 20
+                width: 100
+                minimumValue: 10
+                maximumValue: 250
+                stepSize: 10
+                value: scene.simulator.clientState.chunkSize
+
+                Binding {
+                    target: scene.simulator.clientState
+                    property: "chunkSize"
+                    value: chunkSize.value
+                }
+            }
+            Label {
+                text: "Attenuation"
+            }
+            QQC1.Slider {
+                id: lightAttenuation
+                height: 20
+                width: 100
+                minimumValue: 0
+                maximumValue: 1
+                value: scene.light.attenuation
+
+                Binding {
+                    target: scene.light
+                    property: "attenuation"
+                    value: lightAttenuation.value
+                }
+            }
+
+            QQC1.CheckBox {
+                id: sort
+                height: 20
+                width: 100
+                text: "Sort"
+                checked: scene.simulator.clientState.sort
+                Binding {
+                    target: scene.simulator.clientState
+                    property: "sort"
+                    value: sort.checked
+                }
+            }
         }
-        height: 20
-        color: Qt.rgba(1.0, 1.0, 1.0, 0.7)
-        radius: 2
-        Row {
-            spacing: 20
-            anchors.margins: 5
-            Row {
-                spacing: 10
-                Label {
-                    width: 150
-                    text: "Max num particles: "+maxParticlesCountSlider.value.toFixed(0)+"k"
-                }
-                QQC1.Slider {
-                    id: maxParticlesCountSlider
-                    height: 20
-                    width: 100
-                    minimumValue: 10
-                    maximumValue: 5000
-                    value: 300
-                    stepSize: 10
-                    onValueChanged: scene.simulator.clientState.maxNumberOfParticles = value*1000
-                }
-            }
-            Row {
-                Label {
-                    text: scene.simulator.state.particles.count+" particles"
-                }
-            }
 
-            Row {
-                spacing: 10
-                Label {
-                    text: "Attenuation"
-                }
-                QQC1.Slider {
-                    id: lightAttenuation
-                    height: 20
-                    width: 100
-                    minimumValue: 0
-                    maximumValue: 5
-                    value: scene.light.attenuation
-
-                    Binding {
-                        target: scene.light
-                        property: "attenuation"
-                        value: lightAttenuation.value
-                    }
-                }
-            }
-
-            Row {
-                QQC1.CheckBox {
-                    id: sort
-                    height: 20
-                    width: 100
-                    text: "Sort"
-                    checked: scene.simulator.clientState.sort
-                    Binding {
-                        target: scene.simulator.clientState
-                        property: "sort"
-                        value: sort.checked
-                    }
-                }
-            }
-
-            Row {
-                spacing: 10
-                Label {
-                    width: 100
-                    text: "Chunk size: "+chunkSize.value.toFixed(0)
-                }
-                QQC1.Slider {
-                    id: chunkSize
-                    height: 20
-                    width: 100
-                    minimumValue: 10
-                    maximumValue: 250
-                    stepSize: 10
-                    value: scene.simulator.clientState.chunkSize
-
-                    Binding {
-                        target: scene.simulator.clientState
-                        property: "chunkSize"
-                        value: chunkSize.value
-                    }
-                }
-            }
-
-            Row {
-                spacing: 10
-                Label {
-                    width: 120
-                    text: "LOD distance: "+lodDistance.value.toFixed(0)
-                }
-                QQC1.Slider {
-                    id: lodDistance
-                    height: 20
-                    width: 100
-                    minimumValue: 50
-                    maximumValue: 1000
-                    stepSize: 25
-                    value: scene.simulator.clientState.lodDistance
-
-                    Binding {
-                        target: scene.simulator.clientState
-                        property: "lodDistance"
-                        value: lodDistance.value
-                    }
-                }
-            }
-
-            Row {
-                spacing: 10
-                Label {
-                    width: 120
-                    text: lodLevels.value.toFixed(0)+" LOD levels"
-                }
-                QQC1.Slider {
-                    id: lodLevels
-                    height: 20
-                    width: 100
-                    minimumValue: 0
-                    maximumValue: 10
-                    stepSize: 1
-                    value: scene.simulator.clientState.lodLevels
-
-                    Binding {
-                        target: scene.simulator.clientState
-                        property: "lodLevels"
-                        value: lodLevels.value
-                    }
-                }
+        MouseArea {
+            id: mouseArea
+            anchors.fill: parent
+            drag.target: parent
+            hoverEnabled: true
+            onPressed: {
+                mouse.accepted = false
             }
         }
     }
