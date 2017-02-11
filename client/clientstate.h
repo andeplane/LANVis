@@ -17,11 +17,16 @@ public:
     explicit ClientState(QObject *parent = 0);
     QVector3D cameraPosition() const;
     void save(QString fileName);
+    void load(QString fileName);
     int maxNumberOfParticles() const;
     bool sort() const;
     float chunkSize() const;
     float lodDistance() const;
     int lodLevels() const;
+    bool chunksDirty() const;
+    bool particlesDirty() const;
+    void setChunksDirty(bool chunksDirty);
+    void setParticlesDirty(bool particlesDirty);
 
 signals:
     void cameraPositionChanged(QVector3D cameraPosition);
@@ -40,6 +45,8 @@ public slots:
     void setLodLevels(int lodLevels);
 
 private:
+    bool m_chunksDirty;
+    bool m_particlesDirty;
     QVector3D m_cameraPosition;
     int m_maxNumberOfParticles;
     bool m_sort;

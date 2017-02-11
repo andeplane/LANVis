@@ -9,7 +9,13 @@ SOURCES += \
     particlestyle.cpp \
     lammpsbinaryreader.cpp \
     chunk.cpp \
-    xyzbinaryreader.cpp
+    xyzbinaryreader.cpp \
+    import/particleimporter.cpp \
+    import/lammpstextdumpimporter.cpp \
+    state.cpp \
+    generalparticle.cpp \
+    ../client/clientstate.cpp \
+    import/xyzimporter.cpp
 
 HEADERS += \
     xyzreader.h \
@@ -18,4 +24,10 @@ HEADERS += \
     particlestyle.h \
     lammpsbinaryreader.h \
     chunk.h \
-    xyzbinaryreader.h
+    xyzbinaryreader.h \
+    import/particleimporter.h \
+    import/lammpstextdumpimporter.h \
+    state.h \
+    generalparticle.h \
+    ../client/clientstate.h \
+    import/xyzimporter.h

@@ -7,6 +7,7 @@ struct Particle
     QVector3D position;
     QVector3D color;
     float radius;
+    int index;
     Particle() { radius = 1.0; color = QVector3D(1.0, 0.9, 0.8); }
 };
 

@@ -13,7 +13,7 @@
 #include <QLockFile>
 #include <random>
 
-Server::Server() : m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfParticles(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true)
+Server::Server() :
 {
     setDefaultStyles();
 }
@@ -308,26 +308,9 @@ void Server::writePositions()
     }
 }
 
-void Server::writeState()
+void Server::writeCurrentState()
 {
-    QFile file(m_stateFileName);
-    if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        QTextStream stream(&file);
-        QJsonObject json;
 
-        json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<double>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
-        json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_particles.size()));
-        json["binaryFileName"] = m_dataFileName;
-        json["lockFileName"] = m_lockFileName;
-        json["boundingBoxMin"] = QJsonArray({m_boundingBoxMin[0], m_boundingBoxMin[1], m_boundingBoxMin[2]});
-        json["boundingBoxMax"] = QJsonArray({m_boundingBoxMax[0], m_boundingBoxMax[1], m_boundingBoxMax[2]});
-
-        QJsonDocument saveObject(json);
-        stream << saveObject.toJson();
-        file.close();
-    } else {
-        qDebug() << "Could not open file " << m_stateFileName;
-    }
 }
 
 QString Server::dataFileName() const
@@ -350,27 +333,6 @@ void Server::setStateFileName(const QString &stateFileName)
     m_stateFileName = stateFileName;
 }
 
-const std::vector<Particle> &Server::particles() const
-{
-    return m_particles;
-}
-
-const std::vector<Particle> &Server::allParticles() const
-{
-    return m_allParticles;
-}
-
-void Server::sortChunks()
-{
-    std::sort(m_chunkPtrs.begin(), m_chunkPtrs.end(),
-              [&](const Chunk* a, const Chunk* b)
-    {
-        float da = a->minDistanceTo(m_cameraPosition);
-        float db = b->minDistanceTo(m_cameraPosition);
-        return da < db;
-    });
-}
-
 QString Server::lockFileName() const
 {
     return m_lockFileName;
@@ -383,48 +345,11 @@ void Server::setLockFileName(const QString &lockFileName)
 
 bool Server::update(QString clientStateFileName)
 {
-    QFile loadFile(clientStateFileName);
-    if (!loadFile.open(QIODevice::ReadOnly)) {
-        qWarning("Couldn't open state file");
-        return false;
+    m_clientState.load(clientStateFileName);
+    if(m_clientState.chunksDirty()) {
+        // placeParticleInChunks();
     }
-
-    QByteArray stateData = loadFile.readAll();
-
-    QJsonParseError error;
-    QJsonDocument doc(QJsonDocument::fromJson(stateData, &error));
-    if(doc.isNull()) return false;
-
-    QJsonObject   obj = doc.object();
-    QJsonArray    arr = obj["cameraPosition"].toArray();
-    int maxNumberOfParticles = obj["maxNumberOfParticles"].toInt();
-    float chunkSize = obj["chunkSize"].toDouble();
-    float lodDistance = obj["lodDistance"].toDouble();
-    int lodLevels = obj["lodLevels"].toInt();
-    bool sort = obj["sort"].toBool();
-
-    QVector3D newCameraPositon;
-    newCameraPositon[0] = arr[0].toDouble();
-    newCameraPositon[1] = arr[1].toDouble();
-    newCameraPositon[2] = arr[2].toDouble();
-    float distanceToOldPositionSquared = (newCameraPositon - m_cameraPosition).lengthSquared();
-    bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0;
-    bool lodDirty = fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
-
-    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles || m_sort != sort || chunksDirty || lodDirty;
-    if(!anyChanges) return false;
-
-    m_maxNumberOfParticles = maxNumberOfParticles;
-    m_cameraPosition = newCameraPositon;
-    m_sort = sort;
-
-    if(chunksDirty || lodDirty) {
-        m_lodLevels = lodLevels;
-        m_lodDistance = lodDistance;
-        m_chunkSize = chunkSize;
-        placeParticleInChunks();
+    if(m_clientState.particlesDirty()) {
+        // updatePositions();
     }
-
-    updatePositions();
-    return true;
 }
