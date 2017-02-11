@@ -13,7 +13,7 @@
 #include <QLockFile>
 #include <random>
 
-Server::Server() : m_nx(0), m_ny(0), m_nz(0), m_maxNumberOfParticles(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true)
+Server::Server() : m_maxNumberOfParticles(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true), m_currentState(nullptr)
 {
     setDefaultStyles();
 }
@@ -71,221 +71,175 @@ void Server::setDefaultStyles() {
     m_particleStyles.insert("Ca", new ParticleStyle(2.31, "#3DFF00"));
 }
 
-void Server::setupChunks()
-{
-    m_nx = m_size[0]/m_chunkSize + 1;
-    m_ny = m_size[1]/m_chunkSize + 1;
-    m_nz = m_size[2]/m_chunkSize + 1;
-    int numChunks = m_nx*m_ny*m_nz;
-    m_chunks.resize(numChunks);
-    m_chunkPtrs.resize(numChunks);
-    for(int i=0; i<numChunks; i++) {
-        m_chunkPtrs[i] = &m_chunks[i]; // TODO: handle this better than raw pointers
-    }
-
-    for(int i=0; i<m_nx; i++) {
-        for(int j=0; j<m_ny; j++) {
-            for(int k=0; k<m_nz; k++) {
-                Chunk &chunk = m_chunks[index(i,j,k)];
-                std::vector<QVector3D> &corners = chunk.corners();
-                corners[0] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
-                corners[1] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
-                corners[2] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
-                corners[3] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
-                corners[4] = QVector3D(m_origo[0] + (i+0)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
-                corners[5] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+0)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
-                corners[6] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+0)*m_chunkSize);
-                corners[7] = QVector3D(m_origo[0] + (i+1)*m_chunkSize, m_origo[1] + (j+1)*m_chunkSize, m_origo[2] + (k+1)*m_chunkSize);
-            }
-        }
-    }
-}
 
 void Server::loadXYZ(QString fileName)
 {
-    XYZReader reader;
-    reader.readFile(fileName);
-    const QVector<QVector3D> &positions = reader.positions();
-    const QVector<QString>   &types     = reader.types();
-    m_allParticles.resize(positions.size());
-    QVector3D min, max;
-    min = positions[0];
-    max = positions[0];
+//    XYZReader reader;
+//    reader.readFile(fileName);
+//    const QVector<QVector3D> &positions = reader.positions();
+//    const QVector<QString>   &types     = reader.types();
+//    m_allParticles.resize(positions.size());
+//    QVector3D min, max;
+//    min = positions[0];
+//    max = positions[0];
 
-    for(int particleIndex=0; particleIndex<positions.size(); particleIndex++) {
-        const QVector3D &position = positions.at(particleIndex);
-        float radius = 1.0;
-        QVector3D color(1.0, 0.9, 0.8);
+//    for(int particleIndex=0; particleIndex<positions.size(); particleIndex++) {
+//        const QVector3D &position = positions.at(particleIndex);
+//        float radius = 1.0;
+//        QVector3D color(1.0, 0.9, 0.8);
 
-        if(m_particleStyles.contains(types[particleIndex])) {
-            radius = m_particleStyles[types[particleIndex]]->radius;
-            color[0] = m_particleStyles[types[particleIndex]]->color.redF();
-            color[1] = m_particleStyles[types[particleIndex]]->color.greenF();
-            color[2] = m_particleStyles[types[particleIndex]]->color.blueF();
-        }
+//        if(m_particleStyles.contains(types[particleIndex])) {
+//            radius = m_particleStyles[types[particleIndex]]->radius;
+//            color[0] = m_particleStyles[types[particleIndex]]->color.redF();
+//            color[1] = m_particleStyles[types[particleIndex]]->color.greenF();
+//            color[2] = m_particleStyles[types[particleIndex]]->color.blueF();
+//        }
 
-        m_allParticles[particleIndex].color = color;
-        m_allParticles[particleIndex].radius = radius;
-        m_allParticles[particleIndex].position = position;
-        min[0] = std::min(min[0], position[0]);
-        max[0] = std::max(max[0], position[0]);
-        min[1] = std::min(min[1], position[1]);
-        max[1] = std::max(max[1], position[1]);
-        min[2] = std::min(min[2], position[2]);
-        max[2] = std::max(max[2], position[2]);
-    }
-    m_origo = min;
-    m_size = max - min;
-    placeParticleInChunks();
+//        m_allParticles[particleIndex].color = color;
+//        m_allParticles[particleIndex].radius = radius;
+//        m_allParticles[particleIndex].position = position;
+//        min[0] = std::min(min[0], position[0]);
+//        max[0] = std::max(max[0], position[0]);
+//        min[1] = std::min(min[1], position[1]);
+//        max[1] = std::max(max[1], position[1]);
+//        min[2] = std::min(min[2], position[2]);
+//        max[2] = std::max(max[2], position[2]);
+//    }
+//    m_origo = min;
+//    m_size = max - min;
+//    placeParticlesInChunks();
 }
 
 void Server::loadXYZBinary(QString fileName)
 {
-    XYZBinaryReader reader;
-    bool success = reader.readFile(fileName);
-    if(!success) return;
-    auto &columns = reader.columns();
+//    XYZBinaryReader reader;
+//    bool success = reader.readFile(fileName);
+//    if(!success) return;
+//    auto &columns = reader.columns();
 
-    m_allParticles.resize(reader.numParticles());
-    QVector3D min(columns[1][0], columns[2][0], columns[3][0]); // type x y z ...
-    QVector3D max(columns[1][0], columns[2][0], columns[3][0]);
-    int numKeepParticles = 0;
-    for(size_t particleIndex=0; particleIndex<m_allParticles.size(); particleIndex++) {
-        QVector3D position;
-        int type = int(columns[0][particleIndex]);
-        float x = columns[1][particleIndex];
-        float y = columns[2][particleIndex];
-        float z = columns[3][particleIndex];
-        float occupancy = columns[4][particleIndex];
-        float beta = columns[5][particleIndex];
+//    m_allParticles.resize(reader.numParticles());
+//    QVector3D min(columns[1][0], columns[2][0], columns[3][0]); // type x y z ...
+//    QVector3D max(columns[1][0], columns[2][0], columns[3][0]);
+//    int numKeepParticles = 0;
+//    for(size_t particleIndex=0; particleIndex<m_allParticles.size(); particleIndex++) {
+//        QVector3D position;
+//        int type = int(columns[0][particleIndex]);
+//        float x = columns[1][particleIndex];
+//        float y = columns[2][particleIndex];
+//        float z = columns[3][particleIndex];
+//        float occupancy = columns[4][particleIndex];
+//        float beta = columns[5][particleIndex];
 
-        if(z > 40 && z < 80) {
-            float radius = 1.0;
-            QVector3D color(1.0, 0.9, 0.8);
-            position[0] = x;
-            position[1] = y;
-            position[2] = z;
+//        if(z > 40 && z < 80) {
+//            float radius = 1.0;
+//            QVector3D color(1.0, 0.9, 0.8);
+//            position[0] = x;
+//            position[1] = y;
+//            position[2] = z;
 
-            QString typeStr = QString("%1").arg(type);
-            if(m_particleStyles.contains(typeStr)) {
-                radius   = m_particleStyles[typeStr]->radius;
-                color[0] = m_particleStyles[typeStr]->color.redF();
-                color[1] = m_particleStyles[typeStr]->color.greenF();
-                color[2] = m_particleStyles[typeStr]->color.blueF();
-            }
-            if(type==4 || type==6) {
-                if(beta>0.5) {
-                    color = QVector3D(0.8,0.8,0.8);
-                    radius *= 1.9;
-                } else {
-                    float occupancyScale = occupancy;
-                    if(occupancyScale>2.0) occupancyScale = 2.0;
-                    if(occupancyScale<0.0) occupancyScale = 0.0;
-                    color[1] *= 0.5*0.5*occupancyScale + 0.5;
-                    color[2] *= 0.5*0.5*occupancyScale + 0.5;
-                }
-            }
+//            QString typeStr = QString("%1").arg(type);
+//            if(m_particleStyles.contains(typeStr)) {
+//                radius   = m_particleStyles[typeStr]->radius;
+//                color[0] = m_particleStyles[typeStr]->color.redF();
+//                color[1] = m_particleStyles[typeStr]->color.greenF();
+//                color[2] = m_particleStyles[typeStr]->color.blueF();
+//            }
+//            if(type==4 || type==6) {
+//                if(beta>0.5) {
+//                    color = QVector3D(0.8,0.8,0.8);
+//                    radius *= 1.9;
+//                } else {
+//                    float occupancyScale = occupancy;
+//                    if(occupancyScale>2.0) occupancyScale = 2.0;
+//                    if(occupancyScale<0.0) occupancyScale = 0.0;
+//                    color[1] *= 0.5*0.5*occupancyScale + 0.5;
+//                    color[2] *= 0.5*0.5*occupancyScale + 0.5;
+//                }
+//            }
 
-            m_allParticles[numKeepParticles].color = color;
-            m_allParticles[numKeepParticles].radius = radius;
-            m_allParticles[numKeepParticles].position = position;
-            min[0] = std::min(min[0], position[0]);
-            max[0] = std::max(max[0], position[0]);
-            min[1] = std::min(min[1], position[1]);
-            max[1] = std::max(max[1], position[1]);
-            min[2] = std::min(min[2], position[2]);
-            max[2] = std::max(max[2], position[2]);
-            numKeepParticles++;
-        }
-    }
-    m_allParticles.resize(numKeepParticles);
-    qDebug() << "We now have " << numKeepParticles << " particles";
-    m_origo = min;
-    m_size = max - min;
-    placeParticleInChunks();
+//            m_allParticles[numKeepParticles].color = color;
+//            m_allParticles[numKeepParticles].radius = radius;
+//            m_allParticles[numKeepParticles].position = position;
+//            min[0] = std::min(min[0], position[0]);
+//            max[0] = std::max(max[0], position[0]);
+//            min[1] = std::min(min[1], position[1]);
+//            max[1] = std::max(max[1], position[1]);
+//            min[2] = std::min(min[2], position[2]);
+//            max[2] = std::max(max[2], position[2]);
+//            numKeepParticles++;
+//        }
+//    }
+//    m_allParticles.resize(numKeepParticles);
+//    qDebug() << "We now have " << numKeepParticles << " particles";
+//    m_origo = min;
+//    m_size = max - min;
+//    placeParticlesInChunks();
 }
 
 void Server::loadLAMMPSBinary(QString fileName)
 {
-    LAMMPSBinaryReader reader;
-    reader.readFile(fileName);
-    const std::vector<QVector3D> &positions = reader.positions();
-    const std::vector<int>       &types     = reader.types();
-    qDebug() << "Found " << reader.positions().size() << " particles.";
-    m_allParticles.resize(positions.size());
+//    LAMMPSBinaryReader reader;
+//    reader.readFile(fileName);
+//    const std::vector<QVector3D> &positions = reader.positions();
+//    const std::vector<int>       &types     = reader.types();
+//    qDebug() << "Found " << reader.positions().size() << " particles.";
+//    m_allParticles.resize(positions.size());
 
-    for(size_t particleIndex=0; particleIndex<positions.size(); particleIndex++) {
-        const QVector3D &position = positions.at(particleIndex);
-        float radius = 1.0;
-        QVector3D color(1.0, 0.9, 0.8);
-        QString typeAsString = QString("%1").arg(types[particleIndex]);
-        if(m_particleStyles.contains(typeAsString)) {
-            radius = m_particleStyles[typeAsString]->radius;
-            color[0] = m_particleStyles[typeAsString]->color.redF();
-            color[1] = m_particleStyles[typeAsString]->color.greenF();
-            color[2] = m_particleStyles[typeAsString]->color.blueF();
-        }
+//    for(size_t particleIndex=0; particleIndex<positions.size(); particleIndex++) {
+//        const QVector3D &position = positions.at(particleIndex);
+//        float radius = 1.0;
+//        QVector3D color(1.0, 0.9, 0.8);
+//        QString typeAsString = QString("%1").arg(types[particleIndex]);
+//        if(m_particleStyles.contains(typeAsString)) {
+//            radius = m_particleStyles[typeAsString]->radius;
+//            color[0] = m_particleStyles[typeAsString]->color.redF();
+//            color[1] = m_particleStyles[typeAsString]->color.greenF();
+//            color[2] = m_particleStyles[typeAsString]->color.blueF();
+//        }
 
-        m_allParticles[particleIndex].color = color;
-        m_allParticles[particleIndex].radius = radius;
-        m_allParticles[particleIndex].position = position;
-    }
-    m_origo = reader.origo();
-    m_size = reader.size();
-    placeParticleInChunks();
+//        m_allParticles[particleIndex].color = color;
+//        m_allParticles[particleIndex].radius = radius;
+//        m_allParticles[particleIndex].position = position;
+//    }
+//    m_origo = reader.origo();
+//    m_size = reader.size();
+//    placeParticlesInChunks();
 }
 
-void Server::placeParticleInChunks() {
-    setupChunks();
-    float oneOverChunkSize = 1.0/m_chunkSize;
-    for(Chunk &chunk : m_chunks) {
-        chunk.clear();
-    }
+void Server::loadLAMMPSTextDump(QString fileName)
+{
 
-    for(const Particle &particle : m_allParticles) {
-        int i = (particle.position[0]-m_origo[0]) * oneOverChunkSize;
-        int j = (particle.position[1]-m_origo[1]) * oneOverChunkSize;
-        int k = (particle.position[2]-m_origo[2]) * oneOverChunkSize;
-        Chunk &chunk = m_chunks[index(i,j,k)];
-        chunk.particles(0).push_back(particle);
-    }
-
-    std::random_device rd;
-    std::mt19937 generator(rd());
-    std::uniform_real_distribution<float> distribution(0, 1);
-    qDebug() << "Building LOD with " << m_lodLevels << " levels";
-    for(Chunk &chunk : m_chunks) {
-        chunk.buildLOD(m_lodLevels, generator, distribution);
-    }
 }
 
 void Server::updatePositions()
 {
     m_particles.clear();
     int atomCount = 0;
-    sortChunks();
+    m_currentState->sortChunks(m_cameraPosition);
 
-    m_boundingBoxMin = QVector3D(1e9,1e9,1e9);
-    m_boundingBoxMax = QVector3D(-1e9,-1e9,-1e9);
+    QVector3D boundingBoxMin = QVector3D(1e9,1e9,1e9);
+    QVector3D boundingBoxMax = QVector3D(-1e9,-1e9,-1e9);
 
-    for(Chunk *chunk : m_chunkPtrs) {
+    for(Chunk *chunk : m_currentState->chunkPtrs()) {
         float distance = chunk->minDistanceTo(m_cameraPosition);
         int lod = distance / m_lodDistance;
-        if(lod > 3) lod = 3;
+        if(lod > m_lodLevels) lod = m_lodLevels;
 
         if(m_sort) chunk->sort(m_cameraPosition, lod);
-        m_boundingBoxMin[0] = std::min(m_boundingBoxMin[0], chunk->corners()[0][0]);
-        m_boundingBoxMin[1] = std::min(m_boundingBoxMin[1], chunk->corners()[0][1]);
-        m_boundingBoxMin[2] = std::min(m_boundingBoxMin[2], chunk->corners()[0][2]);
+        boundingBoxMin[0] = std::min(boundingBoxMin[0], chunk->corners()[0][0]);
+        boundingBoxMin[1] = std::min(boundingBoxMin[1], chunk->corners()[0][1]);
+        boundingBoxMin[2] = std::min(boundingBoxMin[2], chunk->corners()[0][2]);
 
-        m_boundingBoxMax[0] = std::max(m_boundingBoxMax[0], chunk->corners()[7][0]);
-        m_boundingBoxMax[1] = std::max(m_boundingBoxMax[1], chunk->corners()[7][1]);
-        m_boundingBoxMax[2] = std::max(m_boundingBoxMax[2], chunk->corners()[7][2]);
+        boundingBoxMax[0] = std::max(boundingBoxMax[0], chunk->corners()[7][0]);
+        boundingBoxMax[1] = std::max(boundingBoxMax[1], chunk->corners()[7][1]);
+        boundingBoxMax[2] = std::max(boundingBoxMax[2], chunk->corners()[7][2]);
 
         m_particles.insert( m_particles.end(), chunk->particles(lod).begin(), chunk->particles(lod).end() );
         atomCount += chunk->particles(lod).size();
         if(atomCount > m_maxNumberOfParticles) break;
     }
+    m_currentState->setBoundingBoxMax(boundingBoxMax);
+    m_currentState->setBoundingBoxMin(boundingBoxMin);
 }
 
 void Server::writePositions()
@@ -319,8 +273,8 @@ void Server::writeState()
         json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_particles.size()));
         json["binaryFileName"] = m_dataFileName;
         json["lockFileName"] = m_lockFileName;
-        json["boundingBoxMin"] = QJsonArray({m_boundingBoxMin[0], m_boundingBoxMin[1], m_boundingBoxMin[2]});
-        json["boundingBoxMax"] = QJsonArray({m_boundingBoxMax[0], m_boundingBoxMax[1], m_boundingBoxMax[2]});
+        json["boundingBoxMin"] = QJsonArray({m_currentState->boundingBoxMin().x(), m_currentState->boundingBoxMin().y(), m_currentState->boundingBoxMin().z()});
+        json["boundingBoxMax"] = QJsonArray({m_currentState->boundingBoxMax().x(), m_currentState->boundingBoxMax().y(), m_currentState->boundingBoxMax().z()});
 
         QJsonDocument saveObject(json);
         stream << saveObject.toJson();
@@ -355,22 +309,6 @@ const std::vector<Particle> &Server::particles() const
     return m_particles;
 }
 
-const std::vector<Particle> &Server::allParticles() const
-{
-    return m_allParticles;
-}
-
-void Server::sortChunks()
-{
-    std::sort(m_chunkPtrs.begin(), m_chunkPtrs.end(),
-              [&](const Chunk* a, const Chunk* b)
-    {
-        float da = a->minDistanceTo(m_cameraPosition);
-        float db = b->minDistanceTo(m_cameraPosition);
-        return da < db;
-    });
-}
-
 QString Server::lockFileName() const
 {
     return m_lockFileName;
@@ -379,6 +317,11 @@ QString Server::lockFileName() const
 void Server::setLockFileName(const QString &lockFileName)
 {
     m_lockFileName = lockFileName;
+}
+
+State *Server::currentState() const
+{
+    return m_currentState;
 }
 
 bool Server::update(QString clientStateFileName)
@@ -422,7 +365,9 @@ bool Server::update(QString clientStateFileName)
         m_lodLevels = lodLevels;
         m_lodDistance = lodDistance;
         m_chunkSize = chunkSize;
-        placeParticleInChunks();
+        for(State &state : m_states) {
+            state.placeParticlesInChunks(m_chunkSize, m_lodLevels);
+        }
     }
 
     updatePositions();

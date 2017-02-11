@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     QString stateFileName("/scratch/largesystem/state.json");
     QString clientStateFileName("/scratch/largesystem/client.json");
 #else
+    QString lammpsTextDumpFileName("");
     QString xyzFileName("/projects/tmp/dump.xyz");
     QString xyzBinaryFileName("/projects/LANVis/Deform_totxyz/Deform_totxyz/localdeform40.bin");
     QString lammpsDumpFileName("/projects/tmp/dump_20m.lmp.bin");
@@ -39,13 +40,14 @@ int main(int argc, char *argv[])
     qDebug() << "Loading " << lammpsDumpFileName << "...";
     // server.loadXYZ(xyzFileName);
     // server.loadLAMMPSBinary(lammpsDumpFileName);
-    server.loadXYZBinary(xyzBinaryFileName);
+    // server.loadXYZBinary(xyzBinaryFileName);
+    server.loadLAMMPSTextDump(lammpsTextDumpFileName);
     qDebug() << "Loading file took " << t.elapsed() << " ms.";
     while(true) {
         t.restart();
         bool anyChanges = server.update(clientStateFileName);
         if(anyChanges) {
-            qDebug() << "Updated position on " << server.allParticles().size() << " particles took " << t.restart() << " ms.";
+            qDebug() << "Updated position on " << server.currentState()->allParticles().size() << " particles took " << t.restart() << " ms.";
             server.writePositions();
             server.writeState();
             qDebug() << "Writing file with " << server.particles().size() << " took " << t.restart() << " ms.";
