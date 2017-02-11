@@ -178,32 +178,18 @@ void Server::loadXYZBinary(QString fileName)
 
 void Server::loadLAMMPSBinary(QString fileName)
 {
-//    LAMMPSBinaryReader reader;
-//    reader.readFile(fileName);
-//    const std::vector<QVector3D> &positions = reader.positions();
-//    const std::vector<int>       &types     = reader.types();
-//    qDebug() << "Found " << reader.positions().size() << " particles.";
-//    m_allParticles.resize(positions.size());
+    LAMMPSBinaryReader reader;
+    reader.readFile(fileName);
+    const std::vector<QVector3D> &positions = reader.positions();
+    const std::vector<int>       &types     = reader.types();
+    qDebug() << "Found " << reader.positions().size() << " particles.";
 
-//    for(size_t particleIndex=0; particleIndex<positions.size(); particleIndex++) {
-//        const QVector3D &position = positions.at(particleIndex);
-//        float radius = 1.0;
-//        QVector3D color(1.0, 0.9, 0.8);
-//        QString typeAsString = QString("%1").arg(types[particleIndex]);
-//        if(m_particleStyles.contains(typeAsString)) {
-//            radius = m_particleStyles[typeAsString]->radius;
-//            color[0] = m_particleStyles[typeAsString]->color.redF();
-//            color[1] = m_particleStyles[typeAsString]->color.greenF();
-//            color[2] = m_particleStyles[typeAsString]->color.blueF();
-//        }
-
-//        m_allParticles[particleIndex].color = color;
-//        m_allParticles[particleIndex].radius = radius;
-//        m_allParticles[particleIndex].position = position;
-//    }
-//    m_origo = reader.origo();
-//    m_size = reader.size();
-//    placeParticlesInChunks();
+    m_states.resize(1);
+    m_currentState = &m_states.front();
+    m_currentState->reset();
+    m_currentState->setParticleStyles(m_particleStyles);
+    m_currentState->addParticles(positions, types, reader.origo(), reader.size());
+    m_currentState->placeParticlesInChunks(m_chunkSize, m_lodLevels);
 }
 
 void Server::loadLAMMPSTextDump(QString fileName)

@@ -13,6 +13,7 @@ class Server
 {
 public:
     Server();
+
     void loadXYZ(QString fileName);
     void loadXYZBinary(QString fileName);
     void loadLAMMPSBinary(QString fileName);

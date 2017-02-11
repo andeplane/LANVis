@@ -6,7 +6,7 @@ Chunk::Chunk() {
     m_particles.resize(4); // 4 leves of LOD
 }
 
-void Chunk::clear()
+void Chunk::reset()
 {
     for(size_t i=0; i<m_particles.size(); i++) {
         m_particles[i].clear();

@@ -39,9 +39,9 @@ int main(int argc, char *argv[])
     t.start();
     qDebug() << "Loading " << lammpsDumpFileName << "...";
     // server.loadXYZ(xyzFileName);
-    // server.loadLAMMPSBinary(lammpsDumpFileName);
+    server.loadLAMMPSBinary(lammpsDumpFileName);
     // server.loadXYZBinary(xyzBinaryFileName);
-    server.loadLAMMPSTextDump(lammpsTextDumpFileName);
+    // server.loadLAMMPSTextDump(lammpsTextDumpFileName);
     qDebug() << "Loading file took " << t.elapsed() << " ms.";
     while(true) {
         t.restart();

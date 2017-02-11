@@ -13,7 +13,7 @@ public:
 //    Chunk(Chunk const &) = delete;
 //    void operator=(Chunk const &) = delete;
     // ~Chunk() { m_corners.clear(); m_particles.clear(); }
-    void clear();
+    void reset();
     float minDistanceTo(const QVector3D &point) const;
     QVector3D nearestCorner(const QVector3D &point) const;
     void sort(const QVector3D &point, int lod);
