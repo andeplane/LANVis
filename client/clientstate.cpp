@@ -8,7 +8,7 @@
 #include <QDebug>
 
 ClientState::ClientState(QObject *parent) : QObject(parent),
-    m_maxNumberOfParticles(300000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5)
+    m_maxNumberOfParticles(1000000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(0), m_timestep(0)
 {
 
 }
@@ -27,6 +27,7 @@ void ClientState::save(QString fileName)
         QJsonArray array = { m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2] };
         json["maxNumberOfParticles"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfParticles));
         json["lodLevels"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_lodLevels));
+        json["timestep"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_timestep));
         json["chunkSize"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_chunkSize));
         json["lodDistance"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodDistance));
         json["cameraPosition"] = array;
@@ -60,6 +61,11 @@ float ClientState::lodDistance() const
 int ClientState::lodLevels() const
 {
     return m_lodLevels;
+}
+
+int ClientState::timestep() const
+{
+    return m_timestep;
 }
 
 void ClientState::setCameraPosition(QVector3D cameraPosition)
@@ -114,4 +120,13 @@ void ClientState::setLodLevels(int lodLevels)
 
     m_lodLevels = lodLevels;
     emit lodLevelsChanged(lodLevels);
+}
+
+void ClientState::setTimestep(int timestep)
+{
+    if (m_timestep == timestep)
+        return;
+
+    m_timestep = timestep;
+    emit timestepChanged(timestep);
 }

@@ -11,7 +11,7 @@ MyWorker::MyWorker() : m_clientState(nullptr), m_state(nullptr)
 }
 
 MySimulator::MySimulator(QNode *parent)
-    : Simulator(parent), m_state(new State(this)), m_clientState(new ClientState(this))
+    : Simulator(parent), m_state(new State(this)), m_clientState(new ClientState(this)), m_numTimesteps(1)
 
 {
     m_state->particles()->setSphereData(new SphereData(this));
@@ -50,6 +50,11 @@ QVector3D MySimulator::cameraPosition() const
 QString MySimulator::clientStateFileName() const
 {
     return m_clientStateFileName;
+}
+
+int MySimulator::numTimesteps() const
+{
+    return m_numTimesteps;
 }
 
 void MySimulator::setState(State *state)
@@ -106,6 +111,15 @@ void MySimulator::setClientStateFileName(QString clientStateFileName)
     emit clientStateFileNameChanged(clientStateFileName);
 }
 
+void MySimulator::setNumTimesteps(int numTimesteps)
+{
+    if (m_numTimesteps == numTimesteps)
+        return;
+
+    m_numTimesteps = numTimesteps;
+    emit numTimestepsChanged(numTimesteps);
+}
+
 SimulatorWorker *MySimulator::createWorker()
 {
     return new MyWorker();
@@ -118,6 +132,7 @@ void MyWorker::synchronizeSimulator(Simulator *simulator)
         m_state = mySimulator->state();
         m_clientState = mySimulator->clientState();
         m_clientStateFileName = mySimulator->clientStateFileName();
+        mySimulator->setNumTimesteps(m_numTimesteps);
         m_stateFileName = mySimulator->stateFileName();
         m_typesFileName = mySimulator->typesFileName();
         m_state->particles()->synchronizeRenderer();
@@ -136,6 +151,8 @@ void MyWorker::work()
 
         QByteArray stateData = loadFile.readAll();
         QJsonDocument loadDoc(QJsonDocument::fromJson(stateData));
+        m_numTimesteps = loadDoc.object()["numTimesteps"].toInt();
+
         m_state->update(loadDoc.object());
     }
     if(m_clientState) m_clientState->save(m_clientStateFileName);

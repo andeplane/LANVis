@@ -8,6 +8,7 @@
 #include "chunk.h"
 #include "state.h"
 #include "../client/particle.h"
+#include "statesubset.h"
 
 class Server
 {
@@ -22,7 +23,7 @@ public:
     void updatePositions();
     void writePositions();
     void writeState();
-    const std::vector<Particle> &particles() const;
+    std::vector<Particle> &particles();
     QString dataFileName() const;
     void setDataFileName(const QString &dataFileName);
 
@@ -33,23 +34,24 @@ public:
     void setLockFileName(const QString &lockFileName);
     State *currentState() const;
 
+    StateSubset &stateSubset();
+
 private:
     int m_maxNumberOfParticles;
     float m_chunkSize;
     float m_lodDistance;
     int m_lodLevels;
+    int m_currentStateIndex;
     bool m_sort;
-    std::vector<Particle> m_particles;
+
     QString m_fileName;
     QString m_dataFileName;
     QString m_lockFileName;
     QString m_stateFileName;
     QVector3D m_cameraPosition;
-    QVector<State> m_states;
-    QMap<QString, ParticleStyle*> m_particleStyles;
+    QVector<State*> m_states;
     State *m_currentState;
-
-    void setDefaultStyles();
+    StateSubset m_stateSubset;
 };
 
 #endif // SERVER_H

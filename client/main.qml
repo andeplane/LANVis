@@ -124,15 +124,26 @@ ApplicationWindow {
         sequence: "Escape"
         onActivated: scene.captureCursor = false
     }
+    Shortcut {
+        sequence: "Space"
+        onActivated: movieTimer.running = !movieTimer.running
+    }
 
     Shortcut {
         sequence: "+"
-        onActivated: rCutSlider.value += 20
+        onActivated: {
+            var timestep = (timestepSlider.value+1) % (timestepSlider.maximumValue+1)
+            timestepSlider.value = timestep
+        }
     }
 
     Shortcut {
         sequence: "-"
-        onActivated: rCutSlider.value -= 20
+        onActivated: {
+            var timestep = timestepSlider.value-1
+            if(timestep < 0) timestep = timestepSlider.maximumValue
+            timestepSlider.value = timestep
+        }
     }
 
     Shortcut {
@@ -148,7 +159,7 @@ ApplicationWindow {
 
     Rectangle {
         x: parent.width-width
-        y: 20
+        y: 70
         clip: true
         width: 200
         height: mouseArea.containsMouse ? 300 : 50
@@ -307,6 +318,44 @@ ApplicationWindow {
         color: "white"
         width: 300
         height: 300
+    }
 
+
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 50
+        Timer {
+            id: movieTimer
+            running: playButton.text==="Pause"
+            repeat: true
+            interval: 1000/speed.value
+            onTriggered: {
+                var timestep = (timestepSlider.value+1) % timestepSlider.maximumValue
+                timestepSlider.value = timestep
+            }
+        }
+
+        Row {
+            Column {
+                QQC1.Slider {
+                    id: timestepSlider
+                    minimumValue: 0
+                    maximumValue: scene.simulator.numTimesteps-1
+                    onValueChanged: scene.simulator.clientState.timestep = value
+                }
+                QQC1.Slider {
+                    id: speed
+                    minimumValue: 2
+                    maximumValue: 30
+                    stepSize: 2
+                }
+            }
+            Button {
+                id: playButton
+                text: movieTimer.running ? "Pause" : "Play"
+                onClicked: movieTimer.running = !movieTimer.running
+            }
+        }
     }
 }

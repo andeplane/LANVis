@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "server.h"
 #include "xyzbinaryreader.h"
+#include "lammpstextdumpreader.h"
 
 // #define KIF
 using namespace std;
@@ -19,7 +20,7 @@ int main(int argc, char *argv[])
     QString stateFileName("/scratch/largesystem/state.json");
     QString clientStateFileName("/scratch/largesystem/client.json");
 #else
-    QString lammpsTextDumpFileName("");
+    QString lammpsTextDumpFileName("/projects/LANVis/folding_stuff/shock12.lammpstrj");
     QString xyzFileName("/projects/tmp/dump.xyz");
     QString xyzBinaryFileName("/projects/LANVis/Deform_totxyz/Deform_totxyz/localdeform40.bin");
     QString lammpsDumpFileName("/projects/tmp/dump_20m.lmp.bin");
@@ -37,9 +38,11 @@ int main(int argc, char *argv[])
     server.setLockFileName(lockFileName);
     QElapsedTimer t;
     t.start();
-    qDebug() << "Loading " << lammpsDumpFileName << "...";
+    server.update(clientStateFileName);
+    // qDebug() << "Loading " << lammpsDumpFileName << "...";
     // server.loadXYZ(xyzFileName);
-    server.loadLAMMPSBinary(lammpsDumpFileName);
+    // server.loadLAMMPSBinary(lammpsDumpFileName);
+    server.loadLAMMPSTextDump(lammpsTextDumpFileName);
     // server.loadXYZBinary(xyzBinaryFileName);
     // server.loadLAMMPSTextDump(lammpsTextDumpFileName);
     qDebug() << "Loading file took " << t.elapsed() << " ms.";
@@ -53,7 +56,7 @@ int main(int argc, char *argv[])
             qDebug() << "Writing file with " << server.particles().size() << " took " << t.restart() << " ms.";
         }
 
-        usleep(300000);
+        usleep(16);
     }
 
     return 0;

@@ -13,6 +13,7 @@ class ClientState : public QObject
     Q_PROPERTY(float chunkSize READ chunkSize WRITE setChunkSize NOTIFY chunkSizeChanged)
     Q_PROPERTY(float lodDistance READ lodDistance WRITE setLodDistance NOTIFY lodDistanceChanged)
     Q_PROPERTY(int lodLevels READ lodLevels WRITE setLodLevels NOTIFY lodLevelsChanged)
+    Q_PROPERTY(int timestep READ timestep WRITE setTimestep NOTIFY timestepChanged)
 public:
     explicit ClientState(QObject *parent = 0);
     QVector3D cameraPosition() const;
@@ -23,6 +24,8 @@ public:
     float lodDistance() const;
     int lodLevels() const;
 
+    int timestep() const;
+
 signals:
     void cameraPositionChanged(QVector3D cameraPosition);
     void maxNumberOfParticlesChanged(int maxNumberOfParticles);
@@ -30,6 +33,8 @@ signals:
     void chunkSizeChanged(float chunkSize);
     void lodDistanceChanged(float lodDistance);
     void lodLevelsChanged(int lodLevels);
+
+    void timestepChanged(int timestep);
 
 public slots:
     void setCameraPosition(QVector3D cameraPosition);
@@ -39,6 +44,8 @@ public slots:
     void setLodDistance(float lodDistance);
     void setLodLevels(int lodLevels);
 
+    void setTimestep(int timestep);
+
 private:
     QVector3D m_cameraPosition;
     int m_maxNumberOfParticles;
@@ -46,6 +53,7 @@ private:
     float m_chunkSize;
     float m_lodDistance;
     int m_lodLevels;
+    int m_timestep;
 };
 
 #endif // CLIENTSTATE_H

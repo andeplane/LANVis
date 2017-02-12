@@ -11,7 +11,8 @@ SOURCES += \
     chunk.cpp \
     xyzbinaryreader.cpp \
     lammpstextdumpreader.cpp \
-    state.cpp
+    state.cpp \
+    statesubset.cpp
 
 HEADERS += \
     xyzreader.h \
@@ -22,4 +23,5 @@ HEADERS += \
     chunk.h \
     xyzbinaryreader.h \
     lammpstextdumpreader.h \
-    state.h
+    state.h \
+    statesubset.h

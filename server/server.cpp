@@ -1,4 +1,5 @@
 #include "lammpsbinaryreader.h"
+#include "lammpstextdumpreader.h"
 #include "server.h"
 #include "xyzbinaryreader.h"
 #include "xyzreader.h"
@@ -13,64 +14,10 @@
 #include <QLockFile>
 #include <random>
 
-Server::Server() : m_maxNumberOfParticles(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_sort(true), m_currentState(nullptr)
+Server::Server() : m_maxNumberOfParticles(300000), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5), m_currentStateIndex(0), m_sort(true), m_currentState(nullptr)
 {
-    setDefaultStyles();
+
 }
-
-void Server::setDefaultStyles() {
-    m_particleStyles.insert("1", new ParticleStyle(2.27, "#F0C8A0"));
-    m_particleStyles.insert("2", new ParticleStyle(1.52, "#AA0000"));
-    m_particleStyles.insert("4", new ParticleStyle(1.84, "#119900"));
-    m_particleStyles.insert("6", new ParticleStyle(1.84, "#119900"));
-
-    m_particleStyles.insert("5", new ParticleStyle(1.70, "#505050"));
-    m_particleStyles.insert("7", new ParticleStyle(1.52, "#AA0000"));
-    m_particleStyles.insert("8", new ParticleStyle(3.5, "#F0C8A0"));
-
-    m_particleStyles.insert("hydrogen", new ParticleStyle(1.20, "#CCCCCC"));
-    m_particleStyles.insert("helium", new ParticleStyle(1.40, "#D9FFFF"));
-    m_particleStyles.insert("lithium", new ParticleStyle(1.82, "#CC80FF"));
-    m_particleStyles.insert("beryllium", new ParticleStyle(1.53, "#C2FF00"));
-    m_particleStyles.insert("boron", new ParticleStyle(1.92, "#FFB5B5"));
-    m_particleStyles.insert("carbon", new ParticleStyle(1.70, "#505050"));
-    m_particleStyles.insert("nitrogen", new ParticleStyle(1.55, "#3050F8"));
-    m_particleStyles.insert("oxygen", new ParticleStyle(1.52, "#AA0000"));
-    m_particleStyles.insert("fluorine", new ParticleStyle(1.35, "#90E050"));
-    m_particleStyles.insert("neon", new ParticleStyle(1.54, "#3050F8"));
-    m_particleStyles.insert("sodium", new ParticleStyle(2.27, "#AB5CF2"));
-    m_particleStyles.insert("magnesium", new ParticleStyle(1.73, "#8AFF00"));
-    m_particleStyles.insert("aluminium", new ParticleStyle(1.84, "#BFA6A6"));
-    m_particleStyles.insert("silicon", new ParticleStyle(2.27, "#F0C8A0"));
-    m_particleStyles.insert("phosphorus", new ParticleStyle(1.80, "#FF8000"));
-    m_particleStyles.insert("sulfur", new ParticleStyle(1.80, "#FFFF30"));
-    m_particleStyles.insert("chlorine", new ParticleStyle(1.75, "#1FF01F"));
-    m_particleStyles.insert("argon", new ParticleStyle(1.88, "#80D1E3"));
-    m_particleStyles.insert("potassium", new ParticleStyle(2.75, "#8F40D4"));
-    m_particleStyles.insert("calcium", new ParticleStyle(2.31, "#3DFF00"));
-
-    m_particleStyles.insert("H", new ParticleStyle(1.20, "#CCCCCC"));
-    m_particleStyles.insert("He", new ParticleStyle(1.40, "#D9FFFF"));
-    m_particleStyles.insert("Li", new ParticleStyle(1.82, "#CC80FF"));
-    m_particleStyles.insert("Be", new ParticleStyle(1.53, "#C2FF00"));
-    m_particleStyles.insert("B", new ParticleStyle(1.92, "#FFB5B5"));
-    m_particleStyles.insert("C", new ParticleStyle(1.70, "#505050"));
-    m_particleStyles.insert("N", new ParticleStyle(1.55, "#3050F8"));
-    m_particleStyles.insert("O", new ParticleStyle(1.52, "#AA0000"));
-    m_particleStyles.insert("F", new ParticleStyle(1.35, "#90E050"));
-    m_particleStyles.insert("Ne", new ParticleStyle(1.54, "#3050F8"));
-    m_particleStyles.insert("Na", new ParticleStyle(2.27, "#AB5CF2"));
-    m_particleStyles.insert("Mg", new ParticleStyle(1.73, "#8AFF00"));
-    m_particleStyles.insert("Al", new ParticleStyle(1.84, "#BFA6A6"));
-    m_particleStyles.insert("Si", new ParticleStyle(2.27, "#F0C8A0"));
-    m_particleStyles.insert("P", new ParticleStyle(1.80, "#FF8000"));
-    m_particleStyles.insert("S", new ParticleStyle(1.80, "#FFFF30"));
-    m_particleStyles.insert("Cl", new ParticleStyle(1.75, "#1FF01F"));
-    m_particleStyles.insert("Ar", new ParticleStyle(1.88, "#80D1E3"));
-    m_particleStyles.insert("K", new ParticleStyle(2.75, "#8F40D4"));
-    m_particleStyles.insert("Ca", new ParticleStyle(2.31, "#3DFF00"));
-}
-
 
 void Server::loadXYZ(QString fileName)
 {
@@ -184,57 +131,33 @@ void Server::loadLAMMPSBinary(QString fileName)
     const std::vector<int>       &types     = reader.types();
     qDebug() << "Found " << reader.positions().size() << " particles.";
 
-    m_states.resize(1);
-    m_currentState = &m_states.front();
+    State *state = new State();
+    m_states.push_back(state);
+    m_currentState = state;
     m_currentState->reset();
-    m_currentState->setParticleStyles(m_particleStyles);
     m_currentState->addParticles(positions, types, reader.origo(), reader.size());
     m_currentState->placeParticlesInChunks(m_chunkSize, m_lodLevels);
 }
 
 void Server::loadLAMMPSTextDump(QString fileName)
 {
-
-}
-
-void Server::updatePositions()
-{
-    m_particles.clear();
-    int atomCount = 0;
-    m_currentState->sortChunks(m_cameraPosition);
-
-    QVector3D boundingBoxMin = QVector3D(1e9,1e9,1e9);
-    QVector3D boundingBoxMax = QVector3D(-1e9,-1e9,-1e9);
-
-    for(Chunk *chunk : m_currentState->chunkPtrs()) {
-        float distance = chunk->minDistanceTo(m_cameraPosition);
-        int lod = distance / m_lodDistance;
-        if(lod > m_lodLevels) lod = m_lodLevels;
-
-        if(m_sort) chunk->sort(m_cameraPosition, lod);
-        boundingBoxMin[0] = std::min(boundingBoxMin[0], chunk->corners()[0][0]);
-        boundingBoxMin[1] = std::min(boundingBoxMin[1], chunk->corners()[0][1]);
-        boundingBoxMin[2] = std::min(boundingBoxMin[2], chunk->corners()[0][2]);
-
-        boundingBoxMax[0] = std::max(boundingBoxMax[0], chunk->corners()[7][0]);
-        boundingBoxMax[1] = std::max(boundingBoxMax[1], chunk->corners()[7][1]);
-        boundingBoxMax[2] = std::max(boundingBoxMax[2], chunk->corners()[7][2]);
-
-        m_particles.insert( m_particles.end(), chunk->particles(lod).begin(), chunk->particles(lod).end() );
-        atomCount += chunk->particles(lod).size();
-        if(atomCount > m_maxNumberOfParticles) break;
+    LAMMPSTextDumpReader reader;
+    reader.readFile(fileName, m_states);
+    qDebug() << "Did read " << m_states.size() << " timesteps. Now placing in chunks.";
+    for(State *state : m_states) {
+        state->placeParticlesInChunks(m_chunkSize, m_lodLevels);
     }
-    m_currentState->setBoundingBoxMax(boundingBoxMax);
-    m_currentState->setBoundingBoxMin(boundingBoxMin);
+    m_currentState = m_states.front();
 }
 
 void Server::writePositions()
 {
     QLockFile lockFile(m_lockFileName);
     if(lockFile.tryLock(200)) {
-        int numBytes = m_particles.size()*sizeof(Particle);
+        std::vector<Particle> &particles = m_stateSubset.particles();
+        int numBytes = particles.size()*sizeof(Particle);
         if(numBytes > 0) {
-            const char *array = reinterpret_cast<const char*>(&m_particles.front());
+            const char *array = reinterpret_cast<const char*>(&particles.front());
 
             QFile file(m_dataFileName);
             if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
@@ -250,17 +173,20 @@ void Server::writePositions()
 
 void Server::writeState()
 {
+    if(!m_currentState) return;
+
     QFile file(m_stateFileName);
     if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
         QTextStream stream(&file);
         QJsonObject json;
 
         json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<double>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
-        json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_particles.size()));
+        json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_stateSubset.particles().size()));
         json["binaryFileName"] = m_dataFileName;
         json["lockFileName"] = m_lockFileName;
-        json["boundingBoxMin"] = QJsonArray({m_currentState->boundingBoxMin().x(), m_currentState->boundingBoxMin().y(), m_currentState->boundingBoxMin().z()});
-        json["boundingBoxMax"] = QJsonArray({m_currentState->boundingBoxMax().x(), m_currentState->boundingBoxMax().y(), m_currentState->boundingBoxMax().z()});
+        json["boundingBoxMin"] = QJsonArray({m_stateSubset.boundingBoxMin().x(), m_stateSubset.boundingBoxMin().y(), m_stateSubset.boundingBoxMin().z()});
+        json["boundingBoxMax"] = QJsonArray({m_stateSubset.boundingBoxMax().x(), m_stateSubset.boundingBoxMax().y(), m_stateSubset.boundingBoxMax().z()});
+        json["numTimesteps"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_states.size()));
 
         QJsonDocument saveObject(json);
         stream << saveObject.toJson();
@@ -290,9 +216,9 @@ void Server::setStateFileName(const QString &stateFileName)
     m_stateFileName = stateFileName;
 }
 
-const std::vector<Particle> &Server::particles() const
+std::vector<Particle> &Server::particles()
 {
-    return m_particles;
+    return m_stateSubset.particles();
 }
 
 QString Server::lockFileName() const
@@ -310,6 +236,11 @@ State *Server::currentState() const
     return m_currentState;
 }
 
+StateSubset &Server::stateSubset()
+{
+    return m_stateSubset;
+}
+
 bool Server::update(QString clientStateFileName)
 {
     QFile loadFile(clientStateFileName);
@@ -323,6 +254,7 @@ bool Server::update(QString clientStateFileName)
     QJsonParseError error;
     QJsonDocument doc(QJsonDocument::fromJson(stateData, &error));
     if(doc.isNull()) return false;
+    if(error.error != QJsonParseError::NoError) { qDebug() << "JSON Error"; return false;}
 
     QJsonObject   obj = doc.object();
     QJsonArray    arr = obj["cameraPosition"].toArray();
@@ -330,6 +262,10 @@ bool Server::update(QString clientStateFileName)
     float chunkSize = obj["chunkSize"].toDouble();
     float lodDistance = obj["lodDistance"].toDouble();
     int lodLevels = obj["lodLevels"].toInt();
+    int timestep = obj["timestep"].toInt();
+    if(timestep == -1) {
+        qDebug() << doc.toJson();
+    }
     bool sort = obj["sort"].toBool();
 
     QVector3D newCameraPositon;
@@ -340,22 +276,30 @@ bool Server::update(QString clientStateFileName)
     bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0;
     bool lodDirty = fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
 
-    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles || m_sort != sort || chunksDirty || lodDirty;
-    if(!anyChanges) return false;
+    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles || m_sort != sort || chunksDirty || lodDirty || m_currentStateIndex != timestep;
+    if(!anyChanges && m_currentState) return false;
 
     m_maxNumberOfParticles = maxNumberOfParticles;
     m_cameraPosition = newCameraPositon;
     m_sort = sort;
+    m_currentStateIndex = timestep;
 
     if(chunksDirty || lodDirty) {
         m_lodLevels = lodLevels;
         m_lodDistance = lodDistance;
         m_chunkSize = chunkSize;
-        for(State &state : m_states) {
-            state.placeParticlesInChunks(m_chunkSize, m_lodLevels);
+        for(State *state : m_states) {
+            state->placeParticlesInChunks(m_chunkSize, m_lodLevels);
         }
     }
 
-    updatePositions();
+    m_currentStateIndex = std::min(m_currentStateIndex, m_states.size()-1);
+    if(m_states.size() > 0 && m_currentStateIndex>=0) {
+        m_currentState = m_states[m_currentStateIndex];
+    }
+
+    if(m_currentState) {
+        m_stateSubset.updatePositions(*m_currentState, m_cameraPosition, m_lodDistance, m_lodLevels, m_maxNumberOfParticles, m_sort);
+    }
     return true;
 }
