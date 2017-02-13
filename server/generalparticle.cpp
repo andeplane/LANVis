@@ -1,6 +1,6 @@
 #include "generalparticle.h"
 
-GeneralParticle::GeneralParticle()
-{
+//GeneralParticle::GeneralParticle()
+//{
 
-}
+//}

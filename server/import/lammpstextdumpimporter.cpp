@@ -1,6 +1,7 @@
 #include "lammpstextdumpimporter.h"
 
 #include <QTextStream>
+#include <QDebug>
 
 LAMMPSTextDumpImporter::LAMMPSTextDumpImporter()
 {
@@ -9,7 +10,7 @@ LAMMPSTextDumpImporter::LAMMPSTextDumpImporter()
 
 bool LAMMPSTextDumpImporter::checkFileFormat(QFile &file)
 {
-    QTextStream stream(file);
+    QTextStream stream(&file);
     // Read first line.
     QString line = stream.readLine(15);
 
@@ -24,19 +25,19 @@ bool LAMMPSTextDumpImporter::checkFileFormat(QFile &file)
 
 bool LAMMPSTextDumpImporter::readFile(QString fileName)
 {
-    QFile file(fileName);
-    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Could not open file " << fileName;
-        return false;
-    }
+//    QFile file(fileName);
+//    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+//        qDebug() << "Could not open file " << fileName;
+//        return false;
+//    }
 
-    if(!checkFileFormat(fileName)) return false;
-    file.seek(0);
+//    if(!checkFileFormat(fileName)) return false;
+//    file.seek(0);
 
-    QTextStream stream(file);
-    while(!stream.atEnd()) {
-        QString line = stream.readLine();
+//    QTextStream stream(file);
+//    while(!stream.atEnd()) {
+//        QString line = stream.readLine();
 
-    }
+//    }
 
 }

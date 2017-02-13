@@ -4,11 +4,10 @@
 #include <QFile>
 #include <QObject>
 
-class ParticleImporter : public QObject
+class ParticleImporter
 {
-    Q_OBJECT
 public:
-    explicit Importer(QObject *parent = 0);
+    ParticleImporter();
     virtual bool checkFileFormat(QFile &file) = 0;
     virtual bool readFile(QString fileName) = 0;
 

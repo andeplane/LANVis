@@ -30,10 +30,10 @@ bool Particles::loadBinary(QString fileName)
 
     QByteArray ba = file.readAll();
     file.close();
-    Particle *particles = reinterpret_cast<Particle *>(ba.data());
-    int numParticles = ba.length() / sizeof(Particle);
+    ColoredParticle *particles = reinterpret_cast<ColoredParticle *>(ba.data());
+    int numParticles = ba.length() / sizeof(ColoredParticle);
     m_particles.resize(numParticles);
-    memcpy(&m_particles.front(), particles, numParticles*sizeof(Particle));
+    memcpy(&m_particles.front(), particles, numParticles*sizeof(ColoredParticle));
     return true;
 }
 
@@ -116,12 +116,12 @@ QVector3D Particles::boundingBoxMax() const
     return m_boundingBoxMax;
 }
 
-Particle &Particles::operator()(int index)
+ColoredParticle &Particles::operator()(int index)
 {
     return m_particles[index];
 }
 
-QVector<Particle> &Particles::get()
+QVector<ColoredParticle> &Particles::get()
 {
     return m_particles;
 }

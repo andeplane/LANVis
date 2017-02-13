@@ -2,13 +2,21 @@
 #define PARTICLE_H
 #include <QVector3D>
 
-struct Particle
+struct ColoredParticle
 {
     QVector3D position;
     QVector3D color;
     float radius;
+    ColoredParticle() : color(QVector3D(1.0,0.9,0.8)), radius(1.0) { }
+};
+
+struct IdentifiableParticle
+{
+    QVector3D position;
+    int type;
     int index;
-    Particle() { radius = 1.0; color = QVector3D(1.0, 0.9, 0.8); }
+    IdentifiableParticle() : index(0) { }
+    IdentifiableParticle(QVector3D position, int type, int index) : position(position), type(type), index(index) { }
 };
 
 #endif // PARTICLE_H

@@ -1,36 +1,50 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include <QMap>
 #include <QObject>
+#include <vector>
 #include "chunk.h"
-#include "generalparticle.h"
-
+#include "../client/particle.h"
 class State : public QObject
 {
     Q_OBJECT
 public:
     explicit State(QObject *parent = 0);
-    void placeParticlesInChunks();
-    void updatePositions();
-    const std::vector<Particle> &particles() const;
-    const std::vector<Particle> &allParticles() const;
-    void writePositions();
-    void writeState();
+    State(const State &state);
+    ~State();
+    const std::vector<IdentifiableParticle> &allParticles() const;
+    void sortChunks(QVector3D point);
+    void placeParticlesInChunks(float chunkSize, int lodLevels);
+    void addParticles(const std::vector<QVector3D> &positions, const std::vector<int> types, QVector3D origo, QVector3D size);
+    void addParticle(QVector3D position, int type);
+    void setNumberOfParticles(int numberOfParticles);
+    void reset();
+    std::vector<Chunk *> chunkPtrs() const;
+    void setParticleStyles(const QMap<QString, struct ParticleStyle *> &particleStyles);
+
+    QVector3D origo() const;
+    void setOrigo(const QVector3D &origo);
+
+    QVector3D size() const;
+    void setSize(const QVector3D &size);
+    QMap<QString, ParticleStyle *> &particleStyles();
 signals:
 
 public slots:
 
 private:
+    QMap<QString, struct ParticleStyle*> m_particleStyles;
     inline int index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
-    void sortChunks();
-    QVector3D m_boundingBoxMin;
-    QVector3D m_boundingBoxMax;
+    int m_nx, m_ny, m_nz;
+    float m_chunkSize;
     QVector3D m_origo;
     QVector3D m_size;
-    int m_nx, m_ny, m_nz;
-    QVector<GeneralParticle> m_allParticles;
     std::vector<Chunk>    m_chunks;
     std::vector<Chunk*>   m_chunkPtrs;
+    std::vector<IdentifiableParticle> m_allParticles;
+    void setupChunks();
+    void setDefaultStyles();
 };
 
 #endif // STATE_H

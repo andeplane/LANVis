@@ -35,11 +35,9 @@ void State::update(const QJsonObject &object)
             m_particles->setBoundingBoxMin(boundingBoxMin);
             m_particles->setBoundingBoxMax(boundingBoxMax);
             m_timestamp = timestamp;
-            if(object.contains("binaryFileName")) {
-                ok = m_particles->loadBinary(object["binaryFileName"].toString());
-            }
+            ok = m_particles->loadBinary(object["binaryFileName"].toString());
 
-            // if(ok) m_particles->generateSphereData();
+            if(ok) m_particles->generateSphereData();
             lockFile.unlock();
         }
     }
@@ -56,7 +54,7 @@ void State::writeXYZ(QString fileName)
     QTextStream out(&file);
     out << m_particles->count() << endl;
     out << "Exported with LANVis" << endl;
-    for(Particle &particle : m_particles->get()) {
+    for(ColoredParticle &particle : m_particles->get()) {
         float x = particle.position.x();
         float y = particle.position.y();
         float z = particle.position.z();

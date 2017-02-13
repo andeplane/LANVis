@@ -81,6 +81,7 @@ void ClientState::load()
         m_chunkSize = chunkSize;
         m_chunksDirty = true;
     }
+    m_particlesDirty = true;
 }
 
 int ClientState::maxNumberOfParticles() const

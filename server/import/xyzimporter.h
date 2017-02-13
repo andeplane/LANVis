@@ -5,6 +5,7 @@
 
 class XYZImporter : public ParticleImporter
 {
+
 public:
     XYZImporter();
 

@@ -4,9 +4,10 @@
 #include <QString>
 #include <QMap>
 #include <vector>
-#include "particlestyle.h"
 #include "chunk.h"
 #include "../client/clientstate.h"
+#include "state.h"
+#include "particlesubset.h"
 
 class Server
 {
@@ -15,7 +16,9 @@ public:
     void loadXYZ(QString fileName);
     void loadXYZBinary(QString fileName);
     void loadLAMMPSBinary(QString fileName);
-    bool update(QString clientStateFileName);
+    void loadLAMMPSTextDump(QString fileName);
+    void writePositions();
+    bool update();
 
     QString dataFileName() const;
     void setDataFileName(const QString &dataFileName);
@@ -32,8 +35,10 @@ private:
     QString m_dataFileName;
     QString m_lockFileName;
     QString m_stateFileName;
-    QVector3D m_cameraPosition;
-    QMap<QString, ParticleStyle*> m_particleStyles;
+
+    QVector<State*> m_states;
+    State *m_currentState;
+    ParticleSubset m_subset;
     void setDefaultStyles();
     void setupChunks();
 };

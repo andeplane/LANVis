@@ -3,13 +3,13 @@
 
 Chunk::Chunk() {
     m_corners.resize(8);
-    m_particles.resize(4); // 4 leves of LOD
+    m_particleIndices.resize(1);
 }
 
-void Chunk::clear()
+void Chunk::reset()
 {
-    for(size_t i=0; i<m_particles.size(); i++) {
-        m_particles[i].clear();
+    for(size_t i=0; i<m_particleIndices.size(); i++) {
+        m_particleIndices[i].clear();
     }
 }
 
@@ -36,18 +36,18 @@ QVector3D Chunk::nearestCorner(const QVector3D &point) const
 
 void Chunk::sort(const QVector3D &point, int lod)
 {
-    std::sort(m_particles[lod].begin(), m_particles[lod].end(),
-        [&](const Particle& a, const Particle& b)
-    {
-        float da = (a.position - point).lengthSquared();
-        float db = (b.position - point).lengthSquared();
-        return da < db;
-    });
+//    std::sort(m_particleIndices[lod].begin(), m_particleIndices[lod].end(),
+//        [&](const ColoredParticle& a, const ColoredParticle& b)
+//    {
+//        float da = (a.position - point).lengthSquared();
+//        float db = (b.position - point).lengthSquared();
+//        return da < db;
+//    });
 }
 
-std::vector<Particle> &Chunk::particles(int lod)
+std::vector<int> &Chunk::particleIndices(int lod)
 {
-    return m_particles[lod];
+    return m_particleIndices[lod];
 }
 
 std::vector<QVector3D> &Chunk::corners()
@@ -57,18 +57,21 @@ std::vector<QVector3D> &Chunk::corners()
 
 void Chunk::buildLOD(int levels, std::mt19937 &generator, std::uniform_real_distribution<float> &distribution)
 {
-    m_particles.resize(levels+1);
+    m_particleIndices.resize(levels+1);
 
-    for(size_t i=1; i<m_particles.size(); i++) {
-        int numParticles = m_particles[0].size() * pow(0.75, i);
-        m_particles[i].reserve(numParticles);
+    for(size_t i=1; i<m_particleIndices.size(); i++) {
+        int numParticles = m_particleIndices[0].size() * pow(0.75, i);
+        m_particleIndices[i].reserve(numParticles);
     }
 
-    for(const Particle &particle : m_particles[0]) {
-        for(int lod=1; lod<levels; lod++) {
-            float p = pow(0.75, lod);
+    for(int lod=1; lod<levels; lod++) {
+        float p = pow(0.75, lod);
+        int numParticles = m_particleIndices[0].size();
+
+        m_particleIndices[lod].reserve(numParticles*p);
+        for(int particleIndex : m_particleIndices[0]) {
             if(distribution(generator) < p) {
-                m_particles[lod].push_back(particle);
+                m_particleIndices[lod].push_back(particleIndex);
             }
         }
     }

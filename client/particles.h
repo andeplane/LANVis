@@ -30,8 +30,8 @@ public:
     int count() const;
     QVector3D boundingBoxMin() const;
     QVector3D boundingBoxMax() const;
-    Particle &operator()(int index);
-    QVector<Particle> &get();
+    ColoredParticle &operator()(int index);
+    QVector<ColoredParticle> &get();
 
 signals:
     void sphereDataChanged(SphereData* sphereData);
@@ -50,7 +50,7 @@ public slots:
 private:
     void setDefaultStyle();
 
-    QVector<Particle> m_particles;
+    QVector<ColoredParticle> m_particles;
     SphereData* m_sphereData;
     QByteArray m_sphereDataBytes;
     bool m_dirty;

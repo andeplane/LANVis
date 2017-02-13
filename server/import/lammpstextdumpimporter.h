@@ -5,7 +5,6 @@
 
 class LAMMPSTextDumpImporter : public ParticleImporter
 {
-    Q_OBJECT
 public:
     LAMMPSTextDumpImporter();
 
