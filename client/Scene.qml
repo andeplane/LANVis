@@ -25,7 +25,6 @@ Scene3D {
     property alias visualizer: visualizer
     property alias simulator: simulator
     property alias stateFileName: simulator.stateFileName
-    property alias clientStateFileName: simulator.clientStateFileName
     property alias typesFileName: simulator.typesFileName
     property alias light: light
     property string renderingQuality: "high"

@@ -4,5 +4,7 @@
         <file>qtquickcontrols2.conf</file>
         <file>FlyModeController.qml</file>
         <file>Scene.qml</file>
+        <file>MySettings.qml</file>
+        <file>Console.qml</file>
     </qresource>
 </RCC>

@@ -30,29 +30,29 @@ int main(int argc, char *argv[])
     QString lockFileName("/projects/tmp/LANVis.lock");
 #endif
 
-    Server server;
-    server.setStateFileName(stateFileName);
-    server.setDataFileName(dataFileName);
-    server.setLockFileName(lockFileName);
-    QElapsedTimer t;
-    t.start();
-    qDebug() << "Loading " << lammpsDumpFileName << "...";
-    // server.loadXYZ(xyzFileName);
-    // server.loadLAMMPSBinary(lammpsDumpFileName);
-    server.loadXYZBinary(xyzBinaryFileName);
-    qDebug() << "Loading file took " << t.elapsed() << " ms.";
-    while(true) {
-        t.restart();
-        bool anyChanges = server.update(clientStateFileName);
-        if(anyChanges) {
-            qDebug() << "Updated position on " << server.allParticles().size() << " particles took " << t.restart() << " ms.";
-            server.writePositions();
-            server.writeState();
-            qDebug() << "Writing file with " << server.particles().size() << " took " << t.restart() << " ms.";
-        }
+//    Server server;
+//    server.setStateFileName(stateFileName);
+//    server.setDataFileName(dataFileName);
+//    server.setLockFileName(lockFileName);
+//    QElapsedTimer t;
+//    t.start();
+//    qDebug() << "Loading " << lammpsDumpFileName << "...";
+//    // server.loadXYZ(xyzFileName);
+//    // server.loadLAMMPSBinary(lammpsDumpFileName);
+//    server.loadXYZBinary(xyzBinaryFileName);
+//    qDebug() << "Loading file took " << t.elapsed() << " ms.";
+//    while(true) {
+//        t.restart();
+//        bool anyChanges = server.update(clientStateFileName);
+//        if(anyChanges) {
+//            qDebug() << "Updated position on " << server.allParticles().size() << " particles took " << t.restart() << " ms.";
+//            server.writePositions();
+//            server.writeState();
+//            qDebug() << "Writing file with " << server.particles().size() << " took " << t.restart() << " ms.";
+//        }
 
-        usleep(300000);
-    }
+//        usleep(300000);
+//    }
 
     return 0;
 }

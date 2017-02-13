@@ -47,11 +47,6 @@ QVector3D MySimulator::cameraPosition() const
     return m_cameraPosition;
 }
 
-QString MySimulator::clientStateFileName() const
-{
-    return m_clientStateFileName;
-}
-
 void MySimulator::setState(State *state)
 {
     if (m_state == state)
@@ -97,15 +92,6 @@ void MySimulator::setCameraPosition(QVector3D cameraPosition)
     emit cameraPositionChanged(cameraPosition);
 }
 
-void MySimulator::setClientStateFileName(QString clientStateFileName)
-{
-    if (m_clientStateFileName == clientStateFileName)
-        return;
-
-    m_clientStateFileName = clientStateFileName;
-    emit clientStateFileNameChanged(clientStateFileName);
-}
-
 SimulatorWorker *MySimulator::createWorker()
 {
     return new MyWorker();
@@ -117,7 +103,6 @@ void MyWorker::synchronizeSimulator(Simulator *simulator)
     if(mySimulator) {
         m_state = mySimulator->state();
         m_clientState = mySimulator->clientState();
-        m_clientStateFileName = mySimulator->clientStateFileName();
         m_stateFileName = mySimulator->stateFileName();
         m_typesFileName = mySimulator->typesFileName();
         m_state->particles()->synchronizeRenderer();
@@ -138,5 +123,9 @@ void MyWorker::work()
         QJsonDocument loadDoc(QJsonDocument::fromJson(stateData));
         m_state->update(loadDoc.object());
     }
-    if(m_clientState) m_clientState->save(m_clientStateFileName);
+
+    if(m_clientState->dirty()) {
+        m_clientState->save();
+        m_clientState->setDirty(false);
+    }
 }

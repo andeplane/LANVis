@@ -39,7 +39,7 @@ void State::update(const QJsonObject &object)
                 ok = m_particles->loadBinary(object["binaryFileName"].toString());
             }
 
-            if(ok) m_particles->generateSphereData();
+            // if(ok) m_particles->generateSphereData();
             lockFile.unlock();
         }
     }

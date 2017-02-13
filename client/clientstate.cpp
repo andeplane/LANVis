@@ -1,14 +1,15 @@
 #include "clientstate.h"
-
+#include <cmath>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QTextStream>
 #include <QDebug>
+#include <QDateTime>
 
 ClientState::ClientState(QObject *parent) : QObject(parent),
-    m_maxNumberOfParticles(300000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5)
+    m_dirty(false), m_maxNumberOfParticles(300000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5)
 {
 
 }
@@ -18,37 +19,38 @@ QVector3D ClientState::cameraPosition() const
     return m_cameraPosition;
 }
 
-void ClientState::save(QString fileName)
+void ClientState::save()
 {
-    QFile file(fileName);
+    QJsonObject json;
+    QJsonArray array = { m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2] };
+    json["maxNumberOfParticles"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfParticles));
+    json["lodLevels"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_lodLevels));
+    json["chunkSize"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_chunkSize));
+    json["lodDistance"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodDistance));
+    json["cameraPosition"] = array;
+    json["sort"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_sort));
+    json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<double>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
+
+    QFile file(m_fileName);
     if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        QTextStream stream(&file);
-        QJsonObject json;
-        QJsonArray array = { m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2] };
-        json["maxNumberOfParticles"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfParticles));
-        json["lodLevels"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_lodLevels));
-        json["chunkSize"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_chunkSize));
-        json["lodDistance"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodDistance));
-        json["cameraPosition"] = array;
-        json["sort"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_sort));
         QJsonDocument saveObject(json);
+        QTextStream stream(&file);
         stream << saveObject.toJson();
+        file.close();
     }
-    file.close();
 }
 
-void ClientState::load(QString fileName)
+void ClientState::load()
 {
-    QFile file(fileName);
+    QFile file(m_fileName);
     if (!file.open(QIODevice::ReadOnly)) {
-        qWarning("Couldn't open state file");
-        return false;
+        return;
     }
 
     QByteArray stateData = file.readAll();
     QJsonParseError error;
     QJsonDocument doc(QJsonDocument::fromJson(stateData, &error));
-    if(doc.isNull()) return false;
+    if(doc.isNull()) return;
 
     QJsonObject   obj = doc.object();
     QJsonArray    arr = obj["cameraPosition"].toArray();
@@ -67,7 +69,7 @@ void ClientState::load(QString fileName)
     bool lodDirty = fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
 
     bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles || m_sort != sort || chunksDirty || lodDirty;
-    if(!anyChanges) return false;
+    if(!anyChanges) return;
 
     m_maxNumberOfParticles = maxNumberOfParticles;
     m_cameraPosition = newCameraPositon;
@@ -110,6 +112,7 @@ void ClientState::setCameraPosition(QVector3D cameraPosition)
 {
     if (m_cameraPosition == cameraPosition)
         return;
+    setDirty(true);
 
     m_cameraPosition = cameraPosition;
     emit cameraPositionChanged(cameraPosition);
@@ -119,7 +122,7 @@ void ClientState::setMaxNumberOfParticles(int maxNumberOfParticles)
 {
     if (m_maxNumberOfParticles == maxNumberOfParticles)
         return;
-
+    setDirty(true);
     m_maxNumberOfParticles = maxNumberOfParticles;
     emit maxNumberOfParticlesChanged(maxNumberOfParticles);
 }
@@ -128,7 +131,7 @@ void ClientState::setSort(bool sort)
 {
     if (m_sort == sort)
         return;
-
+    setDirty(true);
     m_sort = sort;
     emit sortChanged(sort);
 }
@@ -137,7 +140,7 @@ void ClientState::setChunkSize(float chunkSize)
 {
     if (m_chunkSize == chunkSize)
         return;
-
+    setDirty(true);
     m_chunkSize = chunkSize;
     emit chunkSizeChanged(chunkSize);
 }
@@ -146,7 +149,7 @@ void ClientState::setLodDistance(float lodDistance)
 {
     if (m_lodDistance == lodDistance)
         return;
-
+    setDirty(true);
     m_lodDistance = lodDistance;
     emit lodDistanceChanged(lodDistance);
 }
@@ -155,14 +158,39 @@ void ClientState::setLodLevels(int lodLevels)
 {
     if (m_lodLevels == lodLevels)
         return;
-
+    setDirty(true);
     m_lodLevels = lodLevels;
     emit lodLevelsChanged(lodLevels);
+}
+
+void ClientState::setFileName(QString fileName)
+{
+    if (m_fileName == fileName)
+        return;
+    setDirty(true);
+    m_fileName = fileName;
+    emit fileNameChanged(fileName);
+    load();
+}
+
+bool ClientState::dirty() const
+{
+    return m_dirty;
+}
+
+void ClientState::setDirty(bool dirty)
+{
+    m_dirty = dirty;
 }
 
 void ClientState::setParticlesDirty(bool particlesDirty)
 {
     m_particlesDirty = particlesDirty;
+}
+
+QString ClientState::fileName() const
+{
+    return m_fileName;
 }
 
 void ClientState::setChunksDirty(bool chunksDirty)

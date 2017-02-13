@@ -13,11 +13,12 @@ class ClientState : public QObject
     Q_PROPERTY(float chunkSize READ chunkSize WRITE setChunkSize NOTIFY chunkSizeChanged)
     Q_PROPERTY(float lodDistance READ lodDistance WRITE setLodDistance NOTIFY lodDistanceChanged)
     Q_PROPERTY(int lodLevels READ lodLevels WRITE setLodLevels NOTIFY lodLevelsChanged)
+    Q_PROPERTY(QString fileName READ fileName WRITE setFileName NOTIFY fileNameChanged)
 public:
     explicit ClientState(QObject *parent = 0);
     QVector3D cameraPosition() const;
-    void save(QString fileName);
-    void load(QString fileName);
+    void save();
+    void load();
     int maxNumberOfParticles() const;
     bool sort() const;
     float chunkSize() const;
@@ -27,6 +28,9 @@ public:
     bool particlesDirty() const;
     void setChunksDirty(bool chunksDirty);
     void setParticlesDirty(bool particlesDirty);
+    QString fileName() const;
+    bool dirty() const;
+    void setDirty(bool dirty);
 
 signals:
     void cameraPositionChanged(QVector3D cameraPosition);
@@ -35,6 +39,7 @@ signals:
     void chunkSizeChanged(float chunkSize);
     void lodDistanceChanged(float lodDistance);
     void lodLevelsChanged(int lodLevels);
+    void fileNameChanged(QString fileName);
 
 public slots:
     void setCameraPosition(QVector3D cameraPosition);
@@ -43,8 +48,10 @@ public slots:
     void setChunkSize(float chunkSize);
     void setLodDistance(float lodDistance);
     void setLodLevels(int lodLevels);
+    void setFileName(QString fileName);
 
 private:
+    bool m_dirty;
     bool m_chunksDirty;
     bool m_particlesDirty;
     QVector3D m_cameraPosition;
@@ -53,6 +60,7 @@ private:
     float m_chunkSize;
     float m_lodDistance;
     int m_lodLevels;
+    QString m_fileName;
 };
 
 #endif // CLIENTSTATE_H
