@@ -28,6 +28,7 @@ private:
     State *m_state;
     QString m_stateFileName;
     QString m_typesFileName;
+    int m_numTimesteps;
 };
 
 class MySimulator : public Simulator
@@ -38,6 +39,7 @@ class MySimulator : public Simulator
     Q_PROPERTY(QString stateFileName READ stateFileName WRITE setStateFileName NOTIFY stateFileNameChanged)
     Q_PROPERTY(QString typesFileName READ typesFileName WRITE setTypesFileName NOTIFY typesFileNameChanged)
     Q_PROPERTY(QVector3D cameraPosition READ cameraPosition WRITE setCameraPosition NOTIFY cameraPositionChanged)
+    Q_PROPERTY(int numTimesteps READ numTimesteps WRITE setNumTimesteps NOTIFY numTimestepsChanged)
 public:
     MySimulator(QNode *parent = 0);
     State* state() const;
@@ -45,6 +47,7 @@ public:
     QString typesFileName() const;
     ClientState* clientState() const;
     QVector3D cameraPosition() const;
+    int numTimesteps() const;
 
 public slots:
     void setState(State* state);
@@ -52,6 +55,7 @@ public slots:
     void setTypesFileName(QString typesFileName);
     void setClientState(ClientState* clientState);
     void setCameraPosition(QVector3D cameraPosition);
+    void setNumTimesteps(int numTimesteps);
 
 signals:
     void stateChanged(State* state);
@@ -60,6 +64,7 @@ signals:
     void clientStateChanged(ClientState* clientState);
     void cameraPositionChanged(QVector3D cameraPosition);
     void message(QString message);
+    void numTimestepsChanged(int numTimesteps);
 
 protected:
     virtual SimulatorWorker *createWorker() override;
@@ -70,6 +75,7 @@ private:
     QString m_typesFileName;
     ClientState* m_clientState;
     QVector3D m_cameraPosition;
+    int m_numTimesteps;
 };
 
 #endif // MYSIMULATOR_H

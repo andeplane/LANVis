@@ -157,13 +157,52 @@ ApplicationWindow {
         clip: true
         radius: 5
         width: 200
-        y: 20
+        y: 50
     }
 
     Console {
         id: cons
+        y: 50
         width: 300
         height: 300
     }
+
+    Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: 50
+            Timer {
+                id: movieTimer
+                running: playButton.text==="Pause"
+                repeat: true
+                interval: 1000/speed.value
+                onTriggered: {
+                    var timestep = (timestepSlider.value+1) % timestepSlider.maximumValue
+                    timestepSlider.value = timestep
+                }
+            }
+
+            Row {
+                Column {
+                    QQC1.Slider {
+                        id: timestepSlider
+                        minimumValue: 0
+                        maximumValue: scene.simulator.numTimesteps-1
+                        onValueChanged: scene.simulator.clientState.timestep = value
+                    }
+                    QQC1.Slider {
+                        id: speed
+                        minimumValue: 2
+                        maximumValue: 30
+                        stepSize: 2
+                    }
+                }
+                Button {
+                    id: playButton
+                    text: movieTimer.running ? "Pause" : "Play"
+                    onClicked: movieTimer.running = !movieTimer.running
+                }
+            }
+        }
 
 }

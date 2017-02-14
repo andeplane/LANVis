@@ -2,6 +2,7 @@
 #include "server.h"
 #include "xyzbinaryreader.h"
 #include "xyzreader.h"
+#include "import/importers.h"
 
 #include <cmath>
 #include <QDebug>
@@ -137,8 +138,8 @@ bool Server::loadFile()
 {
     if(m_clientState.serverSettings()->inputFileType()=="xyz") {
         qDebug() << "File type is XYZ";
-        bool success = loadXYZ(m_clientState.serverSettings()->inputFile()); //TODO: rename to fileName
-        return success;
+        m_currentState = nullptr;
+        return XYZImporter::readFile(m_clientState.serverSettings()->inputFile(), m_states);
     }
     return false;
 }
@@ -226,6 +227,9 @@ bool Server::update()
     }
 
     if(!m_currentState) {
+        if(m_clientState.timestep() >= 0 && m_clientState.timestep() < m_states.size()) {
+            m_currentState = m_states[m_clientState.timestep()];
+        }
         return false;
     }
 

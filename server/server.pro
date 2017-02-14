@@ -14,14 +14,14 @@ SOURCES += \
     lammpsbinaryreader.cpp \
     chunk.cpp \
     xyzbinaryreader.cpp \
-    import/particleimporter.cpp \
     import/lammpstextdumpimporter.cpp \
     state.cpp \
     generalparticle.cpp \
     ../client/clientstate.cpp \
     ../client/serversettings.cpp \
     import/xyzimporter.cpp \
-    particlesubset.cpp
+    particlesubset.cpp \
+    modifiers/modifier.cpp
 
 HEADERS += \
     xyzreader.h \
@@ -38,4 +38,6 @@ HEADERS += \
     ../client/clientstate.h \
     ../client/serversettings.h \
     import/xyzimporter.h \
-    particlesubset.h
+    particlesubset.h \
+    modifiers/modifier.h \
+    import/importers.h

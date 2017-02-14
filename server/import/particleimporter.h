@@ -4,12 +4,12 @@
 #include <QFile>
 #include <QObject>
 
+template< class DerivedType >
 class ParticleImporter
 {
 public:
-    ParticleImporter();
-    virtual bool checkFileFormat(QFile &file) = 0;
-    virtual bool readFile(QString fileName) = 0;
+    static bool checkFileFormat(QFile &file) { return DerivedType::doCheckFileFormat(file); }
+    static bool readFile(QString fileName, QVector<class State*> &states) { return DerivedType::doReadFile(fileName, states); }
 
 signals:
 

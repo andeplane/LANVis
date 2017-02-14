@@ -10,7 +10,10 @@
 #include "serversettings.h"
 
 ClientState::ClientState(QObject *parent) : QObject(parent),
-    m_dirty(false), m_chunksDirty(false), m_particlesDirty(false), m_maxNumberOfParticles(-1), m_sort(true), m_chunkSize(-1), m_lodDistance(250), m_lodLevels(0), m_serverSettings(new ServerSettings(this)), m_numThreads(4)
+    m_dirty(false), m_chunksDirty(false), m_particlesDirty(false), m_maxNumberOfParticles(-1), m_sort(true),
+    m_chunkSize(-1), m_lodDistance(250), m_lodLevels(0),
+    m_serverSettings(new ServerSettings(this)), m_numThreads(4),
+    m_timestep(0)
 {
 
 }
@@ -27,6 +30,7 @@ void ClientState::save()
     json["maxNumberOfParticles"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfParticles));
     json["lodLevels"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_lodLevels));
     json["numThreads"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_numThreads));
+    json["timestep"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_timestep));
     json["chunkSize"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_chunkSize));
     json["lodDistance"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodDistance));
     json["cameraPosition"] = array;
@@ -66,6 +70,7 @@ bool ClientState::load()
     float lodDistance = obj["lodDistance"].toDouble();
     int lodLevels = obj["lodLevels"].toInt();
     bool sort = obj["sort"].toBool();
+    int timestep = obj["timestep"].toInt();
     m_numThreads = obj["numThreads"].toInt();
 
     QVector3D newCameraPositon;
@@ -76,9 +81,10 @@ bool ClientState::load()
     bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0;
     bool lodDirty = fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
 
-    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles || m_sort != sort || chunksDirty || lodDirty;
+    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles || m_sort != sort || chunksDirty || lodDirty || m_timestep != timestep;
     if(!anyChanges) return true;
 
+    m_timestep = timestep;
     m_maxNumberOfParticles = maxNumberOfParticles;
     m_cameraPosition = newCameraPositon;
     m_sort = sort;
@@ -122,8 +128,8 @@ void ClientState::setCameraPosition(QVector3D cameraPosition)
 {
     if (m_cameraPosition == cameraPosition)
         return;
-    setDirty(true);
 
+    setDirty(true);
     m_cameraPosition = cameraPosition;
     emit cameraPositionChanged(cameraPosition);
 }
@@ -132,6 +138,7 @@ void ClientState::setMaxNumberOfParticles(int maxNumberOfParticles)
 {
     if (m_maxNumberOfParticles == maxNumberOfParticles)
         return;
+
     setDirty(true);
     m_maxNumberOfParticles = maxNumberOfParticles;
     emit maxNumberOfParticlesChanged(maxNumberOfParticles);
@@ -141,6 +148,7 @@ void ClientState::setSort(bool sort)
 {
     if (m_sort == sort)
         return;
+
     setDirty(true);
     m_sort = sort;
     emit sortChanged(sort);
@@ -150,6 +158,7 @@ void ClientState::setChunkSize(float chunkSize)
 {
     if (m_chunkSize == chunkSize)
         return;
+
     setDirty(true);
     m_chunkSize = chunkSize;
     emit chunkSizeChanged(chunkSize);
@@ -159,6 +168,7 @@ void ClientState::setLodDistance(float lodDistance)
 {
     if (m_lodDistance == lodDistance)
         return;
+
     setDirty(true);
     m_lodDistance = lodDistance;
     emit lodDistanceChanged(lodDistance);
@@ -168,6 +178,7 @@ void ClientState::setLodLevels(int lodLevels)
 {
     if (m_lodLevels == lodLevels)
         return;
+
     setDirty(true);
     m_lodLevels = lodLevels;
     emit lodLevelsChanged(lodLevels);
@@ -177,6 +188,7 @@ void ClientState::setFileName(QString fileName)
 {
     if (m_fileName == fileName)
         return;
+
     setDirty(true);
     m_fileName = fileName;
     emit fileNameChanged(fileName);
@@ -186,19 +198,30 @@ void ClientState::setFileName(QString fileName)
 void ClientState::setServerSettings(ServerSettings *serverSettings)
 {
     if (m_serverSettings == serverSettings)
-            return;
+        return;
 
-        m_serverSettings = serverSettings;
-        emit serverSettingsChanged(serverSettings);
+    setDirty(true);
+    m_serverSettings = serverSettings;
+    emit serverSettingsChanged(serverSettings);
 }
 
 void ClientState::setNumThreads(int numThreads)
 {
     if (m_numThreads == numThreads)
-            return;
+        return;
 
-        m_numThreads = numThreads;
-        emit numThreadsChanged(numThreads);
+    m_numThreads = numThreads;
+    emit numThreadsChanged(numThreads);
+}
+
+void ClientState::setTimestep(int timestep)
+{
+    if (m_timestep == timestep)
+        return;
+
+    setDirty(true);
+    m_timestep = timestep;
+    emit timestepChanged(timestep);
 }
 
 bool ClientState::dirty() const
@@ -219,6 +242,11 @@ ServerSettings *ClientState::serverSettings() const
 int ClientState::numThreads() const
 {
     return m_numThreads;
+}
+
+int ClientState::timestep() const
+{
+    return m_timestep;
 }
 
 void ClientState::setParticlesDirty(bool particlesDirty)

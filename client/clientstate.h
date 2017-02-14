@@ -15,6 +15,7 @@ class ClientState : public QObject
     Q_PROPERTY(float lodDistance READ lodDistance WRITE setLodDistance NOTIFY lodDistanceChanged)
     Q_PROPERTY(int lodLevels READ lodLevels WRITE setLodLevels NOTIFY lodLevelsChanged)
     Q_PROPERTY(int numThreads READ numThreads WRITE setNumThreads NOTIFY numThreadsChanged)
+    Q_PROPERTY(int timestep READ timestep WRITE setTimestep NOTIFY timestepChanged)
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName NOTIFY fileNameChanged)
     Q_PROPERTY(ServerSettings* serverSettings READ serverSettings WRITE setServerSettings NOTIFY serverSettingsChanged)
 public:
@@ -36,6 +37,7 @@ public:
     void setDirty(bool dirty);
     class ServerSettings* serverSettings() const;
     int numThreads() const;
+    int timestep() const;
 
 signals:
     void cameraPositionChanged(QVector3D cameraPosition);
@@ -47,6 +49,7 @@ signals:
     void fileNameChanged(QString fileName);
     void serverSettingsChanged(class ServerSettings* serverSettings);
     void numThreadsChanged(int numThreads);
+    void timestepChanged(int timestep);
 
 public slots:
     void setCameraPosition(QVector3D cameraPosition);
@@ -58,6 +61,7 @@ public slots:
     void setFileName(QString fileName);
     void setServerSettings(class ServerSettings* serverSettings);
     void setNumThreads(int numThreads);
+    void setTimestep(int timestep);
 
 private:
     bool m_dirty;
@@ -72,6 +76,7 @@ private:
     QString m_fileName;
     class ServerSettings* m_serverSettings;
     int m_numThreads;
+    int m_timestep;
 };
 
 #endif // CLIENTSTATE_H

@@ -65,7 +65,6 @@ Entity {
                             vertexShaderCode: loadSource(vertexLowQualityShaderSourceFile)
                             geometryShaderCode: loadSource(geometryLowQualityShaderSourceFile)
                             fragmentShaderCode: _fragmentBuilder.finalShader
-                            onFragmentShaderCodeChanged: console.log("Got new fragment: ", fragmentShaderCode)
                         }
 
                         renderStates: [

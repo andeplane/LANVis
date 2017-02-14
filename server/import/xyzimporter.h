@@ -3,7 +3,7 @@
 
 #include "particleimporter.h"
 
-class XYZImporter : public ParticleImporter
+class XYZImporter : public ParticleImporter<XYZImporter>
 {
 
 public:
@@ -11,8 +11,8 @@ public:
 
     // ParticleImporter interface
 public:
-    bool checkFileFormat(QFile &file) override;
-    bool readFile(QString fileName) override;
+    static bool doCheckFileFormat(QFile &file);
+    static bool doReadFile(QString fileName, QVector<State *> &states);
 };
 
 #endif // XYZIMPORTER_H
