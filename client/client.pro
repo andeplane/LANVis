@@ -33,7 +33,8 @@ SOURCES += main.cpp \
     mousemover.cpp \
     particles.cpp \
     state.cpp \
-    clientstate.cpp
+    clientstate.cpp \
+    serversettings.cpp
 
 HEADERS += \
     mysimulator.h \
@@ -41,4 +42,5 @@ HEADERS += \
     particles.h \
     state.h \
     clientstate.h \
-    particle.h
+    particle.h \
+    serversettings.h

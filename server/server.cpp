@@ -157,10 +157,9 @@ void Server::writePositions()
         int numBytes = particles.size()*sizeof(ColoredParticle);
         if(numBytes > 0) {
             const char *array = reinterpret_cast<const char*>(&particles.front());
-
-            QFile file(m_dataFileName);
+            QFile file("state.bin");
             if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-                qDebug() << "Could not open file " << m_dataFileName;
+                qDebug() << "Could not open file state.bin";
             }
             file.write(array, numBytes);
 
@@ -168,26 +167,6 @@ void Server::writePositions()
         }
         lockFile.unlock();
     }
-}
-
-QString Server::dataFileName() const
-{
-    return m_dataFileName;
-}
-
-void Server::setDataFileName(const QString &dataFileName)
-{
-    m_dataFileName = dataFileName;
-}
-
-QString Server::stateFileName() const
-{
-    return m_stateFileName;
-}
-
-void Server::setStateFileName(const QString &stateFileName)
-{
-    m_stateFileName = stateFileName;
 }
 
 QString Server::lockFileName() const
@@ -210,6 +189,5 @@ bool Server::update()
     if(m_clientState.particlesDirty()) {
         State &state = *m_currentState;
         m_subset.updatePositions(state, m_clientState);
-        // updatePositions();
     }
 }

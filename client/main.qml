@@ -22,6 +22,8 @@ ApplicationWindow {
         typesFileName: "/projects/tmp/types.json"
         stateFileName: "/projects/tmp/state.json"
         simulator.clientState.fileName: "/projects/tmp/client.json"
+        simulator.clientState.serverSettings.inputFile: "hello"
+        simulator.clientState.serverSettings.inputFileType: "xyz"
         renderingQuality: "low"
         anchors.fill: parent
         focus: true

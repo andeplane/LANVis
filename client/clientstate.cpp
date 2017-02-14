@@ -7,9 +7,10 @@
 #include <QTextStream>
 #include <QDebug>
 #include <QDateTime>
+#include "serversettings.h"
 
 ClientState::ClientState(QObject *parent) : QObject(parent),
-    m_dirty(false), m_maxNumberOfParticles(300000), m_sort(true), m_chunkSize(50), m_lodDistance(250), m_lodLevels(5)
+    m_dirty(false), m_maxNumberOfParticles(-1), m_sort(true), m_chunkSize(-1), m_lodDistance(250), m_lodLevels(5), m_serverSettings(new ServerSettings(this))
 {
 
 }
@@ -30,6 +31,9 @@ void ClientState::save()
     json["cameraPosition"] = array;
     json["sort"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_sort));
     json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<double>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
+    QJsonObject serverSettings;
+    m_serverSettings->save(serverSettings);
+    json["serverSettings"] = serverSettings;
 
     QFile file(m_fileName);
     if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
@@ -53,6 +57,8 @@ void ClientState::load()
     if(doc.isNull()) return;
 
     QJsonObject   obj = doc.object();
+    m_serverSettings->load(obj["serverSettings"].toObject());
+
     QJsonArray    arr = obj["cameraPosition"].toArray();
     int maxNumberOfParticles = obj["maxNumberOfParticles"].toInt();
     float chunkSize = obj["chunkSize"].toDouble();
@@ -174,6 +180,15 @@ void ClientState::setFileName(QString fileName)
     load();
 }
 
+void ClientState::setServerSettings(ServerSettings *serverSettings)
+{
+    if (m_serverSettings == serverSettings)
+            return;
+
+        m_serverSettings = serverSettings;
+        emit serverSettingsChanged(serverSettings);
+}
+
 bool ClientState::dirty() const
 {
     return m_dirty;
@@ -182,6 +197,11 @@ bool ClientState::dirty() const
 void ClientState::setDirty(bool dirty)
 {
     m_dirty = dirty;
+}
+
+ServerSettings *ClientState::serverSettings() const
+{
+    return m_serverSettings;
 }
 
 void ClientState::setParticlesDirty(bool particlesDirty)

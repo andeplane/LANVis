@@ -20,27 +20,16 @@ public:
     void writePositions();
     bool update();
 
-    QString dataFileName() const;
-    void setDataFileName(const QString &dataFileName);
-
-    QString stateFileName() const;
-    void setStateFileName(const QString &stateFileName);
-
     QString lockFileName() const;
     void setLockFileName(const QString &lockFileName);
 
 private:
     ClientState m_clientState;
-    QString m_fileName;
-    QString m_dataFileName;
     QString m_lockFileName;
-    QString m_stateFileName;
 
     QVector<State*> m_states;
     State *m_currentState;
     ParticleSubset m_subset;
-    void setDefaultStyles();
-    void setupChunks();
 };
 
 #endif // SERVER_H

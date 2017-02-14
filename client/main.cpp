@@ -8,7 +8,7 @@
 #include "clientstate.h"
 #include "state.h"
 #include "particles.h"
-
+#include "serversettings.h"
 #include <vendor.h>
 
 int main(int argc, char *argv[])
@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<MySimulator>("LANVis", 1, 0, "MySimulator");
     qmlRegisterType<State>("LANVis", 1, 0, "State");
     qmlRegisterType<ClientState>("LANVis", 1, 0, "ClientState");
+    qmlRegisterType<ServerSettings>("LANVis", 1, 0, "ServerSettings");
     qmlRegisterType<Particles>("LANVis", 1, 0, "Particles");
     qmlRegisterType<MouseMover>("LANVis", 1, 0, "MouseMover");
     QApplication app(argc, argv);

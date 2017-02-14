@@ -15,6 +15,7 @@ SOURCES += \
     state.cpp \
     generalparticle.cpp \
     ../client/clientstate.cpp \
+    ../client/serversettings.cpp \
     import/xyzimporter.cpp \
     particlesubset.cpp
 
@@ -31,5 +32,6 @@ HEADERS += \
     state.h \
     generalparticle.h \
     ../client/clientstate.h \
+    ../client/serversettings.h \
     import/xyzimporter.h \
     particlesubset.h

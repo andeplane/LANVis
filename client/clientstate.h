@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVector3D>
 
+
 class ClientState : public QObject
 {
     Q_OBJECT
@@ -14,6 +15,7 @@ class ClientState : public QObject
     Q_PROPERTY(float lodDistance READ lodDistance WRITE setLodDistance NOTIFY lodDistanceChanged)
     Q_PROPERTY(int lodLevels READ lodLevels WRITE setLodLevels NOTIFY lodLevelsChanged)
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName NOTIFY fileNameChanged)
+    Q_PROPERTY(ServerSettings* serverSettings READ serverSettings WRITE setServerSettings NOTIFY serverSettingsChanged)
 public:
     explicit ClientState(QObject *parent = 0);
     QVector3D cameraPosition() const;
@@ -31,6 +33,7 @@ public:
     QString fileName() const;
     bool dirty() const;
     void setDirty(bool dirty);
+    class ServerSettings* serverSettings() const;
 
 signals:
     void cameraPositionChanged(QVector3D cameraPosition);
@@ -40,6 +43,7 @@ signals:
     void lodDistanceChanged(float lodDistance);
     void lodLevelsChanged(int lodLevels);
     void fileNameChanged(QString fileName);
+    void serverSettingsChanged(class ServerSettings* serverSettings);
 
 public slots:
     void setCameraPosition(QVector3D cameraPosition);
@@ -49,6 +53,7 @@ public slots:
     void setLodDistance(float lodDistance);
     void setLodLevels(int lodLevels);
     void setFileName(QString fileName);
+    void setServerSettings(class ServerSettings* serverSettings);
 
 private:
     bool m_dirty;
@@ -61,6 +66,7 @@ private:
     float m_lodDistance;
     int m_lodLevels;
     QString m_fileName;
+    class ServerSettings* m_serverSettings;
 };
 
 #endif // CLIENTSTATE_H
