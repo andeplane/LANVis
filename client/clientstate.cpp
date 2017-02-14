@@ -10,7 +10,7 @@
 #include "serversettings.h"
 
 ClientState::ClientState(QObject *parent) : QObject(parent),
-    m_dirty(false), m_chunksDirty(false), m_particlesDirty(false), m_maxNumberOfParticles(-1), m_sort(true), m_chunkSize(-1), m_lodDistance(250), m_lodLevels(0), m_serverSettings(new ServerSettings(this))
+    m_dirty(false), m_chunksDirty(false), m_particlesDirty(false), m_maxNumberOfParticles(-1), m_sort(true), m_chunkSize(-1), m_lodDistance(250), m_lodLevels(0), m_serverSettings(new ServerSettings(this)), m_numThreads(4)
 {
 
 }
@@ -26,6 +26,7 @@ void ClientState::save()
     QJsonArray array = { m_cameraPosition[0], m_cameraPosition[1], m_cameraPosition[2] };
     json["maxNumberOfParticles"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_maxNumberOfParticles));
     json["lodLevels"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_lodLevels));
+    json["numThreads"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_numThreads));
     json["chunkSize"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_chunkSize));
     json["lodDistance"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodDistance));
     json["cameraPosition"] = array;
@@ -65,6 +66,7 @@ bool ClientState::load()
     float lodDistance = obj["lodDistance"].toDouble();
     int lodLevels = obj["lodLevels"].toInt();
     bool sort = obj["sort"].toBool();
+    m_numThreads = obj["numThreads"].toInt();
 
     QVector3D newCameraPositon;
     newCameraPositon[0] = arr[0].toDouble();
@@ -190,6 +192,15 @@ void ClientState::setServerSettings(ServerSettings *serverSettings)
         emit serverSettingsChanged(serverSettings);
 }
 
+void ClientState::setNumThreads(int numThreads)
+{
+    if (m_numThreads == numThreads)
+            return;
+
+        m_numThreads = numThreads;
+        emit numThreadsChanged(numThreads);
+}
+
 bool ClientState::dirty() const
 {
     return m_dirty;
@@ -203,6 +214,11 @@ void ClientState::setDirty(bool dirty)
 ServerSettings *ClientState::serverSettings() const
 {
     return m_serverSettings;
+}
+
+int ClientState::numThreads() const
+{
+    return m_numThreads;
 }
 
 void ClientState::setParticlesDirty(bool particlesDirty)

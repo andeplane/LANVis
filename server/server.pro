@@ -2,6 +2,10 @@ TEMPLATE = app
 CONFIG += console c++11
 CONFIG -= app_bundle
 
+INCLUDEPATH += /usr/local/lib
+QMAKE_CXXFLAGS += -fopenmp
+QMAKE_LFLAGS += -fopenmp
+
 SOURCES += \
     main.cpp \
     xyzreader.cpp \

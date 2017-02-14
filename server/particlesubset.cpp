@@ -1,4 +1,7 @@
 #include "particlesubset.h"
+#include <QElapsedTimer>
+#include <omp.h>
+#include <QDebug>
 
 ParticleSubset::ParticleSubset(QObject *parent) : QObject(parent), m_state(nullptr)
 {
@@ -80,11 +83,15 @@ QVector3D ParticleSubset::boundingBoxMax() const
 
 void ParticleSubset::updatePositions(State &state, const ClientState &clientState)
 {
+    QElapsedTimer t;
+    t.start();
     m_state = &state;
-
+    qDebug() << "Clearing positions";
     m_particles.clear();
     int particleCount = 0;
+    qDebug() << "Clearing positions took " << t.restart() << "ms. Now sorting chunks.";
     state.sortChunks(clientState.cameraPosition());
+    qDebug() << "Sorting chunks took " << t.restart()<<". Now reserving space to indices.";
 
     m_boundingBoxMin = QVector3D(1e9,1e9,1e9);
     m_boundingBoxMax = QVector3D(-1e9,-1e9,-1e9);
@@ -92,12 +99,14 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
     m_particleIndices.clear();
     m_particleIndices.reserve(clientState.maxNumberOfParticles());
 
+    qDebug() << "Reserving indices took " << t.restart()<<". Now checking chunks.";
+
+    std::vector<Chunk*> chunks;
     for(Chunk *chunk : state.chunkPtrs()) {
         float distance = chunk->minDistanceTo(clientState.cameraPosition());
         int lod = distance / clientState.lodDistance();
         if(lod > clientState.lodLevels()) lod = clientState.lodLevels();
 
-        if(clientState.sort()) chunk->sort(clientState.cameraPosition(), state.allParticles(), lod);
         m_boundingBoxMin[0] = std::min(m_boundingBoxMin[0], chunk->corners()[0][0]);
         m_boundingBoxMin[1] = std::min(m_boundingBoxMin[1], chunk->corners()[0][1]);
         m_boundingBoxMin[2] = std::min(m_boundingBoxMin[2], chunk->corners()[0][2]);
@@ -106,14 +115,42 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         m_boundingBoxMax[1] = std::max(m_boundingBoxMax[1], chunk->corners()[7][1]);
         m_boundingBoxMax[2] = std::max(m_boundingBoxMax[2], chunk->corners()[7][2]);
 
-        m_particleIndices.insert( m_particleIndices.end(), chunk->particleIndices(lod).begin(), chunk->particleIndices(lod).end() );
+        chunks.push_back(chunk);
         particleCount += chunk->particleIndices(lod).size();
         if(particleCount > clientState.maxNumberOfParticles()) break;
     }
 
+    qDebug() << "Checking chunks took " << t.restart() << " ms. Now sorting chunk particles.";
+    if(clientState.sort()) {
+#pragma omp parallel for num_threads(clientState.numThreads())
+        for(size_t i=0; i<chunks.size(); i++) {
+            Chunk *chunk = chunks[i];
+            float distance = chunk->minDistanceTo(clientState.cameraPosition());
+            int lod = distance / clientState.lodDistance();
+            if(lod > clientState.lodLevels()) lod = clientState.lodLevels();
+            chunk->sort(clientState.cameraPosition(), state.allParticles(), lod);
+        }
+    }
+
+    qDebug() << "Sorting took " << t.restart() << "ms. Now copying particles.";
+
+    for(size_t i=0; i<chunks.size(); i++) {
+        Chunk *chunk = chunks[i];
+        float distance = chunk->minDistanceTo(clientState.cameraPosition());
+        int lod = distance / clientState.lodDistance();
+        if(lod > clientState.lodLevels()) lod = clientState.lodLevels();
+        m_particleIndices.insert( m_particleIndices.end(), chunk->particleIndices(lod).begin(), chunk->particleIndices(lod).end() );
+    }
+
+    qDebug() << "Checking chunks took " << t.restart() << " ms. Now resizing particle array.";
+
     m_particles.resize(m_particleIndices.size());
+    qDebug() << "Resizing took " << t.restart() << " ms. Processing particles.";
     const std::vector<IdentifiableParticle> &particles = state.allParticles();
-    for(size_t i=0; i<m_particles.size(); i++) {
+    const size_t numParticles = m_particles.size();
+
+#pragma omp parallel for num_threads(clientState.numThreads())
+    for(size_t i=0; i<numParticles; i++) {
         int particleIndex = m_particleIndices[i];
         const IdentifiableParticle &particle = particles[particleIndex];
 
@@ -129,4 +166,5 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         m_particles[i].position = particle.position;
         m_particles[i].radius = radius;
     }
+    qDebug() << "Processing finished after " << t.elapsed() << " ms.";
 }
