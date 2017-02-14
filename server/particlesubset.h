@@ -29,6 +29,7 @@ private:
     std::vector<ColoredParticle> m_particles;
     std::vector<int> m_particleIndices;
     void setDefaultStyles();
+    // void insertion_sort(const ClientState &clientState);
 };
 
 #endif // PARTICLESUBSET_H

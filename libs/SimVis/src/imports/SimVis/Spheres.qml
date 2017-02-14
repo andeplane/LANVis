@@ -12,6 +12,14 @@ Entity {
     property var layer
     property string quality: "high"
     onQualityChanged: console.log("New quality: ", quality)
+
+    property int sourceRgbArg: BlendEquationArguments.SourceAlpha
+    property int destinationRgbArg: BlendEquationArguments.OneMinusSourceAlpha
+    property int sourceAlphaArg: BlendEquationArguments.SourceAlpha
+    property int destinationAlphaArg: BlendEquationArguments.OneMinusSourceAlpha
+
+    property int blendFunctionArg: BlendEquation.Add
+
     property string vertexLowQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres-low.vert"
     property string fragmentLowQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres-low.frag"
     property string geometryLowQualityShaderSourceFile: "qrc:/SimVis/render/shaders/gl3/spheres-low.geom"
@@ -49,6 +57,7 @@ Entity {
                         minorVersion: 2
                     }
                     filterKeys: FilterKey { name: "renderingStyle"; value: "forward" }
+
                     renderPasses: RenderPass {
                         id: builderRenderPass
                         shaderProgram: ShaderProgram {
@@ -57,6 +66,17 @@ Entity {
                             geometryShaderCode: loadSource(geometryLowQualityShaderSourceFile)
                             fragmentShaderCode: _fragmentBuilder.finalShader
                         }
+                        renderStates: [
+                            BlendEquationArguments {
+                                sourceRgb: sourceRgbArg
+                                destinationRgb: destinationRgbArg
+                                sourceAlpha: sourceAlphaArg
+                                destinationAlpha: destinationAlphaArg
+                            },
+                            BlendEquation {
+                                blendFunction: blendFunctionArg
+                            }
+                        ]
                         ShaderBuilder {
                             id: _fragmentBuilder
 
@@ -82,12 +102,12 @@ Entity {
                                 result: "texCoord"
                             }
                             property ShaderNode color: ShaderNode {
-                                type: "vec3"
+                                type: "vec4"
                                 name: "color"
                                 result: "color"
                             }
                             property ShaderNode normalDotCamera: ShaderNode {
-                                type: "vec3"
+                                type: "vec4"
                                 name: "normalDotCamera"
                                 result: "normalDotCamera"
                             }
@@ -136,41 +156,6 @@ Entity {
         enabled: instanceCount != 0
         instanceCount: sphereData.count
 
-//        geometry: SpheresPointGeometry {
-//            attributes: [
-//                Attribute {
-//                    name: "pos"
-//                    attributeType: Attribute.VertexAttribute
-//                    vertexBaseType: Attribute.Float
-//                    vertexSize: 3
-//                    byteOffset: 0
-//                    byteStride: (3 + 3 + 1) * 4
-//                    divisor: 1
-//                    buffer: sphereData ? sphereData.buffer : null
-//                },
-//                Attribute {
-//                    name: "col"
-//                    attributeType: Attribute.VertexAttribute
-//                    vertexBaseType: Attribute.Float
-//                    vertexSize: 3
-//                    byteOffset: 3*4
-//                    byteStride: (3 + 3 + 1) * 4
-//                    divisor: 1
-//                    buffer: sphereData ? sphereData.buffer : null
-//                },
-//                Attribute {
-//                    name: "scale"
-//                    attributeType: Attribute.VertexAttribute
-//                    vertexBaseType: Attribute.Float
-//                    vertexSize: 1
-//                    byteOffset: (3+3)*4
-//                    byteStride: (3 + 3 + 1) * 4
-//                    divisor: 1
-//                    buffer: sphereData ? sphereData.buffer : null
-//                }
-//            ]
-//        }
-
         geometry: SpheresPointGeometry {
             attributes: [
                 Attribute {
@@ -179,7 +164,7 @@ Entity {
                     vertexBaseType: Attribute.Float
                     vertexSize: 3
                     byteOffset: 0
-                    byteStride: (3 + 3 + 1)*4
+                    byteStride: (3 + 4 + 1)*4
                     divisor: 1
                     buffer: sphereData ? sphereData.buffer : null
                 },
@@ -187,9 +172,9 @@ Entity {
                     name: "col"
                     attributeType: Attribute.VertexAttribute
                     vertexBaseType: Attribute.Float
-                    vertexSize: 3
+                    vertexSize: 4
                     byteOffset: 3*4
-                    byteStride: (3 + 3 + 1)*4
+                    byteStride: (3 + 4 + 1)*4
                     divisor: 1
                     buffer: sphereData ? sphereData.buffer : null
                 },
@@ -198,8 +183,8 @@ Entity {
                     attributeType: Attribute.VertexAttribute
                     vertexBaseType: Attribute.Float
                     vertexSize: 1
-                    byteOffset: (3+3)*4
-                    byteStride: (3 + 3 + 1)*4
+                    byteOffset: (3+4)*4
+                    byteStride: (3 + 4 + 1)*4
                     divisor: 1
                     buffer: sphereData ? sphereData.buffer : null
                 }

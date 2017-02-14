@@ -40,7 +40,7 @@ Effect {
                 shaderProgram: ShaderProgram {
                     vertexShaderCode: vertexShaderBuilder.finalShader
                     fragmentShaderCode: fragmentShaderBuilder.finalShader
-                }               
+                }
                 renderStates: [
                     BlendEquationArguments {
                         sourceRgb: sourceRgbArg

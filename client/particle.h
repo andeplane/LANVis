@@ -2,13 +2,14 @@
 #define PARTICLE_H
 #include <QString>
 #include <QVector3D>
+#include <QVector4D>
 
 struct ColoredParticle
 {
     QVector3D position;
-    QVector3D color;
+    QVector4D color;
     float radius;
-    ColoredParticle() : color(QVector3D(1.0,0.9,0.8)), radius(1.0) { }
+    ColoredParticle() : color(QVector4D(1.0,0.9,0.8, 1.0)), radius(1.0) { }
 };
 
 struct IdentifiableParticle
@@ -21,3 +22,4 @@ struct IdentifiableParticle
 };
 
 #endif // PARTICLE_H
+

@@ -35,7 +35,7 @@ void SphereData::setData(QByteArray byteArray, int count)
     emit countChanged(m_count);
 }
 
-void SphereData::setData(const QVector<QVector3D> &positions, const QVector<QVector3D> &colors, const QVector<float> &scales)
+void SphereData::setData(const QVector<QVector3D> &positions, const QVector<QVector4D> &colors, const QVector<float> &scales)
 {
     if(positions.size() != colors.size() || positions.size() != scales.size()) {
         qDebug() << "Error in SphereData::setData. Incoming arrays are not of equal size";
@@ -55,7 +55,7 @@ void SphereData::setData(const QVector<QVector3D> &positions, const QVector<QVec
     emit countChanged(m_count);
 }
 
-void SphereData::setPositions(QVector<QVector3D> positions, QVector3D color, float scale)
+void SphereData::setPositions(QVector<QVector3D> positions, QVector4D color, float scale)
 {
     QByteArray ba;
     ba.resize(positions.size() * sizeof(SphereVBOData));

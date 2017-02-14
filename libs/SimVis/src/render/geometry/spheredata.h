@@ -5,10 +5,11 @@
 #include <Qt3DRender/QBuffer>
 #include <Qt3DCore/QNode>
 #include <QVector3D>
+#include <QVector4D>
 struct SphereVBOData
 {
     QVector3D position;
-    QVector3D color;
+    QVector4D color;
     float radius;
 };
 
@@ -22,12 +23,11 @@ public:
 
     Qt3DRender::QBuffer* buffer();
     void setData(QVector<SphereVBOData> data);
-    void setData(const QVector<QVector3D> &positions, const QVector<QVector3D> &colors, const QVector<float> &scales);
+    void setData(const QVector<QVector3D> &positions, const QVector<QVector4D> &colors, const QVector<float> &scales);
     void setData(QByteArray byteArray, int count);
-    void setPositions(QVector<QVector3D> positions, QVector3D color = QVector3D(1.0, 1.0, 1.0), float scale = 1.0);
+    void setPositions(QVector<QVector3D> positions, QVector4D color = QVector4D(1.0, 0.8, 0.7, 1.0), float scale = 1.0);
     int count() const;
 signals:
-
     void countChanged(int count);
 
 public slots:

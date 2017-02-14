@@ -81,6 +81,31 @@ QVector3D ParticleSubset::boundingBoxMax() const
     return m_boundingBoxMax;
 }
 
+//void ParticleSubset::insertion_sort(const ClientState &clientState){
+//    for (int i = 0; i < m_particles.size(); i++){
+//        qDebug() << "Particle " << i;
+//        int j = i;
+
+//        bool condition;
+//        if(m_particles[j].color[3] == 1.0 && m_particles[j-1].color[3] == 1.0) {
+//            condition = false;
+//        } else {
+//            condition = (m_particles[j].position - clientState.cameraPosition()).lengthSquared() > (m_particles[j-1].position - clientState.cameraPosition()).lengthSquared();
+//        }
+
+//        while (j > 0 && condition) {
+//            std::swap(m_particles[j], m_particles[j-1]);
+//            j--;
+
+//            if(m_particles[j].color[3] == 1.0 && m_particles[j-1].color[3] == 1.0) {
+//                condition = false;
+//            } else {
+//                condition = (m_particles[j].position - clientState.cameraPosition()).lengthSquared() > (m_particles[j-1].position - clientState.cameraPosition()).lengthSquared();
+//            }
+//        }
+//    }
+//}
+
 void ParticleSubset::updatePositions(State &state, const ClientState &clientState)
 {
     QElapsedTimer t;
@@ -133,7 +158,6 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
     }
 
     qDebug() << "Sorting took " << t.restart() << "ms. Now copying particles.";
-
     for(size_t i=0; i<chunks.size(); i++) {
         Chunk *chunk = chunks[i];
         float distance = chunk->minDistanceTo(clientState.cameraPosition());
@@ -141,13 +165,13 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         if(lod > clientState.lodLevels()) lod = clientState.lodLevels();
         m_particleIndices.insert( m_particleIndices.end(), chunk->particleIndices(lod).begin(), chunk->particleIndices(lod).end() );
     }
-
     qDebug() << "Checking chunks took " << t.restart() << " ms. Now resizing particle array.";
 
     m_particles.resize(m_particleIndices.size());
     qDebug() << "Resizing took " << t.restart() << " ms. Processing particles.";
     const std::vector<IdentifiableParticle> &particles = state.allParticles();
     const size_t numParticles = m_particles.size();
+
 
 #pragma omp parallel for num_threads(clientState.numThreads())
     for(size_t i=0; i<numParticles; i++) {
@@ -163,8 +187,24 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         m_particles[i].color[0] = color.redF();
         m_particles[i].color[1] = color.greenF();
         m_particles[i].color[2] = color.blueF();
+        m_particles[i].color[3] = color.alphaF();
+//        if( (particle.position - QVector3D(75,75,75)).lengthSquared() > 50*50) {
+//            m_particles[i].color[3] *= 0.5;
+//        }
         m_particles[i].position = particle.position;
         m_particles[i].radius = radius;
     }
-    qDebug() << "Processing finished after " << t.elapsed() << " ms.";
+
+    qDebug() << "Processing finished after " << t.restart() << " ms. Now sorting based on alpha";
+    std::sort(m_particles.begin(), m_particles.end(),
+              [&](ColoredParticle &a, ColoredParticle &b)
+    {
+        float da = (a.position - clientState.cameraPosition()).lengthSquared();
+        float db = (b.position - clientState.cameraPosition()).lengthSquared();
+        if(a.color[3] == 1.0 && b.color[3] == 1.0) {
+            return da < db;
+        }
+        return da > db;
+    });
+    qDebug() << "Sorting took " << t.elapsed() << " ms.";
 }

@@ -6,11 +6,11 @@ uniform mat4 projectionMatrix;
 uniform mat4 mvp;
 
 in vec3  vs_position[1];
-in vec3  vs_color[1];
+in vec4  vs_color[1];
 in float vs_radius[1];
 
 out vec3 position;
-out vec3 color;
+out vec4 color;
 out vec2 textureCoord;
 
 void main(void) {

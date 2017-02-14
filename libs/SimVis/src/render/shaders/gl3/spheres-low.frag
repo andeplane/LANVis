@@ -2,7 +2,7 @@
 #pragma shadernodes header
 
 in vec3 position;
-in vec3 color;
+in vec4 color;
 in vec2 textureCoord;
 
 out vec4 fragColor;
@@ -31,7 +31,7 @@ void main(void) {
 
     vec3 rayDirection = position-eyePosition;
     float distanceSquared = dot(rayDirection, rayDirection);
-    vec3 normalDotCamera = color*dot(-normal, view);
+    vec4 normalDotCamera = color*vec4(vec3(dot(-normal, view)), 1.0);
 
     vec3 position = position;
 

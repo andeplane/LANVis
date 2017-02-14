@@ -1,11 +1,11 @@
 TEMPLATE = app
-CONFIG += console c++11
+CONFIG += console c++14
 CONFIG -= app_bundle
 
 INCLUDEPATH += /usr/local/lib
 QMAKE_CXXFLAGS += -fopenmp
 QMAKE_LFLAGS += -fopenmp
-
+# DEFINES += _GLIBCXX_PARALLEL
 SOURCES += \
     main.cpp \
     xyzreader.cpp \
