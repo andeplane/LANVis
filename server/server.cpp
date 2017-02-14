@@ -183,48 +183,6 @@ const ParticleSubset &Server::subset() const
     return m_subset;
 }
 
-bool Server::update()
-{
-    bool clientFileExists = m_clientState.load();
-    if(!clientFileExists) return false;
-    QElapsedTimer t;
-    t.start();
-
-    if(m_settings.inputFile()!=m_clientState.serverSettings()->inputFile() || m_settings.inputFileType()!=m_clientState.serverSettings()->inputFileType()) {
-        qDebug() << "New input file or input file type, loading file.";
-        bool success = loadFile();
-        if(success) {
-            m_settings.setInputFile(m_clientState.serverSettings()->inputFile());
-            m_settings.setInputFileType(m_clientState.serverSettings()->inputFileType());
-            qDebug() << "Loading " << m_settings.inputFile() << " took " << t.restart() << " ms.";
-        }
-    }
-
-    if(!m_currentState) {
-        return false;
-    }
-
-    if(m_clientState.chunksDirty()) {
-        // placeParticleInChunks();
-        qDebug() << "Placing particles in chunks took " << t.restart() << " ms.";
-        return true;
-    }
-
-    if(m_clientState.particlesDirty()) {
-        State &state = *m_currentState;
-        m_subset.updatePositions(state, m_clientState);
-        qDebug() << "Updating positions processing " << state.allParticles().size() << " particles took " << t.restart() << " ms.";
-        writePositions();
-        save();
-        qDebug() << "Writing " << m_subset.particles().size() << " particles to file took " << t.restart() << " ms.";
-
-        m_clientState.setParticlesDirty(false);
-        return true;
-    }
-
-    return true;
-}
-
 void Server::save()
 {
     QFile file("/projects/tmp/server.json");
@@ -248,4 +206,47 @@ void Server::save()
     } else {
         qDebug() << "Could not open file " << file.fileName();
     }
+}
+
+bool Server::update()
+{
+    bool clientFileExists = m_clientState.load();
+    if(!clientFileExists) return false;
+    QElapsedTimer t;
+    t.start();
+
+    if(m_settings.inputFile()!=m_clientState.serverSettings()->inputFile() || m_settings.inputFileType()!=m_clientState.serverSettings()->inputFileType()) {
+        qDebug() << "New input file or input file type, loading file.";
+        bool success = loadFile();
+        if(success) {
+            m_settings.setInputFile(m_clientState.serverSettings()->inputFile());
+            m_settings.setInputFileType(m_clientState.serverSettings()->inputFileType());
+            qDebug() << "Loading " << m_settings.inputFile() << " took " << t.restart() << " ms.";
+        }
+    }
+
+    if(!m_currentState) {
+        return false;
+    }
+
+    if(m_clientState.chunksDirty()) {
+        for(State *state : m_states) {
+            state->placeParticlesInChunks(m_clientState);
+        }
+        return true;
+    }
+
+    if(m_clientState.particlesDirty()) {
+        State &state = *m_currentState;
+        m_subset.updatePositions(state, m_clientState);
+        qDebug() << "Updating positions processing " << state.allParticles().size() << " particles took " << t.restart() << " ms.";
+        writePositions();
+        save();
+        qDebug() << "Writing " << m_subset.particles().size() << " particles to file took " << t.restart() << " ms.";
+
+        m_clientState.setParticlesDirty(false);
+        return true;
+    }
+
+    return true;
 }
