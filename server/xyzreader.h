@@ -11,19 +11,20 @@ class XYZReader : public QObject
 public:
     explicit XYZReader(QObject *parent = 0);
     bool readFile(QString filename);
-    const QVector<QString> &types() const;
-    void setTypes(const QVector<QString> &types);
-
-    const QVector<QVector3D> &positions() const;
-    void setPositions(const QVector<QVector3D> &positions);
+    const std::vector<QString> &types() const;
+    const std::vector<QVector3D> &positions() const;
+    QVector3D origo() const;
+    QVector3D size() const;
 
 signals:
 
 public slots:
 
 private:
-    QVector<QString>   m_types;
-    QVector<QVector3D> m_positions;
+    QVector3D m_origo;
+    QVector3D m_size;
+    std::vector<QString>   m_types;
+    std::vector<QVector3D> m_positions;
 };
 
 #endif // XYZREADER_H

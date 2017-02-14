@@ -1,5 +1,6 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
+#include <QString>
 #include <QVector3D>
 
 struct ColoredParticle
@@ -13,10 +14,10 @@ struct ColoredParticle
 struct IdentifiableParticle
 {
     QVector3D position;
-    int type;
+    QString type;
     int index;
     IdentifiableParticle() : index(0) { }
-    IdentifiableParticle(QVector3D position, int type, int index) : position(position), type(type), index(index) { }
+    IdentifiableParticle(QVector3D position, QString type, int index) : position(position), type(type), index(index) { }
 };
 
 #endif // PARTICLE_H

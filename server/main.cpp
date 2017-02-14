@@ -1,4 +1,3 @@
-#include <QElapsedTimer>
 #include <QDebug>
 #include <iostream>
 #include <unistd.h>
@@ -14,25 +13,16 @@ int main(int argc, char *argv[])
     Q_UNUSED(argv)
 
     Server server;
-//    QElapsedTimer t;
-//    t.start();
-//    qDebug() << "Loading " << lammpsDumpFileName << "...";
-//    // server.loadXYZ(xyzFileName);
-//    // server.loadLAMMPSBinary(lammpsDumpFileName);
-//    server.loadXYZBinary(xyzBinaryFileName);
-//    qDebug() << "Loading file took " << t.elapsed() << " ms.";
-//    while(true) {
-//        t.restart();
-//        bool anyChanges = server.update(clientStateFileName);
-//        if(anyChanges) {
-//            qDebug() << "Updated position on " << server.allParticles().size() << " particles took " << t.restart() << " ms.";
-//            server.writePositions();
-//            server.writeState();
-//            qDebug() << "Writing file with " << server.particles().size() << " took " << t.restart() << " ms.";
-//        }
 
-//        usleep(300000);
-//    }
+    while(true) {
+        bool clientFileExists = server.update();
+        if(clientFileExists) {
+            usleep(25000);
+        } else {
+            qDebug() << "Client file does not exist. Waiting...";
+            usleep(1000000);
+        }
+    }
 
     return 0;
 }

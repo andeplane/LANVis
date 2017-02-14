@@ -12,48 +12,27 @@
 #include <QDateTime>
 #include <QLockFile>
 #include <random>
+#include <QElapsedTimer>
 
 Server::Server() : m_currentState(nullptr)
 {
     m_clientState.setFileName("/projects/tmp/client.json");
 }
 
-void Server::loadXYZ(QString fileName)
+bool Server::loadXYZ(QString fileName)
 {
-//    XYZReader reader;
-//    reader.readFile(fileName);
-//    const QVector<QVector3D> &positions = reader.positions();
-//    const QVector<QString>   &types     = reader.types();
-//    m_allParticles.resize(positions.size());
-//    QVector3D min, max;
-//    min = positions[0];
-//    max = positions[0];
+    XYZReader reader;
+    bool success = reader.readFile(fileName);
+    if(!success) return false;
+    const std::vector<QVector3D> &positions = reader.positions();
+    const std::vector<QString>   &types     = reader.types();
 
-//    for(int particleIndex=0; particleIndex<positions.size(); particleIndex++) {
-//        const QVector3D &position = positions.at(particleIndex);
-//        float radius = 1.0;
-//        QVector3D color(1.0, 0.9, 0.8);
-
-//        if(m_particleStyles.contains(types[particleIndex])) {
-//            radius = m_particleStyles[types[particleIndex]]->radius;
-//            color[0] = m_particleStyles[types[particleIndex]]->color.redF();
-//            color[1] = m_particleStyles[types[particleIndex]]->color.greenF();
-//            color[2] = m_particleStyles[types[particleIndex]]->color.blueF();
-//        }
-
-//        m_allParticles[particleIndex].color = color;
-//        m_allParticles[particleIndex].radius = radius;
-//        m_allParticles[particleIndex].position = position;
-//        min[0] = std::min(min[0], position[0]);
-//        max[0] = std::max(max[0], position[0]);
-//        min[1] = std::min(min[1], position[1]);
-//        max[1] = std::max(max[1], position[1]);
-//        min[2] = std::min(min[2], position[2]);
-//        max[2] = std::max(max[2], position[2]);
-//    }
-//    m_origo = min;
-//    m_size = max - min;
-//    placeParticleInChunks();
+    m_states.clear();
+    State *state = new State();
+    m_states.push_back(state);
+    state->addParticles(positions, types, reader.origo(), reader.size());
+    state->placeParticlesInChunks(m_clientState);
+    return true;
 }
 
 void Server::loadXYZBinary(QString fileName)
@@ -149,6 +128,16 @@ void Server::loadLAMMPSTextDump(QString fileName)
 //    m_currentState = m_states.front();
 }
 
+bool Server::loadFile()
+{
+
+    if(m_clientState.serverSettings()->inputFileType()=="xyz") {
+        bool success = loadXYZ(m_clientState.serverSettings()->inputFile()); //TODO: rename to fileName
+        return success;
+    }
+    return false;
+}
+
 void Server::writePositions()
 {
     QLockFile lockFile(m_lockFileName);
@@ -179,15 +168,70 @@ void Server::setLockFileName(const QString &lockFileName)
     m_lockFileName = lockFileName;
 }
 
+State *Server::currentState() const
+{
+    return m_currentState;
+}
+
+const ParticleSubset &Server::subset() const
+{
+    return m_subset;
+}
+
 bool Server::update()
 {
-    m_clientState.load();
+    bool clientFileExists = m_clientState.load();
+    if(!clientFileExists) return false;
+    QElapsedTimer t;
+    t.start();
+
+    if(m_settings.inputFile()!=m_clientState.serverSettings()->inputFile() || m_settings.inputFileType()!=m_clientState.serverSettings()->inputFileType()) {
+        bool success = loadFile();
+        if(success) {
+            m_settings.setInputFile(m_clientState.serverSettings()->inputFile());
+            m_settings.setInputFileType(m_clientState.serverSettings()->inputFileType());
+            qDebug() << "Loading " << m_settings.inputFile() << " took " << t.restart() << " ms.";
+        }
+    }
+
 
     if(m_clientState.chunksDirty()) {
         // placeParticleInChunks();
+        qDebug() << "Placing particles in chunks took " << t.restart() << " ms.";
+        return true;
     }
+
     if(m_clientState.particlesDirty()) {
         State &state = *m_currentState;
         m_subset.updatePositions(state, m_clientState);
+        qDebug() << "Updating positions processing " << state.allParticles().size() << " particles took " << t.restart() << " ms.";
+        writePositions();
+        qDebug() << "Writing " << m_subset.particles().size() << " particles to file took " << t.restart() << " ms.";
+        return true;
+    }
+
+    return true;
+}
+
+void Server::save()
+{
+    QFile file("/projects/tmp/server.json");
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+        QTextStream stream(&file);
+        QJsonObject json;
+
+        json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<double>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
+        json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_subset.particles().size()));
+        json["binaryFileName"] = "state.bin";
+        json["boundingBoxMin"] = QJsonArray({m_subset.boundingBoxMin().x(), m_subset.boundingBoxMin().y(), m_subset.boundingBoxMin().z()});
+        json["boundingBoxMax"] = QJsonArray({m_subset.boundingBoxMax().x(), m_subset.boundingBoxMax().y(), m_subset.boundingBoxMax().z()});
+
+        json["numTimesteps"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_states.size()));
+
+        QJsonDocument saveObject(json);
+        stream << saveObject.toJson();
+        file.close();
+    } else {
+        qDebug() << "Could not open file " << file.fileName();
     }
 }

@@ -1,6 +1,7 @@
 #include "state.h"
 #include "particlestyle.h"
 #include <QDebug>
+#include <QFile>
 
 State::State(QObject *parent) : QObject(parent),
     m_nx(0), m_ny(0), m_nz(0), m_chunkSize(0)
@@ -129,9 +130,9 @@ QMap<QString, ParticleStyle *> &State::particleStyles()
     return m_particleStyles;
 }
 
-void State::placeParticlesInChunks(float chunkSize, int lodLevels)
+void State::placeParticlesInChunks(ClientState &clientState)
 {
-    m_chunkSize = chunkSize;
+    m_chunkSize = clientState.chunkSize();
     setupChunks();
     float oneOverChunkSize = 1.0/m_chunkSize;
     for(Chunk &chunk : m_chunks) {
@@ -171,36 +172,27 @@ void State::placeParticlesInChunks(float chunkSize, int lodLevels)
     std::random_device rd;
     std::mt19937 generator(rd());
     std::uniform_real_distribution<float> distribution(0, 1);
-    qDebug() << "Building LOD with " << lodLevels << " levels";
+    qDebug() << "Building LOD with " << clientState.lodLevels() << " levels";
     for(Chunk &chunk : m_chunks) {
-        chunk.buildLOD(lodLevels, generator, distribution);
+        chunk.buildLOD(clientState.lodLevels(), generator, distribution);
     }
 }
 
-void State::addParticles(const std::vector<QVector3D> &positions, const std::vector<int> types, QVector3D origo, QVector3D size)
+void State::addParticles(const std::vector<QVector3D> &positions, const std::vector<QString> types, QVector3D origo, QVector3D size)
 {
-//    m_allParticles.resize(positions.size());
-//    for(size_t particleIndex=0; particleIndex<positions.size(); particleIndex++) {
-//        const QVector3D &position = positions.at(particleIndex);
-//        float radius = 1.0;
-//        QVector3D color(1.0, 0.9, 0.8);
-//        QString typeAsString = QString("%1").arg(types[particleIndex]);
-//        if(m_particleStyles.contains(typeAsString)) {
-//            radius = m_particleStyles[typeAsString]->radius;
-//            color[0] = m_particleStyles[typeAsString]->color.redF();
-//            color[1] = m_particleStyles[typeAsString]->color.greenF();
-//            color[2] = m_particleStyles[typeAsString]->color.blueF();
-//        }
-
-//        m_allParticles[particleIndex].color = color;
-//        m_allParticles[particleIndex].radius = radius;
-//        m_allParticles[particleIndex].position = position;
-//    }
-//    m_origo = origo;
-//    m_size = size;
+    m_allParticles.resize(positions.size());
+    for(size_t particleIndex=0; particleIndex<positions.size(); particleIndex++) {
+        const QVector3D &position = positions.at(particleIndex);
+        QString type = types[particleIndex];
+        m_allParticles[particleIndex].position = position;
+        m_allParticles[particleIndex].type = type;
+        m_allParticles[particleIndex].index = particleIndex;
+    }
+    m_origo = origo;
+    m_size = size;
 }
 
-void State::addParticle(QVector3D position, int type)
+void State::addParticle(QVector3D position, QString type)
 {
     QVector3D color(1.0, 0.0, 0.0);
 //    float radius = 1.0;

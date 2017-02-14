@@ -112,6 +112,11 @@ void MyWorker::synchronizeSimulator(Simulator *simulator)
 
 void MyWorker::work()
 {
+    if(m_clientState->dirty()) {
+        m_clientState->save();
+        m_clientState->setDirty(false);
+    }
+
     if(m_state && !m_stateFileName.isEmpty()) {
         QFile loadFile(m_stateFileName);
         if (!loadFile.open(QIODevice::ReadOnly)) {
@@ -122,10 +127,5 @@ void MyWorker::work()
         QByteArray stateData = loadFile.readAll();
         QJsonDocument loadDoc(QJsonDocument::fromJson(stateData));
         m_state->update(loadDoc.object());
-    }
-
-    if(m_clientState->dirty()) {
-        m_clientState->save();
-        m_clientState->setDirty(false);
     }
 }

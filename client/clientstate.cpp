@@ -10,7 +10,7 @@
 #include "serversettings.h"
 
 ClientState::ClientState(QObject *parent) : QObject(parent),
-    m_dirty(false), m_maxNumberOfParticles(-1), m_sort(true), m_chunkSize(-1), m_lodDistance(250), m_lodLevels(5), m_serverSettings(new ServerSettings(this))
+    m_dirty(false), m_chunksDirty(false), m_particlesDirty(false), m_maxNumberOfParticles(-1), m_sort(true), m_chunkSize(-1), m_lodDistance(250), m_lodLevels(0), m_serverSettings(new ServerSettings(this))
 {
 
 }
@@ -44,17 +44,17 @@ void ClientState::save()
     }
 }
 
-void ClientState::load()
+bool ClientState::load()
 {
     QFile file(m_fileName);
     if (!file.open(QIODevice::ReadOnly)) {
-        return;
+        return false;
     }
 
     QByteArray stateData = file.readAll();
     QJsonParseError error;
     QJsonDocument doc(QJsonDocument::fromJson(stateData, &error));
-    if(doc.isNull()) return;
+    if(doc.isNull()) return true;
 
     QJsonObject   obj = doc.object();
     m_serverSettings->load(obj["serverSettings"].toObject());
@@ -75,7 +75,7 @@ void ClientState::load()
     bool lodDirty = fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
 
     bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles || m_sort != sort || chunksDirty || lodDirty;
-    if(!anyChanges) return;
+    if(!anyChanges) return true;
 
     m_maxNumberOfParticles = maxNumberOfParticles;
     m_cameraPosition = newCameraPositon;
@@ -88,6 +88,7 @@ void ClientState::load()
         m_chunksDirty = true;
     }
     m_particlesDirty = true;
+    return true;
 }
 
 int ClientState::maxNumberOfParticles() const

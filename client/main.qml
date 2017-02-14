@@ -20,10 +20,11 @@ ApplicationWindow {
         id: scene
         property bool captureCursor: true
         typesFileName: "/projects/tmp/types.json"
-        stateFileName: "/projects/tmp/state.json"
+        stateFileName: "/projects/tmp/server.json"
         simulator.clientState.fileName: "/projects/tmp/client.json"
-        simulator.clientState.serverSettings.inputFile: "hello"
+        simulator.clientState.serverSettings.inputFile: "/projects/tmp/sio2_porous.xyz"
         simulator.clientState.serverSettings.inputFileType: "xyz"
+
         renderingQuality: "low"
         anchors.fill: parent
         focus: true

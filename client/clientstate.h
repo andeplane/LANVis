@@ -20,7 +20,7 @@ public:
     explicit ClientState(QObject *parent = 0);
     QVector3D cameraPosition() const;
     void save();
-    void load();
+    bool load();
     int maxNumberOfParticles() const;
     bool sort() const;
     float chunkSize() const;

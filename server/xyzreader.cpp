@@ -7,14 +7,24 @@ XYZReader::XYZReader(QObject *parent) : QObject(parent)
 
 }
 
-const QVector<QString> &XYZReader::types() const
+const std::vector<QString> &XYZReader::types() const
 {
     return m_types;
 }
 
-const QVector<QVector3D> &XYZReader::positions() const
+const std::vector<QVector3D> &XYZReader::positions() const
 {
     return m_positions;
+}
+
+QVector3D XYZReader::origo() const
+{
+    return m_origo;
+}
+
+QVector3D XYZReader::size() const
+{
+    return m_size;
 }
 
 bool XYZReader::readFile(QString filename)
@@ -27,6 +37,9 @@ bool XYZReader::readFile(QString filename)
             return false;
         }
     }
+
+    QVector3D min(1e9,1e9,1e9);
+    QVector3D max(-1e9,-1e9,-1e9);
 
     int numberOfAtoms = 0;
     int lineNumber = 0;
@@ -63,6 +76,14 @@ bool XYZReader::readFile(QString filename)
                 return false;
             }
             if(positionCount<m_positions.size()) {
+                min[0] = std::min(min[0], x);
+                min[1] = std::min(min[1], y);
+                min[2] = std::min(min[2], z);
+
+                max[0] = std::max(max[0], x);
+                max[1] = std::max(max[1], y);
+                max[2] = std::max(max[2], z);
+
                 m_types [positionCount]    = atomType;
                 m_positions[positionCount][0] = x;
                 m_positions[positionCount][1] = y;
@@ -71,6 +92,8 @@ bool XYZReader::readFile(QString filename)
             } else break; // If this is a multi timestep xyz-file, just ignore the rest
         }
     }
+    m_origo = min;
+    m_origo = max-min;
 
     if(positionCount != m_positions.size()) {
         qDebug() << QString("Error, could not parse XYZ file");

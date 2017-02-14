@@ -6,6 +6,8 @@
 #include <vector>
 #include "chunk.h"
 #include "../client/particle.h"
+#include "../client/clientstate.h"
+
 class State : public QObject
 {
     Q_OBJECT
@@ -15,17 +17,16 @@ public:
     ~State();
     const std::vector<IdentifiableParticle> &allParticles() const;
     void sortChunks(QVector3D point);
-    void placeParticlesInChunks(float chunkSize, int lodLevels);
-    void addParticles(const std::vector<QVector3D> &positions, const std::vector<int> types, QVector3D origo, QVector3D size);
-    void addParticle(QVector3D position, int type);
+    void placeParticlesInChunks(ClientState &clientState);
+    void addParticles(const std::vector<QVector3D> &positions, const std::vector<QString> types, QVector3D origo, QVector3D size);
+    void addParticle(QVector3D position, QString type);
     void setNumberOfParticles(int numberOfParticles);
     void reset();
+    void save();
     std::vector<Chunk *> chunkPtrs() const;
     void setParticleStyles(const QMap<QString, struct ParticleStyle *> &particleStyles);
-
     QVector3D origo() const;
     void setOrigo(const QVector3D &origo);
-
     QVector3D size() const;
     void setSize(const QVector3D &size);
     QMap<QString, ParticleStyle *> &particleStyles();
