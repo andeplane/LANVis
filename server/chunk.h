@@ -2,6 +2,7 @@
 #define CHUNK_H
 
 #include "../client/particle.h"
+#include "../client/clientstate.h"
 #include <QVector>
 #include <vector>
 #include <random>
@@ -19,7 +20,7 @@ public:
     void sort(const QVector3D &point, const std::vector<IdentifiableParticle> &particles, int lod);
     std::vector<QVector3D> &corners();
     std::vector<int> &particleIndices(int lod);
-    void buildLOD(int levels, std::mt19937 &generator, std::uniform_real_distribution<float> &distribution);
+    void buildLOD(ClientState &clientState, std::mt19937 &generator, std::uniform_real_distribution<float> &distribution);
 
 private:
     std::vector<QVector3D> m_corners;

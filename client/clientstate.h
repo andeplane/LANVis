@@ -17,6 +17,7 @@ class ClientState : public QObject
     Q_PROPERTY(int numThreads READ numThreads WRITE setNumThreads NOTIFY numThreadsChanged)
     Q_PROPERTY(int timestep READ timestep WRITE setTimestep NOTIFY timestepChanged)
     Q_PROPERTY(bool enableTransparency READ enableTransparency WRITE setEnableTransparency NOTIFY enableTransparencyChanged)
+    Q_PROPERTY(float lodFalloff READ lodFalloff WRITE setLodFalloff NOTIFY lodFalloffChanged)
     Q_PROPERTY(QString fileName READ fileName WRITE setFileName NOTIFY fileNameChanged)
     Q_PROPERTY(ServerSettings* serverSettings READ serverSettings WRITE setServerSettings NOTIFY serverSettingsChanged)
 public:
@@ -41,6 +42,8 @@ public:
     int timestep() const;
     bool enableTransparency() const;
 
+    float lodFalloff() const;
+
 signals:
     void cameraPositionChanged(QVector3D cameraPosition);
     void maxNumberOfParticlesChanged(int maxNumberOfParticles);
@@ -54,6 +57,8 @@ signals:
     void timestepChanged(int timestep);
     void enableTransparencyChanged(bool enableTransparency);
 
+    void lodFalloffChanged(float lodFalloff);
+
 public slots:
     void setCameraPosition(QVector3D cameraPosition);
     void setMaxNumberOfParticles(int maxNumberOfParticles);
@@ -66,6 +71,8 @@ public slots:
     void setNumThreads(int numThreads);
     void setTimestep(int timestep);
     void setEnableTransparency(bool enableTransparency);
+
+    void setLodFalloff(float lodFalloff);
 
 private:
     bool m_dirty;
@@ -82,6 +89,7 @@ private:
     int m_numThreads;
     int m_timestep;
     bool m_enableTransparency;
+    float m_lodFalloff;
 };
 
 #endif // CLIENTSTATE_H

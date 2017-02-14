@@ -110,7 +110,15 @@ void State::placeParticlesInChunks(ClientState &clientState)
 
     qDebug() << "Building LOD with " << clientState.lodLevels() << " levels";
     for(Chunk &chunk : m_chunks) {
-        chunk.buildLOD(clientState.lodLevels(), generator, distribution);
+        chunk.buildLOD(clientState, generator, distribution);
+    }
+
+    for(int lod=0; lod<clientState.lodLevels(); lod++) {
+        int numParticles = 0;
+        for(Chunk &chunk : m_chunks) {
+            numParticles += chunk.particleIndices(lod).size();
+        }
+        qDebug() << "Found " << numParticles << " for lod level " << lod;
     }
     clientState.setChunksDirty(false);
 

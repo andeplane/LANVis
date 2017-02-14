@@ -13,7 +13,7 @@ ClientState::ClientState(QObject *parent) : QObject(parent),
     m_dirty(false), m_chunksDirty(false), m_particlesDirty(false), m_maxNumberOfParticles(-1), m_sort(true),
     m_chunkSize(-1), m_lodDistance(250), m_lodLevels(0),
     m_serverSettings(new ServerSettings(this)), m_numThreads(4),
-    m_timestep(0), m_enableTransparency(false)
+    m_timestep(0), m_enableTransparency(false), m_lodFalloff(0.5)
 {
 
 }
@@ -33,6 +33,7 @@ void ClientState::save()
     json["timestep"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_timestep));
     json["chunkSize"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_chunkSize));
     json["lodDistance"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodDistance));
+    json["lodFalloff"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodFalloff));
     json["cameraPosition"] = array;
     json["sort"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_sort));
     json["enableTransparency"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_enableTransparency));
@@ -70,6 +71,7 @@ bool ClientState::load()
     int maxNumberOfParticles = obj["maxNumberOfParticles"].toInt();
     float chunkSize = obj["chunkSize"].toDouble();
     float lodDistance = obj["lodDistance"].toDouble();
+    float lodFalloff = obj["lodFalloff"].toDouble();
     int lodLevels = obj["lodLevels"].toInt();
     bool sort = obj["sort"].toBool();
     int timestep = obj["timestep"].toInt();
@@ -81,7 +83,8 @@ bool ClientState::load()
     newCameraPositon[1] = arr[1].toDouble();
     newCameraPositon[2] = arr[2].toDouble();
     float distanceToOldPositionSquared = (newCameraPositon - m_cameraPosition).lengthSquared();
-    bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0 || fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
+    bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0 || fabs(m_lodDistance-lodDistance)>1.0 ||
+            lodLevels != m_lodLevels || lodFalloff != m_lodFalloff;
 
     bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles ||
             m_sort != sort || m_timestep != timestep || m_enableTransparency != enableTransparency ||
@@ -95,6 +98,7 @@ bool ClientState::load()
     m_sort = sort;
 
     if(chunksDirty) {
+        m_lodFalloff = lodFalloff;
         m_lodLevels = lodLevels;
         m_lodDistance = lodDistance;
         m_chunkSize = chunkSize;
@@ -240,6 +244,16 @@ void ClientState::setEnableTransparency(bool enableTransparency)
     emit enableTransparencyChanged(enableTransparency);
 }
 
+void ClientState::setLodFalloff(float lodFalloff)
+{
+    if (m_lodFalloff == lodFalloff)
+        return;
+
+    setDirty(true);
+    m_lodFalloff = lodFalloff;
+    emit lodFalloffChanged(lodFalloff);
+}
+
 bool ClientState::dirty() const
 {
     return m_dirty;
@@ -268,6 +282,11 @@ int ClientState::timestep() const
 bool ClientState::enableTransparency() const
 {
     return m_enableTransparency;
+}
+
+float ClientState::lodFalloff() const
+{
+    return m_lodFalloff;
 }
 
 void ClientState::setParticlesDirty(bool particlesDirty)

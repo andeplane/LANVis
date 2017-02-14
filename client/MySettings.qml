@@ -62,6 +62,23 @@ Rectangle {
             }
         }
         Label {
+            text: "LOD falloff: "+lodFalloff.value.toFixed(2)
+        }
+        QQC1.Slider {
+            id: lodFalloff
+            height: 20
+            minimumValue: 0.01
+            maximumValue: 1
+            stepSize: 0.01
+            value: scene.simulator.clientState.lodFalloff
+
+            Binding {
+                target: scene.simulator.clientState
+                property: "lodFalloff"
+                value: lodFalloff.value
+            }
+        }
+        Label {
             width: 100
             text: "Chunk size: "+chunkSize.value.toFixed(0)
         }

@@ -55,14 +55,14 @@ std::vector<QVector3D> &Chunk::corners()
     return m_corners;
 }
 
-void Chunk::buildLOD(int levels, std::mt19937 &generator, std::uniform_real_distribution<float> &distribution)
+void Chunk::buildLOD(ClientState &clientState, std::mt19937 &generator, std::uniform_real_distribution<float> &distribution)
 {
-    if(levels==0) return;
+    if(clientState.lodLevels()==0) return;
 
-    m_particleIndices.resize(levels+1);
+    m_particleIndices.resize(clientState.lodLevels()+1);
 
-    for(int lod=1; lod<levels; lod++) {
-        float p = pow(0.75, lod);
+    for(int lod=1; lod<clientState.lodLevels(); lod++) {
+        float p = pow(clientState.lodFalloff(), lod);
         int numParticles = m_particleIndices[0].size();
 
         m_particleIndices[lod].reserve(numParticles*p);
