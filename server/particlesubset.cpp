@@ -193,18 +193,24 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         }
         m_particles[i].position = particle.position;
         m_particles[i].radius = radius;
+
+        if(!clientState.enableTransparency()) {
+            m_particles[i].color[3] = 1.0;
+        }
     }
 
-    qDebug() << "Processing finished after " << t.restart() << " ms. Now sorting based on alpha";
-    std::sort(m_particles.begin(), m_particles.end(),
-              [&](ColoredParticle &a, ColoredParticle &b)
-    {
-        float da = (a.position - clientState.cameraPosition()).lengthSquared();
-        float db = (b.position - clientState.cameraPosition()).lengthSquared();
-        if(a.color[3] == 1.0 && b.color[3] == 1.0) {
-            return da < db;
-        }
-        return da > db;
-    });
-    qDebug() << "Sorting took " << t.elapsed() << " ms.";
+    if(clientState.enableTransparency()) {
+        qDebug() << "Processing finished after " << t.restart() << " ms. Now sorting based on alpha";
+        std::sort(m_particles.begin(), m_particles.end(),
+                  [&](ColoredParticle &a, ColoredParticle &b)
+        {
+            float da = (a.position - clientState.cameraPosition()).lengthSquared();
+            float db = (b.position - clientState.cameraPosition()).lengthSquared();
+            if(a.color[3] == 1.0 && b.color[3] == 1.0) {
+                return da < db;
+            }
+            return da > db;
+        });
+        qDebug() << "Sorting took " << t.elapsed() << " ms.";
+    }
 }

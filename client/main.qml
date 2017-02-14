@@ -144,6 +144,11 @@ ApplicationWindow {
     }
 
     Shortcut {
+        sequence: "T"
+        onActivated: scene.simulator.clientState.enableTransparency = !scene.simulator.clientState.enableTransparency
+    }
+
+    Shortcut {
         sequence: "-"
         onActivated: rCutSlider.value -= 20
     }

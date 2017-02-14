@@ -13,7 +13,7 @@ ClientState::ClientState(QObject *parent) : QObject(parent),
     m_dirty(false), m_chunksDirty(false), m_particlesDirty(false), m_maxNumberOfParticles(-1), m_sort(true),
     m_chunkSize(-1), m_lodDistance(250), m_lodLevels(0),
     m_serverSettings(new ServerSettings(this)), m_numThreads(4),
-    m_timestep(0)
+    m_timestep(0), m_enableTransparency(false)
 {
 
 }
@@ -35,6 +35,8 @@ void ClientState::save()
     json["lodDistance"] = QJsonValue::fromVariant(QVariant::fromValue<float>(m_lodDistance));
     json["cameraPosition"] = array;
     json["sort"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_sort));
+    json["enableTransparency"] = QJsonValue::fromVariant(QVariant::fromValue<bool>(m_enableTransparency));
+
     json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<double>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
     QJsonObject serverSettings;
     m_serverSettings->save(serverSettings);
@@ -71,6 +73,7 @@ bool ClientState::load()
     int lodLevels = obj["lodLevels"].toInt();
     bool sort = obj["sort"].toBool();
     int timestep = obj["timestep"].toInt();
+    bool enableTransparency = obj["enableTransparency"].toBool();
     m_numThreads = obj["numThreads"].toInt();
 
     QVector3D newCameraPositon;
@@ -81,10 +84,11 @@ bool ClientState::load()
     bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0 || fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
 
     bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles ||
-            m_sort != sort || m_timestep != timestep
-            || chunksDirty;
+            m_sort != sort || m_timestep != timestep || m_enableTransparency != enableTransparency ||
+            chunksDirty;
     if(!anyChanges) return true;
 
+    m_enableTransparency = enableTransparency;
     m_timestep = timestep;
     m_maxNumberOfParticles = maxNumberOfParticles;
     m_cameraPosition = newCameraPositon;
@@ -226,6 +230,16 @@ void ClientState::setTimestep(int timestep)
     emit timestepChanged(timestep);
 }
 
+void ClientState::setEnableTransparency(bool enableTransparency)
+{
+    if (m_enableTransparency == enableTransparency)
+        return;
+
+    setDirty(true);
+    m_enableTransparency = enableTransparency;
+    emit enableTransparencyChanged(enableTransparency);
+}
+
 bool ClientState::dirty() const
 {
     return m_dirty;
@@ -249,6 +263,11 @@ int ClientState::numThreads() const
 int ClientState::timestep() const
 {
     return m_timestep;
+}
+
+bool ClientState::enableTransparency() const
+{
+    return m_enableTransparency;
 }
 
 void ClientState::setParticlesDirty(bool particlesDirty)
