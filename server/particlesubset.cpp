@@ -53,4 +53,17 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         particleCount += chunk->particleIndices(lod).size();
         if(particleCount > clientState.maxNumberOfParticles()) break;
     }
+
+    m_particles.resize(m_particleIndices.size());
+    const std::vector<IdentifiableParticle> &particles = state.allParticles();
+    for(size_t i=0; i<m_particles.size(); i++) {
+        int particleIndex = m_particleIndices[i];
+        const IdentifiableParticle &particle = particles[particleIndex];
+
+        QVector3D color(1.0, 0.0, 0.0);
+        float radius = 1.0;
+        m_particles[i].color = color;
+        m_particles[i].position = particle.position;
+        m_particles[i].radius = radius;
+    }
 }
