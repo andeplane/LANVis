@@ -11,7 +11,6 @@ void Chunk::reset()
     for(size_t i=0; i<m_particleIndices.size(); i++) {
         m_particleIndices[i].clear();
     }
-    m_particleIndices.clear();
 }
 
 float Chunk::minDistanceTo(const QVector3D &point) const

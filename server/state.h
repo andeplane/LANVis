@@ -18,12 +18,13 @@ public:
     void sortChunks(QVector3D point);
     void placeParticlesInChunks(ClientState &clientState);
     void addParticles(const std::vector<QVector3D> &positions, const std::vector<QString> types, QVector3D origo, QVector3D size);
-    void addParticle(QVector3D position, QString type);
+    void addParticle(QVector3D position, QString type, std::vector<float> particleProperties = {});
     void setNumberOfParticles(int numberOfParticles);
     void reset();
     void save();
     std::vector<Chunk *> chunkPtrs() const;
     void setParticleStyles(const QMap<QString, struct ParticleStyle *> &particleStyles);
+    void setParticlePropertyNames(QStringList particlePropertyNames);
     QVector3D origo() const;
     void setOrigo(const QVector3D &origo);
     QVector3D size() const;
@@ -42,6 +43,8 @@ private:
     std::vector<Chunk>    m_chunks;
     std::vector<Chunk*>   m_chunkPtrs;
     std::vector<IdentifiableParticle> m_allParticles;
+    std::vector<std::vector<float>> m_particleProperties;
+    QStringList m_particlePropertyNames;
     void setupChunks();
 };
 

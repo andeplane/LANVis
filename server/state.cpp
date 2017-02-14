@@ -131,25 +131,27 @@ void State::addParticles(const std::vector<QVector3D> &positions, const std::vec
     m_size = size;
 }
 
-void State::addParticle(QVector3D position, QString type)
+void State::addParticle(QVector3D position, QString type, std::vector<float> particleProperties)
 {
-    QVector3D color(1.0, 0.0, 0.0);
-//    float radius = 1.0;
-//    QString typeKey = QString("%1").arg(type);
-//    if(m_particleStyles.contains(typeKey)) {
-//        const QColor &qcolor = m_particleStyles[typeKey]->color;
-//        color[0] = qcolor.redF();
-//        color[1] = qcolor.greenF();
-//        color[2] = qcolor.blueF();
-//        radius = m_particleStyles[typeKey]->radius;
-//    }
     int index = m_allParticles.size(); // The current size will be index of this particle
     m_allParticles.push_back(IdentifiableParticle(position, type, index));
+    if(particleProperties.size() > 0) {
+        m_particleProperties.push_back(particleProperties);
+    }
+
 }
 
 void State::setNumberOfParticles(int numberOfParticles)
 {
     m_allParticles.reserve(numberOfParticles);
+    if(m_particlePropertyNames.size() > 0) {
+        m_particleProperties.reserve(numberOfParticles);
+    }
+}
+
+void State::setParticlePropertyNames(QStringList particlePropertyNames)
+{
+    m_particlePropertyNames = particlePropertyNames;
 }
 
 void State::reset()

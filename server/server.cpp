@@ -1,7 +1,6 @@
 #include "lammpsbinaryreader.h"
 #include "server.h"
 #include "xyzbinaryreader.h"
-#include "xyzreader.h"
 #include "import/importers.h"
 
 #include <cmath>
@@ -20,133 +19,110 @@ Server::Server() : m_lockFileName("/projects/tmp/lanvis.lock"), m_currentState(n
     m_clientState.setFileName("/projects/tmp/client.json");
 }
 
-bool Server::loadXYZ(QString fileName)
-{
-    XYZReader reader;
-    bool success = reader.readFile(fileName);
-    if(!success) return false;
-    const std::vector<QVector3D> &positions = reader.positions();
-    const std::vector<QString>   &types     = reader.types();
+//void Server::loadXYZBinary(QString fileName)
+//{
+////    XYZBinaryReader reader;
+////    bool success = reader.readFile(fileName);
+////    if(!success) return;
+////    auto &columns = reader.columns();
 
-    qDebug() << "Creating new state";
-    m_states.clear();
-    State *state = new State();
-    m_states.push_back(state);
-    qDebug() << "Adding particles";
-    state->addParticles(positions, types, reader.origo(), reader.size());
-    qDebug() << "Placing particles in chunks";
-    state->placeParticlesInChunks(m_clientState);
-    m_currentState = state;
+////    m_allParticles.resize(reader.numParticles());
+////    QVector3D min(columns[1][0], columns[2][0], columns[3][0]); // type x y z ...
+////    QVector3D max(columns[1][0], columns[2][0], columns[3][0]);
+////    int numKeepParticles = 0;
+////    for(size_t particleIndex=0; particleIndex<m_allParticles.size(); particleIndex++) {
+////        QVector3D position;
+////        int type = int(columns[0][particleIndex]);
+////        float x = columns[1][particleIndex];
+////        float y = columns[2][particleIndex];
+////        float z = columns[3][particleIndex];
+////        float occupancy = columns[4][particleIndex];
+////        float beta = columns[5][particleIndex];
 
-    return true;
-}
+////        if(z > 40 && z < 80) {
+////            float radius = 1.0;
+////            QVector3D color(1.0, 0.9, 0.8);
+////            position[0] = x;
+////            position[1] = y;
+////            position[2] = z;
 
-void Server::loadXYZBinary(QString fileName)
-{
-//    XYZBinaryReader reader;
-//    bool success = reader.readFile(fileName);
-//    if(!success) return;
-//    auto &columns = reader.columns();
+////            QString typeStr = QString("%1").arg(type);
+////            if(m_particleStyles.contains(typeStr)) {
+////                radius   = m_particleStyles[typeStr]->radius;
+////                color[0] = m_particleStyles[typeStr]->color.redF();
+////                color[1] = m_particleStyles[typeStr]->color.greenF();
+////                color[2] = m_particleStyles[typeStr]->color.blueF();
+////            }
+////            if(type==4 || type==6) {
+////                if(beta>0.5) {
+////                    color = QVector3D(0.8,0.8,0.8);
+////                    radius *= 1.9;
+////                } else {
+////                    float occupancyScale = occupancy;
+////                    if(occupancyScale>2.0) occupancyScale = 2.0;
+////                    if(occupancyScale<0.0) occupancyScale = 0.0;
+////                    color[1] *= 0.5*0.5*occupancyScale + 0.5;
+////                    color[2] *= 0.5*0.5*occupancyScale + 0.5;
+////                }
+////            }
 
-//    m_allParticles.resize(reader.numParticles());
-//    QVector3D min(columns[1][0], columns[2][0], columns[3][0]); // type x y z ...
-//    QVector3D max(columns[1][0], columns[2][0], columns[3][0]);
-//    int numKeepParticles = 0;
-//    for(size_t particleIndex=0; particleIndex<m_allParticles.size(); particleIndex++) {
-//        QVector3D position;
-//        int type = int(columns[0][particleIndex]);
-//        float x = columns[1][particleIndex];
-//        float y = columns[2][particleIndex];
-//        float z = columns[3][particleIndex];
-//        float occupancy = columns[4][particleIndex];
-//        float beta = columns[5][particleIndex];
+////            m_allParticles[numKeepParticles].color = color;
+////            m_allParticles[numKeepParticles].radius = radius;
+////            m_allParticles[numKeepParticles].position = position;
+////            min[0] = std::min(min[0], position[0]);
+////            max[0] = std::max(max[0], position[0]);
+////            min[1] = std::min(min[1], position[1]);
+////            max[1] = std::max(max[1], position[1]);
+////            min[2] = std::min(min[2], position[2]);
+////            max[2] = std::max(max[2], position[2]);
+////            numKeepParticles++;
+////        }
+////    }
+////    m_allParticles.resize(numKeepParticles);
+////    qDebug() << "We now have " << numKeepParticles << " particles";
+////    m_origo = min;
+////    m_size = max - min;
+////    placeParticleInChunks();
+//}
 
-//        if(z > 40 && z < 80) {
-//            float radius = 1.0;
-//            QVector3D color(1.0, 0.9, 0.8);
-//            position[0] = x;
-//            position[1] = y;
-//            position[2] = z;
+//void Server::loadLAMMPSBinary(QString fileName)
+//{
+////    LAMMPSBinaryReader reader;
+////    reader.readFile(fileName);
+////    const std::vector<QVector3D> &positions = reader.positions();
+////    const std::vector<int>       &types     = reader.types();
+////    qDebug() << "Found " << reader.positions().size() << " particles.";
 
-//            QString typeStr = QString("%1").arg(type);
-//            if(m_particleStyles.contains(typeStr)) {
-//                radius   = m_particleStyles[typeStr]->radius;
-//                color[0] = m_particleStyles[typeStr]->color.redF();
-//                color[1] = m_particleStyles[typeStr]->color.greenF();
-//                color[2] = m_particleStyles[typeStr]->color.blueF();
-//            }
-//            if(type==4 || type==6) {
-//                if(beta>0.5) {
-//                    color = QVector3D(0.8,0.8,0.8);
-//                    radius *= 1.9;
-//                } else {
-//                    float occupancyScale = occupancy;
-//                    if(occupancyScale>2.0) occupancyScale = 2.0;
-//                    if(occupancyScale<0.0) occupancyScale = 0.0;
-//                    color[1] *= 0.5*0.5*occupancyScale + 0.5;
-//                    color[2] *= 0.5*0.5*occupancyScale + 0.5;
-//                }
-//            }
+////    State *state = new State();
+////    m_states.push_back(state);
+////    m_currentState = state;
+////    m_currentState->reset();
+////    m_currentState->addParticles(positions, types, reader.origo(), reader.size());
+////    m_currentState->placeParticlesInChunks(m_chunkSize, m_lodLevels);
+//}
 
-//            m_allParticles[numKeepParticles].color = color;
-//            m_allParticles[numKeepParticles].radius = radius;
-//            m_allParticles[numKeepParticles].position = position;
-//            min[0] = std::min(min[0], position[0]);
-//            max[0] = std::max(max[0], position[0]);
-//            min[1] = std::min(min[1], position[1]);
-//            max[1] = std::max(max[1], position[1]);
-//            min[2] = std::min(min[2], position[2]);
-//            max[2] = std::max(max[2], position[2]);
-//            numKeepParticles++;
-//        }
-//    }
-//    m_allParticles.resize(numKeepParticles);
-//    qDebug() << "We now have " << numKeepParticles << " particles";
-//    m_origo = min;
-//    m_size = max - min;
-//    placeParticleInChunks();
-}
-
-void Server::loadLAMMPSBinary(QString fileName)
-{
-//    LAMMPSBinaryReader reader;
-//    reader.readFile(fileName);
-//    const std::vector<QVector3D> &positions = reader.positions();
-//    const std::vector<int>       &types     = reader.types();
-//    qDebug() << "Found " << reader.positions().size() << " particles.";
-
-//    State *state = new State();
-//    m_states.push_back(state);
-//    m_currentState = state;
-//    m_currentState->reset();
-//    m_currentState->addParticles(positions, types, reader.origo(), reader.size());
-//    m_currentState->placeParticlesInChunks(m_chunkSize, m_lodLevels);
-}
-
-void Server::loadLAMMPSTextDump(QString fileName)
-{
-//    LAMMPSTextDumpReader reader;
-//    reader.readFile(fileName, m_states);
-//    qDebug() << "Did read " << m_states.size() << " timesteps. Now placing in chunks.";
-//    for(State *state : m_states) {
-//        state->placeParticlesInChunks(m_chunkSize, m_lodLevels);
-//    }
-//    m_currentState = m_states.front();
-}
+//void Server::loadLAMMPSTextDump(QString fileName)
+//{
+////    LAMMPSTextDumpReader reader;
+////    reader.readFile(fileName, m_states);
+////    qDebug() << "Did read " << m_states.size() << " timesteps. Now placing in chunks.";
+////    for(State *state : m_states) {
+////        state->placeParticlesInChunks(m_chunkSize, m_lodLevels);
+////    }
+////    m_currentState = m_states.front();
+//}
 
 bool Server::loadFile()
 {
     if(m_clientState.serverSettings()->inputFileType()=="xyz") {
         qDebug() << "File type is XYZ";
-        m_currentState = nullptr;
-        bool success = XYZImporter::readFile(m_clientState.serverSettings()->inputFile(), m_states);
-        if(success) {
-            for(State *state : m_states) {
-                state->placeParticlesInChunks(m_clientState);
-            }
-        }
-        return success;
+        return XYZImporter::readFile(m_clientState.serverSettings()->inputFile(), m_states, m_clientState);
+    } else if(m_clientState.serverSettings()->inputFileType()=="xyzBinary") {
+        qDebug() << "File type is binary XYZ";
+        return XYZBinaryImporter::readFile(m_clientState.serverSettings()->inputFile(), m_states, m_clientState);
     }
+
+    qDebug() << "Could not find inputFileType in client.json";
     return false;
 }
 
@@ -231,19 +207,22 @@ bool Server::update()
     QElapsedTimer t;
     t.start();
 
-    if(m_settings.inputFile()!=m_clientState.serverSettings()->inputFile() || m_settings.inputFileType()!=m_clientState.serverSettings()->inputFileType()) {
+
+    if(m_settings!=*m_clientState.serverSettings()) {
         qDebug() << "New input file or input file type, loading file.";
         reset();
 
         bool success = loadFile();
         if(success) {
-            m_clientState.setChunksDirty(true);
-            m_clientState.setParticlesDirty(true);
             m_settings.setInputFile(m_clientState.serverSettings()->inputFile());
             m_settings.setInputFileType(m_clientState.serverSettings()->inputFileType());
+            m_settings.setPropertyNames(m_clientState.serverSettings()->propertyNames());
+            m_clientState.setParticlesDirty(true);
+
             qDebug() << "Loading " << m_settings.inputFile() << " took " << t.restart() << " ms.";
         }
     }
+
     if(m_clientState.timestep() >= 0 && m_clientState.timestep() < m_states.size()) {
         m_currentState = m_states[m_clientState.timestep()];
     } else return true;

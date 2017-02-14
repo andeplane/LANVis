@@ -14,7 +14,6 @@ class Server
 {
 public:
     Server();
-    bool loadXYZ(QString fileName);
     void loadXYZBinary(QString fileName);
     void loadLAMMPSBinary(QString fileName);
     void loadLAMMPSTextDump(QString fileName);

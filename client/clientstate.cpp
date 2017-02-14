@@ -78,10 +78,11 @@ bool ClientState::load()
     newCameraPositon[1] = arr[1].toDouble();
     newCameraPositon[2] = arr[2].toDouble();
     float distanceToOldPositionSquared = (newCameraPositon - m_cameraPosition).lengthSquared();
-    bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0;
-    bool lodDirty = fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
+    bool chunksDirty = fabs(m_chunkSize-chunkSize)>1.0 || fabs(m_lodDistance-lodDistance)>1.0 || lodLevels != m_lodLevels;
 
-    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles || m_sort != sort || chunksDirty || lodDirty || m_timestep != timestep;
+    bool anyChanges = distanceToOldPositionSquared > 5 || maxNumberOfParticles!=m_maxNumberOfParticles ||
+            m_sort != sort || m_timestep != timestep
+            || chunksDirty;
     if(!anyChanges) return true;
 
     m_timestep = timestep;
@@ -89,12 +90,13 @@ bool ClientState::load()
     m_cameraPosition = newCameraPositon;
     m_sort = sort;
 
-    if(chunksDirty || lodDirty) {
+    if(chunksDirty) {
         m_lodLevels = lodLevels;
         m_lodDistance = lodDistance;
         m_chunkSize = chunkSize;
         m_chunksDirty = true;
     }
+
     m_particlesDirty = true;
     return true;
 }

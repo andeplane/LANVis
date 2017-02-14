@@ -8,7 +8,6 @@ QMAKE_LFLAGS += -fopenmp
 # DEFINES += _GLIBCXX_PARALLEL
 SOURCES += \
     main.cpp \
-    xyzreader.cpp \
     server.cpp \
     particlestyle.cpp \
     lammpsbinaryreader.cpp \
@@ -21,10 +20,10 @@ SOURCES += \
     ../client/serversettings.cpp \
     import/xyzimporter.cpp \
     particlesubset.cpp \
-    modifiers/modifier.cpp
+    modifiers/modifier.cpp \
+    import/xyzbinaryimporter.cpp
 
 HEADERS += \
-    xyzreader.h \
     ../client/particle.h \
     server.h \
     particlestyle.h \
@@ -40,4 +39,5 @@ HEADERS += \
     import/xyzimporter.h \
     particlesubset.h \
     modifiers/modifier.h \
-    import/importers.h
+    import/importers.h \
+    import/xyzbinaryimporter.h

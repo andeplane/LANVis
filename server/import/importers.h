@@ -3,4 +3,5 @@
 #include "particleimporter.h"
 #include "lammpstextdumpimporter.h"
 #include "xyzimporter.h"
+#include "xyzbinaryimporter.h"
 #endif // IMPORTERS_H

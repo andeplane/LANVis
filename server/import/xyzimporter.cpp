@@ -14,7 +14,7 @@ bool XYZImporter::doCheckFileFormat(QFile &file)
 
 }
 
-bool XYZImporter::doReadFile(QString fileName, QVector<State*> &states)
+bool XYZImporter::doReadFile(QString fileName, QVector<State*> &states, ClientState &clientState)
 {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -90,6 +90,7 @@ bool XYZImporter::doReadFile(QString fileName, QVector<State*> &states)
                 lineNumberInTimestep = 0;
                 State *state = new State();
                 state->addParticles(positions, types, origo, size);
+                state->placeParticlesInChunks(clientState);
                 states.push_back(state);
 
                 // Next timestep. Skip for now
