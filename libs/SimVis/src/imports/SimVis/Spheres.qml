@@ -67,6 +67,19 @@ Entity {
                             fragmentShaderCode: _fragmentBuilder.finalShader
                             onFragmentShaderCodeChanged: console.log("Got new fragment: ", fragmentShaderCode)
                         }
+
+                        renderStates: [
+                            BlendEquationArguments {
+                                sourceRgb: sourceRgbArg
+                                destinationRgb: destinationRgbArg
+                                sourceAlpha: sourceAlphaArg
+                                destinationAlpha: destinationAlphaArg
+                            },
+                            BlendEquation {
+                                blendFunction: blendFunctionArg
+                            }
+                        ]
+
                         ShaderBuilder {
                             id: _fragmentBuilder
 
