@@ -22,7 +22,7 @@ ApplicationWindow {
         typesFileName: "/projects/tmp/types.json"
         stateFileName: "/projects/tmp/server.json"
         simulator.clientState.fileName: "/projects/tmp/client.json"
-        simulator.clientState.serverSettings.inputFile: "/projects/tmp/sio2_porous.xyz"
+        simulator.clientState.serverSettings.inputFile: "/projects/tmp/sio2_porous_27x.xyz"
         simulator.clientState.serverSettings.inputFileType: "xyz"
 
         renderingQuality: "low"

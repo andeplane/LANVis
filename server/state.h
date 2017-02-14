@@ -1,7 +1,6 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include <QMap>
 #include <QObject>
 #include <vector>
 #include "chunk.h"
@@ -35,7 +34,6 @@ signals:
 public slots:
 
 private:
-    QMap<QString, struct ParticleStyle*> m_particleStyles;
     inline int index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
     int m_nx, m_ny, m_nz;
     float m_chunkSize;
@@ -45,7 +43,6 @@ private:
     std::vector<Chunk*>   m_chunkPtrs;
     std::vector<IdentifiableParticle> m_allParticles;
     void setupChunks();
-    void setDefaultStyles();
 };
 
 #endif // STATE_H
