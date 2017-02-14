@@ -27,17 +27,14 @@ QVector3D XYZReader::size() const
     return m_size;
 }
 
-bool XYZReader::readFile(QString filename)
+bool XYZReader::readFile(QString fileName)
 {
-    QFile file(filename);
+    QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        file.setFileName(QUrl(filename).toLocalFile());
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qWarning() << "Could not open file "+filename;
-            return false;
-        }
+        qWarning() << "Could not open file "+fileName;
+        return false;
     }
-
+    qDebug() << "Opened XYZ file " << fileName;
     QVector3D min(1e9,1e9,1e9);
     QVector3D max(-1e9,-1e9,-1e9);
 
@@ -56,11 +53,11 @@ bool XYZReader::readFile(QString filename)
         if(splitted.count() == 2) {
             bool ok;
             numberOfAtoms = splitted[0].toDouble(&ok);
-
             if(!ok) {
                 qDebug() << QString("Error, tried to read number of atoms, but line '%1' didn't cast well.").arg(line);
                 return false;
             }
+            qDebug() << "Found " << numberOfAtoms << " atoms in file. Now reading positions.";
             m_positions.resize(numberOfAtoms);
             m_types.resize(numberOfAtoms);
         } else if(splitted.count() == 5) {
@@ -93,8 +90,7 @@ bool XYZReader::readFile(QString filename)
         }
     }
     m_origo = min;
-    m_origo = max-min;
-
+    m_size = max-min;
     if(positionCount != m_positions.size()) {
         qDebug() << QString("Error, could not parse XYZ file");
         return false;

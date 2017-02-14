@@ -167,15 +167,18 @@ void State::placeParticlesInChunks(ClientState &clientState)
         numParticles += chunk.particleIndices(0).size();
     }
     qDebug() << "We got " << numParticles << " particles in this state";
-    qDebug() << "All is " << m_allParticles.size() << " particles in this state";
 
     std::random_device rd;
     std::mt19937 generator(rd());
     std::uniform_real_distribution<float> distribution(0, 1);
+
     qDebug() << "Building LOD with " << clientState.lodLevels() << " levels";
     for(Chunk &chunk : m_chunks) {
         chunk.buildLOD(clientState.lodLevels(), generator, distribution);
     }
+    clientState.setChunksDirty(false);
+
+    qDebug() << "Finished with LOD building.";
 }
 
 void State::addParticles(const std::vector<QVector3D> &positions, const std::vector<QString> types, QVector3D origo, QVector3D size)
@@ -229,6 +232,7 @@ void State::reset()
 
 void State::setupChunks()
 {
+    qDebug() << "Setting up chunks";
     m_nx = m_size[0]/m_chunkSize + 1;
     m_ny = m_size[1]/m_chunkSize + 1;
     m_nz = m_size[2]/m_chunkSize + 1;

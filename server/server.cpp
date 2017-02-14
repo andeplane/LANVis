@@ -27,11 +27,16 @@ bool Server::loadXYZ(QString fileName)
     const std::vector<QVector3D> &positions = reader.positions();
     const std::vector<QString>   &types     = reader.types();
 
+    qDebug() << "Creating new state";
     m_states.clear();
     State *state = new State();
     m_states.push_back(state);
+    qDebug() << "Adding particles";
     state->addParticles(positions, types, reader.origo(), reader.size());
+    qDebug() << "Placing particles in chunks";
     state->placeParticlesInChunks(m_clientState);
+    m_currentState = state;
+
     return true;
 }
 
@@ -130,8 +135,8 @@ void Server::loadLAMMPSTextDump(QString fileName)
 
 bool Server::loadFile()
 {
-
     if(m_clientState.serverSettings()->inputFileType()=="xyz") {
+        qDebug() << "File type is XYZ";
         bool success = loadXYZ(m_clientState.serverSettings()->inputFile()); //TODO: rename to fileName
         return success;
     }
@@ -186,6 +191,7 @@ bool Server::update()
     t.start();
 
     if(m_settings.inputFile()!=m_clientState.serverSettings()->inputFile() || m_settings.inputFileType()!=m_clientState.serverSettings()->inputFileType()) {
+        qDebug() << "New input file or input file type, loading file.";
         bool success = loadFile();
         if(success) {
             m_settings.setInputFile(m_clientState.serverSettings()->inputFile());
@@ -194,6 +200,9 @@ bool Server::update()
         }
     }
 
+    if(!m_currentState) {
+        return false;
+    }
 
     if(m_clientState.chunksDirty()) {
         // placeParticleInChunks();
@@ -206,7 +215,10 @@ bool Server::update()
         m_subset.updatePositions(state, m_clientState);
         qDebug() << "Updating positions processing " << state.allParticles().size() << " particles took " << t.restart() << " ms.";
         writePositions();
+        save();
         qDebug() << "Writing " << m_subset.particles().size() << " particles to file took " << t.restart() << " ms.";
+
+        m_clientState.setParticlesDirty(false);
         return true;
     }
 
@@ -225,7 +237,8 @@ void Server::save()
         json["binaryFileName"] = "state.bin";
         json["boundingBoxMin"] = QJsonArray({m_subset.boundingBoxMin().x(), m_subset.boundingBoxMin().y(), m_subset.boundingBoxMin().z()});
         json["boundingBoxMax"] = QJsonArray({m_subset.boundingBoxMax().x(), m_subset.boundingBoxMax().y(), m_subset.boundingBoxMax().z()});
-
+        json["origo"] = QJsonArray({m_currentState->origo().x(), m_currentState->origo().y(), m_currentState->origo().z()});
+        json["size"] = QJsonArray({m_currentState->size().x(), m_currentState->size().y(), m_currentState->size().z()});
         json["numTimesteps"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_states.size()));
 
         QJsonDocument saveObject(json);

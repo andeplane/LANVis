@@ -39,7 +39,7 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         int lod = distance / clientState.lodDistance();
         if(lod > clientState.lodLevels()) lod = clientState.lodLevels();
 
-        if(clientState.sort()) chunk->sort(clientState.cameraPosition(), lod);
+        if(clientState.sort()) chunk->sort(clientState.cameraPosition(), state.allParticles(), lod);
         m_boundingBoxMin[0] = std::min(m_boundingBoxMin[0], chunk->corners()[0][0]);
         m_boundingBoxMin[1] = std::min(m_boundingBoxMin[1], chunk->corners()[0][1]);
         m_boundingBoxMin[2] = std::min(m_boundingBoxMin[2], chunk->corners()[0][2]);
