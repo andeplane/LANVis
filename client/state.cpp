@@ -25,7 +25,7 @@ void State::update(const QJsonObject &object)
     double timestamp = object["timestamp"].toDouble();
     if(timestamp > m_timestamp) {
         bool ok = false;
-        QLockFile lockFile(object["lockFileName"].toString());
+        QLockFile lockFile("/projects/tmp/lock");
 
         if(lockFile.tryLock(200)) {
             QJsonArray boundingBoxMinA = object["boundingBoxMin"].toArray();

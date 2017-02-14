@@ -14,7 +14,7 @@
 #include <random>
 #include <QElapsedTimer>
 
-Server::Server() : m_currentState(nullptr)
+Server::Server() : m_lockFileName("/projects/tmp/lanvis.lock"), m_currentState(nullptr)
 {
     m_clientState.setFileName("/projects/tmp/client.json");
 }
@@ -151,7 +151,7 @@ void Server::writePositions()
         int numBytes = particles.size()*sizeof(ColoredParticle);
         if(numBytes > 0) {
             const char *array = reinterpret_cast<const char*>(&particles.front());
-            QFile file("state.bin");
+            QFile file("/projects/tmp/state.bin");
             if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
                 qDebug() << "Could not open file state.bin";
             }
@@ -234,7 +234,8 @@ void Server::save()
 
         json["timestamp"] = QJsonValue::fromVariant(QVariant::fromValue<double>(QDateTime::currentDateTime().toMSecsSinceEpoch()));
         json["particleCount"] = QJsonValue::fromVariant(QVariant::fromValue<int>(m_subset.particles().size()));
-        json["binaryFileName"] = "state.bin";
+        json["binaryFileName"] = "/projects/tmp/state.bin";
+        json["lockFileName"] = m_lockFileName;
         json["boundingBoxMin"] = QJsonArray({m_subset.boundingBoxMin().x(), m_subset.boundingBoxMin().y(), m_subset.boundingBoxMin().z()});
         json["boundingBoxMax"] = QJsonArray({m_subset.boundingBoxMax().x(), m_subset.boundingBoxMax().y(), m_subset.boundingBoxMax().z()});
         json["origo"] = QJsonArray({m_currentState->origo().x(), m_currentState->origo().y(), m_currentState->origo().z()});
