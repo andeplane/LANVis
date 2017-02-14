@@ -145,7 +145,7 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         if(particleCount > clientState.maxNumberOfParticles()) break;
     }
 
-    qDebug() << "Checking chunks took " << t.restart() << " ms. Now sorting chunk particles.";
+    qDebug() << "Checking chunks took " << t.restart() << " ms. Got " << particleCount << " particles and " << chunks.size() << " chunks. Now sorting chunk particles.";
     if(clientState.sort()) {
 #pragma omp parallel for num_threads(clientState.numThreads())
         for(size_t i=0; i<chunks.size(); i++) {
@@ -188,7 +188,7 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         m_particles[i].color[1] = color.greenF();
         m_particles[i].color[2] = color.blueF();
         m_particles[i].color[3] = color.alphaF();
-        if( (particle.position - QVector3D(250,250,250)).lengthSquared() > 200*200) {
+        if( (particle.position - QVector3D(75,75,75)).lengthSquared() > 50*50) {
             m_particles[i].color[3] *= 0.05;
         }
         m_particles[i].position = particle.position;

@@ -16,6 +16,10 @@ State::State(const State &state)
 
 State::~State()
 {
+    for(Chunk &chunk : m_chunks) {
+        chunk.reset();
+    }
+
     m_chunkPtrs.clear();
     m_chunks.clear();
     m_allParticles.clear();

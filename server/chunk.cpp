@@ -11,6 +11,7 @@ void Chunk::reset()
     for(size_t i=0; i<m_particleIndices.size(); i++) {
         m_particleIndices[i].clear();
     }
+    m_particleIndices.clear();
 }
 
 float Chunk::minDistanceTo(const QVector3D &point) const
@@ -57,6 +58,8 @@ std::vector<QVector3D> &Chunk::corners()
 
 void Chunk::buildLOD(int levels, std::mt19937 &generator, std::uniform_real_distribution<float> &distribution)
 {
+    if(levels==0) return;
+
     m_particleIndices.resize(levels+1);
 
     for(int lod=1; lod<levels; lod++) {

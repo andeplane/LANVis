@@ -80,7 +80,9 @@ bool XYZImporter::doReadFile(QString fileName, QVector<State*> &states)
                 positions[positionCount][1] = y;
                 positions[positionCount][2] = z;
                 positionCount++;
-            } else {
+            }
+
+            if(positionCount==numberOfParticles) {
                 positionCount = 0;
                 origo = min;
                 size = max-min;

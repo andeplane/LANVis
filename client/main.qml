@@ -22,7 +22,7 @@ ApplicationWindow {
         typesFileName: "/projects/tmp/types.json"
         stateFileName: "/projects/tmp/server.json"
         simulator.clientState.fileName: "/projects/tmp/client.json"
-        simulator.clientState.serverSettings.inputFile: "/projects/tmp/sio2_porous_27x.xyz"
+        simulator.clientState.serverSettings.inputFile: "/projects/tmp/sio2_porous.xyz"
         simulator.clientState.serverSettings.inputFileType: "xyz"
 
         renderingQuality: "high"
@@ -38,6 +38,13 @@ ApplicationWindow {
             id: mouseMover
             window: applicationRoot
         }
+    }
+
+    Console {
+        id: cons
+        y: 50
+        width: 300
+        height: 300
     }
 
     MouseArea {
@@ -158,13 +165,6 @@ ApplicationWindow {
         radius: 5
         width: 200
         y: 50
-    }
-
-    Console {
-        id: cons
-        y: 50
-        width: 300
-        height: 300
     }
 
     Rectangle {

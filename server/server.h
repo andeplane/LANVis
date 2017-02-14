@@ -28,6 +28,7 @@ public:
     const ParticleSubset &subset() const;
 
 private:
+    void reset();
     ClientState m_clientState;
     QString m_lockFileName;
 

@@ -139,7 +139,13 @@ bool Server::loadFile()
     if(m_clientState.serverSettings()->inputFileType()=="xyz") {
         qDebug() << "File type is XYZ";
         m_currentState = nullptr;
-        return XYZImporter::readFile(m_clientState.serverSettings()->inputFile(), m_states);
+        bool success = XYZImporter::readFile(m_clientState.serverSettings()->inputFile(), m_states);
+        if(success) {
+            for(State *state : m_states) {
+                state->placeParticlesInChunks(m_clientState);
+            }
+        }
+        return success;
     }
     return false;
 }
@@ -209,6 +215,15 @@ void Server::save()
     }
 }
 
+void Server::reset()
+{
+    for(State *state : m_states) {
+        delete state;
+    }
+    m_states.clear();
+    m_currentState = nullptr;
+}
+
 bool Server::update()
 {
     bool clientFileExists = m_clientState.load();
@@ -218,22 +233,23 @@ bool Server::update()
 
     if(m_settings.inputFile()!=m_clientState.serverSettings()->inputFile() || m_settings.inputFileType()!=m_clientState.serverSettings()->inputFileType()) {
         qDebug() << "New input file or input file type, loading file.";
+        reset();
+
         bool success = loadFile();
         if(success) {
+            m_clientState.setChunksDirty(true);
+            m_clientState.setParticlesDirty(true);
             m_settings.setInputFile(m_clientState.serverSettings()->inputFile());
             m_settings.setInputFileType(m_clientState.serverSettings()->inputFileType());
             qDebug() << "Loading " << m_settings.inputFile() << " took " << t.restart() << " ms.";
         }
     }
-
-    if(!m_currentState) {
-        if(m_clientState.timestep() >= 0 && m_clientState.timestep() < m_states.size()) {
-            m_currentState = m_states[m_clientState.timestep()];
-        }
-        return false;
-    }
+    if(m_clientState.timestep() >= 0 && m_clientState.timestep() < m_states.size()) {
+        m_currentState = m_states[m_clientState.timestep()];
+    } else return true;
 
     if(m_clientState.chunksDirty()) {
+        qDebug() << "Chunks are dirty";
         for(State *state : m_states) {
             state->placeParticlesInChunks(m_clientState);
         }
@@ -241,6 +257,7 @@ bool Server::update()
     }
 
     if(m_clientState.particlesDirty()) {
+        qDebug() << "Particles are dirty";
         State &state = *m_currentState;
         m_subset.updatePositions(state, m_clientState);
         qDebug() << "Updating positions processing " << state.allParticles().size() << " particles took " << t.restart() << " ms.";
