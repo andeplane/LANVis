@@ -65,18 +65,8 @@ Entity {
                             vertexShaderCode: loadSource(vertexLowQualityShaderSourceFile)
                             geometryShaderCode: loadSource(geometryLowQualityShaderSourceFile)
                             fragmentShaderCode: _fragmentBuilder.finalShader
+                            onFragmentShaderCodeChanged: console.log("Got new fragment: ", fragmentShaderCode)
                         }
-                        renderStates: [
-                            BlendEquationArguments {
-                                sourceRgb: sourceRgbArg
-                                destinationRgb: destinationRgbArg
-                                sourceAlpha: sourceAlphaArg
-                                destinationAlpha: destinationAlphaArg
-                            },
-                            BlendEquation {
-                                blendFunction: blendFunctionArg
-                            }
-                        ]
                         ShaderBuilder {
                             id: _fragmentBuilder
 
@@ -116,7 +106,7 @@ Entity {
                                 name: "sphereId"
                                 result: "sphereId"
                             }
-                            // sourceFile: spheresRoot.quality==="high" ? fragmentHighQualityShaderSourceFile : fragmentLowQualityShaderSourceFile
+
                             sourceFile: fragmentLowQualityShaderSourceFile
                             outputs: [
                                 ShaderOutput {
@@ -125,6 +115,11 @@ Entity {
                                     name: "fragColor"
                                     value: StandardMaterial {
                                         color: _fragmentBuilder.color
+                                    }
+                                    onValueChanged: {
+                                        _fragmentBuilder.markDirty()
+                                        _fragmentBuilder.rebuildShader()
+                                        console.log("Changed in here too...")
                                     }
                                 }
                             ]

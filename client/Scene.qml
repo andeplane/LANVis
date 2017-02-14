@@ -28,6 +28,7 @@ Scene3D {
     property alias typesFileName: simulator.typesFileName
     property alias light: light
     property string renderingQuality: "high"
+    onRenderingQualityChanged: console.log("Here too: ", renderingQuality)
     property vector3d nearestPoint: Qt.vector3d(0,0,0)
     property real distanceToNearestPoint: camera.position.minus(nearestPoint).length()
 
@@ -140,8 +141,6 @@ Scene3D {
             camera: visualizer.camera
             sphereData: simulator.state.particles.sphereData
             fragmentColor: {
-//                if(flyModeController.moving) return fragmentBuilder.normalDotCamera
-//                else
                 if(root.renderingQuality==="high") return spheresHighQuality
                 else return fragmentBuilder.normalDotCamera
             }

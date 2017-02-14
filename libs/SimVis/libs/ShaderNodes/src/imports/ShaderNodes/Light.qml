@@ -3,7 +3,7 @@ import ShaderNodes 1.0
 ShaderNode {
     // TODO split light into multiple functions available for different materials (should perhaps be on each material?)
 
-    property var color: "white"
+    property var color: Qt.rgba(1.0,1.0,1.0,1.0)
     property var strength: 1.0
     property var position: Qt.vector3d(0.0, 0.0, 0.0)
 
@@ -15,7 +15,7 @@ ShaderNode {
     name: "light"
     type: "Light"
     source: "
-$this.color = $(color, vec3);
+$this.color = $(color, vec4);
 $this.strength = $(strength, float);
 $this.position = (vec4($(position, vec3), 1.0)).xyz;
 $this.attenuation = $(attenuation, float);

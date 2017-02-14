@@ -188,9 +188,9 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
         m_particles[i].color[1] = color.greenF();
         m_particles[i].color[2] = color.blueF();
         m_particles[i].color[3] = color.alphaF();
-//        if( (particle.position - QVector3D(75,75,75)).lengthSquared() > 50*50) {
-//            m_particles[i].color[3] *= 0.5;
-//        }
+        if( (particle.position - QVector3D(75,75,75)).lengthSquared() > 50*50) {
+            m_particles[i].color[3] *= 0.5;
+        }
         m_particles[i].position = particle.position;
         m_particles[i].radius = radius;
     }

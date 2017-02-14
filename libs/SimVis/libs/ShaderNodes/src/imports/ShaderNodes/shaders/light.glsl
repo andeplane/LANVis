@@ -2,7 +2,7 @@
 #define SHADER_NODES_LIGHT_GLSL
 
 struct Light {
-    highp vec3 color;
+    highp vec4 color;
     highp float strength;
     highp vec3 position;
     highp float attenuation;

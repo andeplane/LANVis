@@ -25,7 +25,7 @@ ApplicationWindow {
         simulator.clientState.serverSettings.inputFile: "/projects/tmp/sio2_porous_27x.xyz"
         simulator.clientState.serverSettings.inputFileType: "xyz"
 
-        renderingQuality: "low"
+        renderingQuality: "high"
         anchors.fill: parent
         focus: true
         Component.onCompleted: {
@@ -149,6 +149,7 @@ ApplicationWindow {
             } else {
                 scene.renderingQuality = "high"
             }
+            console.log("Rendering quality: ", scene.renderingQuality)
         }
     }
 

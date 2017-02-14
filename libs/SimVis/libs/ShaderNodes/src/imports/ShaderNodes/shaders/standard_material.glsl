@@ -23,7 +23,7 @@ highp vec3 standardMaterialLight(highp Light light, highp vec3 vnormal, highp ve
 
     /* DIFFUSE */
     highp float diffuseCoefficient1 = max(0.0, dot(normal, surfaceToLight));
-    lightVector += light.color*light.strength*diffuseColor.rgb*diffuseCoefficient1*diffuseIntensity*attenuationFactor;
+    lightVector += light.color.rgb*light.strength*diffuseColor.rgb*diffuseCoefficient1*diffuseIntensity*attenuationFactor;
 
     /* SPECULAR */
     highp vec3  reflectionVector = reflect(-surfaceToLight, normal);
@@ -31,7 +31,7 @@ highp vec3 standardMaterialLight(highp Light light, highp vec3 vnormal, highp ve
     highp float normFactor = (hardness + 2.0) / 2.0;
     // normFactor *= (cosAngle < 3.1415) ? 1.0 : 0.0;
     highp float specularCoefficient = pow(max(cosAngle, 0.0), hardness);
-    lightVector += normFactor*light.color*light.strength*specularColor.rgb*specularCoefficient*specularIntensity*attenuationFactor;
+    lightVector += normFactor*light.color.rgb*light.strength*specularColor.rgb*specularCoefficient*specularIntensity*attenuationFactor;
 
    /* RETURN GAMMA CORRECTED COMBINED */
    return gamma(lightVector, light.gamma);
