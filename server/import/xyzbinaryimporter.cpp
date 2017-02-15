@@ -75,6 +75,7 @@ bool XYZBinaryImporter::doReadFile(QString fileName, QVector<State *> &states, C
     QVector3D size = max-min;
     state->setOrigo(origo);
     state->setSize(size);
+    state->applyModifiers(clientState);
     state->placeParticlesInChunks(clientState);
     bytes.clear();
     return true;

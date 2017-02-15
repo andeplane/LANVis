@@ -2,6 +2,7 @@
 #include "server.h"
 #include "xyzbinaryreader.h"
 #include "import/importers.h"
+#include "modifiers/modifiers.h"
 
 #include <cmath>
 #include <QDebug>

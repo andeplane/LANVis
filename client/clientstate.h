@@ -41,7 +41,6 @@ public:
     int numThreads() const;
     int timestep() const;
     bool enableTransparency() const;
-
     float lodFalloff() const;
 
 signals:
@@ -56,7 +55,6 @@ signals:
     void numThreadsChanged(int numThreads);
     void timestepChanged(int timestep);
     void enableTransparencyChanged(bool enableTransparency);
-
     void lodFalloffChanged(float lodFalloff);
 
 public slots:
@@ -71,7 +69,6 @@ public slots:
     void setNumThreads(int numThreads);
     void setTimestep(int timestep);
     void setEnableTransparency(bool enableTransparency);
-
     void setLodFalloff(float lodFalloff);
 
 private:

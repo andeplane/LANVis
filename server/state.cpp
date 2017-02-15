@@ -1,6 +1,8 @@
 #include "state.h"
 #include "particlestyle.h"
+#include "modifiers/modifiers.h"
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QFile>
 
 State::State(QObject *parent) : QObject(parent),
@@ -75,7 +77,7 @@ void State::placeParticlesInChunks(ClientState &clientState)
         chunk.reset();
     }
 
-    for(int particleIndex=0; particleIndex < m_allParticles.size(); particleIndex++) {
+    for(size_t particleIndex=0; particleIndex < m_allParticles.size(); particleIndex++) {
         IdentifiableParticle &particle = m_allParticles[particleIndex];
 
         // Apply periodic boundary conditions
@@ -151,6 +153,8 @@ void State::addParticle(QVector3D position, QString type, std::vector<float> par
 
 void State::setNumberOfParticles(int numberOfParticles)
 {
+    m_selected.reserve(numberOfParticles);
+    m_particleIndices.reserve(numberOfParticles);
     m_allParticles.reserve(numberOfParticles);
     if(m_particlePropertyNames.size() > 0) {
         m_particleProperties.reserve(numberOfParticles);
@@ -174,6 +178,34 @@ void State::reset()
     m_chunkSize = 0;
     m_size = QVector3D();
     m_origo = QVector3D();
+}
+
+void State::applyModifiers(ClientState &state)
+{
+    QElapsedTimer t;
+    t.start();
+    SelectionModifier selection;
+    selection.setPropertyName("x");
+    selection.setMin(300);
+    selection.setOperatorName("Greater");
+
+    m_selected.clear();
+    m_selected.resize(m_allParticles.size(), false);
+    m_particleIndices.resize(m_allParticles.size());
+
+    qDebug() << "Initial things: " << t.restart();
+    std::iota (std::begin(m_particleIndices), std::end(m_particleIndices), 0); // Fill with 0, 1, ..., N-1.
+    qDebug() << "Filling indices: " << t.restart();
+    qDebug() << "I had " << m_particleIndices.size() << " particles.";
+    selection.apply(*this, m_particleIndices, m_selected);
+    qDebug() << "Applying: " << t.restart();
+
+    DeleteSelected del;
+    del.apply(*this, m_particleIndices, m_selected);
+    qDebug() << "Deleting: " << t.restart();
+    qDebug() << "Now I have " << m_particleIndices.size() << " particles.";
+    state.setChunksDirty(true);
+    state.setParticlesDirty(true);
 }
 
 void State::setupChunks()

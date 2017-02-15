@@ -11,7 +11,7 @@ XYZImporter::XYZImporter()
 
 bool XYZImporter::doCheckFileFormat(QFile &file)
 {
-
+    // TODO: implement this
 }
 
 bool XYZImporter::doReadFile(QString fileName, QVector<State*> &states, ClientState &clientState)

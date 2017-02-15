@@ -129,7 +129,8 @@ void ParticleSubset::updatePositions(State &state, const ClientState &clientStat
     std::vector<Chunk*> chunks;
     for(Chunk *chunk : state.chunkPtrs()) {
         float distance = chunk->minDistanceTo(clientState.cameraPosition());
-        int lod = distance / clientState.lodDistance();
+        int lod = log2(distance / clientState.lodDistance());
+        if(lod<0) lod=0;
         if(lod > clientState.lodLevels()) lod = clientState.lodLevels();
 
         m_boundingBoxMin[0] = std::min(m_boundingBoxMin[0], chunk->corners()[0][0]);

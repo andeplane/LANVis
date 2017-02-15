@@ -30,12 +30,13 @@ public:
     QVector3D size() const;
     void setSize(const QVector3D &size);
     QMap<QString, ParticleStyle *> &particleStyles();
+    void applyModifiers(ClientState &state);
 signals:
 
 public slots:
 
 private:
-    inline int index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
+    inline size_t index(const int &i, const int &j, const int &k) { return i*m_ny*m_nz + j*m_nz + k; }
     int m_nx, m_ny, m_nz;
     float m_chunkSize;
     QVector3D m_origo;
@@ -43,6 +44,8 @@ private:
     std::vector<Chunk>    m_chunks;
     std::vector<Chunk*>   m_chunkPtrs;
     std::vector<IdentifiableParticle> m_allParticles;
+    std::vector<bool> m_selected;
+    std::vector<int> m_particleIndices;
     std::vector<std::vector<float>> m_particleProperties;
     QStringList m_particlePropertyNames;
     void setupChunks();

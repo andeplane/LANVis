@@ -1,5 +1,5 @@
 TEMPLATE = app
-CONFIG += console c++14
+CONFIG += console c++17
 CONFIG -= app_bundle
 
 INCLUDEPATH += /usr/local/lib
@@ -21,7 +21,9 @@ SOURCES += \
     import/xyzimporter.cpp \
     particlesubset.cpp \
     modifiers/modifier.cpp \
-    import/xyzbinaryimporter.cpp
+    import/xyzbinaryimporter.cpp \
+    modifiers/selectionmodifier.cpp \
+    modifiers/deleteselected.cpp
 
 HEADERS += \
     ../client/particle.h \
@@ -40,4 +42,7 @@ HEADERS += \
     particlesubset.h \
     modifiers/modifier.h \
     import/importers.h \
-    import/xyzbinaryimporter.h
+    import/xyzbinaryimporter.h \
+    modifiers/selectionmodifier.h \
+    modifiers/deleteselected.h \
+    modifiers/modifiers.h
